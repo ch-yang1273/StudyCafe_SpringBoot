@@ -1,7 +1,8 @@
 package asc.portfolio.ascSb.domain.product;
 
-import asc.portfolio.ascSb.domain.cafe.CafeRepository;
-import asc.portfolio.ascSb.domain.user.UserRepository;
+import asc.portfolio.ascSb.cafe.domain.CafeRepository;
+import asc.portfolio.ascSb.product.domain.ProductRepository;
+import asc.portfolio.ascSb.user.domain.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;

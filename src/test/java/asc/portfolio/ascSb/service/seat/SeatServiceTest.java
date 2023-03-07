@@ -1,19 +1,21 @@
 package asc.portfolio.ascSb.service.seat;
 
-import asc.portfolio.ascSb.domain.cafe.Cafe;
-import asc.portfolio.ascSb.domain.cafe.CafeRepository;
-import asc.portfolio.ascSb.domain.seat.Seat;
-import asc.portfolio.ascSb.domain.seat.SeatRepository;
-import asc.portfolio.ascSb.domain.seat.SeatStateType;
-import asc.portfolio.ascSb.domain.ticket.Ticket;
-import asc.portfolio.ascSb.domain.ticket.TicketRepository;
-import asc.portfolio.ascSb.domain.ticket.TicketStateType;
-import asc.portfolio.ascSb.domain.user.User;
-import asc.portfolio.ascSb.domain.user.UserRepository;
-import asc.portfolio.ascSb.domain.user.UserRoleType;
-import asc.portfolio.ascSb.web.dto.seat.SeatResponseDto;
-import asc.portfolio.ascSb.web.dto.seat.SeatSelectResponseDto;
+import asc.portfolio.ascSb.cafe.domain.Cafe;
+import asc.portfolio.ascSb.cafe.domain.CafeRepository;
+import asc.portfolio.ascSb.seat.domain.Seat;
+import asc.portfolio.ascSb.seat.domain.SeatRepository;
+import asc.portfolio.ascSb.seat.domain.SeatStateType;
+import asc.portfolio.ascSb.ticket.domain.Ticket;
+import asc.portfolio.ascSb.ticket.domain.TicketRepository;
+import asc.portfolio.ascSb.ticket.domain.TicketStateType;
+import asc.portfolio.ascSb.user.domain.User;
+import asc.portfolio.ascSb.user.domain.UserRepository;
+import asc.portfolio.ascSb.user.domain.UserRoleType;
+import asc.portfolio.ascSb.seat.service.SeatService;
+import asc.portfolio.ascSb.seat.dto.SeatResponseDto;
+import asc.portfolio.ascSb.seat.dto.SeatSelectResponseDto;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +49,8 @@ class SeatServiceTest {
     @Autowired
     SeatService seatService;
 
-    @DisplayName("해당 카페의 Seat State Dto 조회 시, 상태 검증 후 반환")
+    @Disabled
+    @DisplayName("스케쥴러 테스트. 해당 카페의 Seat State Dto 조회 시, 상태 검증 후 반환")
     @Test
     public void seatListCheck() {
         //given

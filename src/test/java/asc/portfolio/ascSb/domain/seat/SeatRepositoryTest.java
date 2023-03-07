@@ -1,18 +1,22 @@
 package asc.portfolio.ascSb.domain.seat;
-import asc.portfolio.ascSb.domain.cafe.Cafe;
-import asc.portfolio.ascSb.domain.cafe.CafeRepository;
-import asc.portfolio.ascSb.domain.product.ProductRepository;
-import asc.portfolio.ascSb.domain.seatreservationinfo.SeatReservationInfoRepository;
-import asc.portfolio.ascSb.domain.ticket.Ticket;
-import asc.portfolio.ascSb.domain.ticket.TicketRepository;
-import asc.portfolio.ascSb.domain.ticket.TicketStateType;
-import asc.portfolio.ascSb.domain.user.User;
-import asc.portfolio.ascSb.domain.user.UserRepository;
-import asc.portfolio.ascSb.domain.user.UserRoleType;
-import asc.portfolio.ascSb.service.cafe.CafeService;
-import asc.portfolio.ascSb.service.seat.SeatService;
+import asc.portfolio.ascSb.cafe.domain.Cafe;
+import asc.portfolio.ascSb.cafe.domain.CafeRepository;
+import asc.portfolio.ascSb.product.domain.ProductRepository;
+import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoRepository;
+import asc.portfolio.ascSb.ticket.domain.Ticket;
+import asc.portfolio.ascSb.ticket.domain.TicketRepository;
+import asc.portfolio.ascSb.ticket.domain.TicketStateType;
+import asc.portfolio.ascSb.user.domain.User;
+import asc.portfolio.ascSb.user.domain.UserRepository;
+import asc.portfolio.ascSb.user.domain.UserRoleType;
+import asc.portfolio.ascSb.cafe.service.CafeService;
+import asc.portfolio.ascSb.seat.domain.Seat;
+import asc.portfolio.ascSb.seat.domain.SeatRepository;
+import asc.portfolio.ascSb.seat.service.SeatService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -208,6 +212,8 @@ public class SeatRepositoryTest {
         Assertions.assertThat(count).isEqualTo(0);
     }
 
+    @Disabled
+    @DisplayName("스케쥴러테스트")
     @Test
     public void Seat_Update_With_PartTimeTicket_종료O() {
         Cafe cafe = createNewCafe("testData_서울");

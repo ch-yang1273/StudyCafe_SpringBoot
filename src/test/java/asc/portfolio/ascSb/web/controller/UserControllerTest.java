@@ -1,14 +1,14 @@
 package asc.portfolio.ascSb.web.controller;
 
-import asc.portfolio.ascSb.domain.cafe.CafeRepository;
-import asc.portfolio.ascSb.domain.product.ProductRepository;
-import asc.portfolio.ascSb.domain.seat.SeatRepository;
-import asc.portfolio.ascSb.domain.seatreservationinfo.SeatReservationInfoRepository;
-import asc.portfolio.ascSb.domain.ticket.TicketRepository;
-import asc.portfolio.ascSb.domain.user.User;
-import asc.portfolio.ascSb.domain.user.UserRepository;
-import asc.portfolio.ascSb.web.dto.user.UserLoginRequestDto;
-import asc.portfolio.ascSb.web.dto.user.UserSignupDto;
+import asc.portfolio.ascSb.cafe.domain.CafeRepository;
+import asc.portfolio.ascSb.product.domain.ProductRepository;
+import asc.portfolio.ascSb.seat.domain.SeatRepository;
+import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoRepository;
+import asc.portfolio.ascSb.ticket.domain.TicketRepository;
+import asc.portfolio.ascSb.user.domain.User;
+import asc.portfolio.ascSb.user.domain.UserRepository;
+import asc.portfolio.ascSb.user.dto.UserLoginRequestDto;
+import asc.portfolio.ascSb.user.dto.UserSignupDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

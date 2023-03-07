@@ -1,7 +1,9 @@
 package asc.portfolio.ascSb.domain.cafe;
 
 
-import asc.portfolio.ascSb.web.dto.cafe.CafeResponseDto;
+import asc.portfolio.ascSb.cafe.domain.Cafe;
+import asc.portfolio.ascSb.cafe.domain.CafeRepository;
+import asc.portfolio.ascSb.cafe.dto.CafeResponseDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,11 +21,12 @@ public class CafeRepositoryTest {
     @Test
     public void Cafe_카페생성기() {
 
-        Cafe cafe = new Cafe();
-        cafe.setBusinessHour(24);
-        cafe.setCafeArea("서울");
-        cafe.setCafeName("알라딘스터디카페");
-        cafe.setCafeState("Y");
+        Cafe cafe = Cafe.builder()
+                .businessHour(24)
+                .cafeArea("서울")
+                .cafeName("알라딘스터디카페")
+                .cafeState("Y")
+                .build();
 
         cafeRepository.save(cafe);
     }
