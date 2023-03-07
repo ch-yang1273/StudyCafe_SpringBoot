@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 public class UserLoginResponseDto {
 
-  UserRoleType roleType;
-  String accessToken;
-  String refreshToken;
+    UserRoleType roleType;
+    String accessToken;
+    String refreshToken;
 }

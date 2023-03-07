@@ -12,19 +12,19 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class UserLoginRequestDto {
 
-  @Schema(description = "아이디", example = "tUser_A_login")
-  @NotBlank
-  @Length(min = 8, max = 16)
-  private String loginId;
+    @Schema(description = "아이디", example = "tUser_A_login")
+    @NotBlank
+    @Length(min = 8, max = 16)
+    private String loginId;
 
-  @Schema(description = "패스워드", example = "tUser_A_password")
-  @NotBlank
-  @Length(min = 8)
-  private String password;
+    @Schema(description = "패스워드", example = "tUser_A_password")
+    @NotBlank
+    @Length(min = 8)
+    private String password;
 
-  @Builder
-  public UserLoginRequestDto(String loginId, String password) {
-    this.loginId = loginId;
-    this.password = password;
-  }
+    @Builder
+    public UserLoginRequestDto(String loginId, String password) {
+        this.loginId = loginId;
+        this.password = password;
+    }
 }
