@@ -1,4 +1,4 @@
-package asc.portfolio.ascSb.web.controller;
+package asc.portfolio.ascSb.user.controller;
 
 import asc.portfolio.ascSb.cafe.domain.CafeRepository;
 import asc.portfolio.ascSb.product.domain.ProductRepository;
@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -58,7 +59,7 @@ class UserControllerTest {
   @Autowired
   private ObjectMapper objectMapper;
 
-  @AfterEach
+  @BeforeEach
   public void clearRepository2() {
     //참조 무결설 제약 위반 Exception 해결을 위해 Seat DB도 초기화
     productRepository.deleteAllInBatch();
@@ -165,8 +166,6 @@ class UserControllerTest {
 
     //then
     assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-    User findUser = userRepository.findByLoginId(loginId).orElseThrow();
   }
 
   @Test

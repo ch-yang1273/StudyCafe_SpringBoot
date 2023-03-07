@@ -16,17 +16,18 @@ import javax.validation.constraints.NotBlank;
 public class UserSignupDto {
 
   @Schema(description = "아이디", example = "testUserId")
-  @NotBlank
+  @NotBlank(message = "로그인 아이디는 필수 입력 값입니다.")
   @Length(min = 8, max = 16)
   private String loginId;
 
   @Schema(description = "패스워드", example = "abcdef123456")
-  @NotBlank
+  @NotBlank(message = "비밀번호는 필수 입력 값입니다.")
   @Length(min = 8)
   private String password;
 
   @Schema(description = "이메일", example = "ascProject@gmail.com")
-  @Email
+  @NotBlank(message = "이메일은 필수 입력 값입니다.")
+  @Email(message = "이메일 형식으로 입력해주세요.")
   private String email;
 
   @Schema(description = "이름", example = "testUserName")

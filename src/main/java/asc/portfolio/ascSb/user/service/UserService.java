@@ -2,12 +2,15 @@ package asc.portfolio.ascSb.user.service;
 
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.dto.*;
+import org.springframework.validation.BindingResult;
 
 public interface UserService {
 
-  Long signUp(UserSignupDto signUpDto) throws Exception;
+  void signUp(UserSignupDto signUpDto);
 
-  UserLoginResponseDto checkPassword(String loginId, String password);
+    String validateSingUp(BindingResult bindingResult);
+
+    UserLoginResponseDto checkPassword(String loginId, String password);
 
   User checkAccessToken(String jwt);
 
@@ -17,5 +20,5 @@ public interface UserService {
 
   UserForAdminResponseDto AdminCheckUserInfo(String userId);
 
-  boolean checkLoginId(String userLoginId);
+  void checkLoginId(String userLoginId);
 }

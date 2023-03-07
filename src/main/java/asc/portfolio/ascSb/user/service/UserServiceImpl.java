@@ -6,15 +6,22 @@ import asc.portfolio.ascSb.user.domain.UserRepository;
 import asc.portfolio.ascSb.common.auth.loginutil.LoginUtil;
 import asc.portfolio.ascSb.common.auth.jwt.JwtService;
 import asc.portfolio.ascSb.user.dto.*;
+import asc.portfolio.ascSb.user.exception.UnknownUserException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -31,17 +38,31 @@ public class UserServiceImpl implements UserService {
   private final LoginUtil loginUtil;
 
   @Override
-  public Long signUp(UserSignupDto signUpDto) {
+  public void signUp(UserSignupDto signUpDto) {
 
     try {
       // id와 pw를 이용한 암호화
       signUpDto.setPassword(loginUtil.encryptPassword(signUpDto.getLoginId(), signUpDto.getPassword()));
-      return userRepository.save(signUpDto.toEntity()).getId();
-    } catch (Exception e) {
-      log.error("비밀번호 암호화 실패");
-      e.printStackTrace();
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
     }
-    return null;
+
+    userRepository.save(signUpDto.toEntity());
+  }
+
+  @Override
+  public String validateSingUp(BindingResult bindingResult) {
+    Map<String, String> map = new HashMap<>();
+    for (FieldError error : bindingResult.getFieldErrors()) {
+      map.put(error.getField(), error.getDefaultMessage());
+    }
+
+    ObjectMapper mapper = new ObjectMapper();
+    try {
+      return mapper.writeValueAsString(map);
+    } catch (JsonProcessingException ex) {
+      return "error";
+    }
   }
 
   @Override
@@ -55,8 +76,7 @@ public class UserServiceImpl implements UserService {
       }
     }
 
-    log.error("비밀번호 혹은 아이디가 일치 하지 않습니다.");
-    return null;
+    throw new UnknownUserException();
   }
 
   @Override
@@ -125,11 +145,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public boolean checkLoginId(String userLoginId) {
-    Optional<User> isValidUser = userRepository.findByLoginId(userLoginId);
-    if (isValidUser.isPresent()) {
-      return true;
-    }
-    return false;
+  public void checkLoginId(String userLoginId) {
+    userRepository.findByLoginId(userLoginId).orElseThrow(() -> new UnknownUserException());
   }
 }
