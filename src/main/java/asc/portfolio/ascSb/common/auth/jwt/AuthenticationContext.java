@@ -12,9 +12,9 @@ import org.springframework.web.context.annotation.RequestScope;
 @Setter
 public class AuthenticationContext {
 
-  private User principal;
+    private User principal;
 
-  public boolean isExist() {
-    return principal != null;
-  }
+    public boolean isExist() {
+        return principal != null;
+    }
 }

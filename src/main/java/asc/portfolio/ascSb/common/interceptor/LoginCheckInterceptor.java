@@ -21,40 +21,40 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class LoginCheckInterceptor implements HandlerInterceptor {
 
-  private final AuthenticationContext authenticationContext;
+    private final AuthenticationContext authenticationContext;
 
-  private final UserService userService;
+    private final UserService userService;
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-  @Override
-  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-    String jwt = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String jwt = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-    try {
-      User findUser = userService.checkAccessToken(jwt);
+        try {
+            User findUser = userService.checkAccessToken(jwt);
 
-      log.info("Authorized User={}", findUser.getLoginId());
-      authenticationContext.setPrincipal(findUser);
+            log.info("Authorized User={}", findUser.getLoginId());
+            authenticationContext.setPrincipal(findUser);
 
-      // Controller 진행
-      return true;
-    } catch (JwtException e) {
-      log.debug("Unauthorized access = {}", request.getRequestURL());
+            // Controller 진행
+            return true;
+        } catch (JwtException e) {
+            log.debug("Unauthorized access = {}", request.getRequestURL());
 
-      response.setContentType("application/json");
-      response.setCharacterEncoding("utf-8");
-      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("utf-8");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-      Map<String, String> map = new HashMap<>();
-      map.put("message", e.getMessage());
-      String result = objectMapper.writeValueAsString(map);
+            Map<String, String> map = new HashMap<>();
+            map.put("message", e.getMessage());
+            String result = objectMapper.writeValueAsString(map);
 
-      response.getWriter().write(result);
+            response.getWriter().write(result);
 
-      // Controller 진행 중지
-      return false;
+            // Controller 진행 중지
+            return false;
+        }
     }
-  }
 }
