@@ -4,20 +4,15 @@ import asc.portfolio.ascSb.common.infra.redis.RedisRepository;
 import asc.portfolio.ascSb.user.domain.PasswordEncoder;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
-import asc.portfolio.ascSb.user.infra.MessageDigestPasswordEncoder;
 import asc.portfolio.ascSb.common.auth.jwt.JwtService;
 import asc.portfolio.ascSb.user.dto.*;
 import asc.portfolio.ascSb.user.exception.UnknownUserException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 
 import java.util.*;
 
@@ -44,32 +39,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String validateSingUp(BindingResult bindingResult) {
-        Map<String, String> map = new HashMap<>();
-        for (FieldError error : bindingResult.getFieldErrors()) {
-            map.put(error.getField(), error.getDefaultMessage());
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(map);
-        } catch (JsonProcessingException ex) {
-            return "error";
-        }
-    }
-
-    @Override
     public UserLoginResponseDto checkPassword(String loginId, String password) {
-        Optional<User> invalidUser = userRepository.findByLoginId(loginId);
-        if (invalidUser.isPresent()) {
-            User validUser = invalidUser.get();
-            // id, pw를 통해 암호화된 pw를 확인
-            if (Objects.equals(validUser.getPassword(), passwordEncoder.encryptPassword(loginId, password))) {
-                return jwtService.createTokenWithLogin(validUser);
-            }
-        }
+        User targetUser = userRepository.findByLoginId(loginId).orElseThrow(() -> new UnknownUserException());
+        targetUser.checkPassword(passwordEncoder, loginId, password);
 
-        throw new UnknownUserException();
+        return jwtService.createTokenWithLogin(targetUser);
     }
 
     @Override

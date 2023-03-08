@@ -5,6 +5,8 @@ import asc.portfolio.ascSb.user.domain.UserRoleType;
 import asc.portfolio.ascSb.common.auth.jwt.LoginUser;
 import asc.portfolio.ascSb.user.dto.*;
 import asc.portfolio.ascSb.user.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,9 +14,12 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -30,10 +35,24 @@ public class UserController {
         return new ResponseEntity<>("Invalid jwt", HttpStatus.UNAUTHORIZED);
     }
 
+    private String validateSingUpDto(BindingResult bindingResult) {
+        Map<String, String> map = new HashMap<>();
+        for (FieldError error : bindingResult.getFieldErrors()) {
+            map.put(error.getField(), error.getDefaultMessage());
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writeValueAsString(map);
+        } catch (JsonProcessingException ex) {
+            throw new RuntimeException("JsonProcessingException", ex);
+        }
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<String> singUp(@RequestBody @Valid UserSignupDto signUpDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return new ResponseEntity<>(userService.validateSingUp(bindingResult), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(validateSingUpDto(bindingResult), HttpStatus.BAD_REQUEST);
         }
 
         try {
@@ -46,12 +65,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserLoginResponseDto> login(@RequestBody @Valid UserLoginRequestDto loginDto, BindingResult bindingResult)
-            throws Exception {
-        if (bindingResult.hasErrors()) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-
+    public ResponseEntity<UserLoginResponseDto> login(@RequestBody @Valid UserLoginRequestDto loginDto) {
         UserLoginResponseDto loginRespDto = userService.checkPassword(loginDto.getLoginId(), loginDto.getPassword());
         return new ResponseEntity<>(loginRespDto, HttpStatus.OK);
     }
