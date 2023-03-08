@@ -2,9 +2,9 @@ package asc.portfolio.ascSb.common.interceptor;
 
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.common.auth.jwt.AuthenticationContext;
+import asc.portfolio.ascSb.user.exception.TokenException;
 import asc.portfolio.ascSb.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -30,17 +30,17 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        String jwt = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         try {
-            User findUser = userService.checkAccessToken(jwt);
+            User findUser = userService.checkAccessToken(token);
 
             log.info("Authorized User={}", findUser.getLoginId());
             authenticationContext.setPrincipal(findUser);
 
             // Controller 진행
             return true;
-        } catch (JwtException e) {
+        } catch (TokenException e) {
             log.debug("Unauthorized access = {}", request.getRequestURL());
 
             response.setContentType("application/json");

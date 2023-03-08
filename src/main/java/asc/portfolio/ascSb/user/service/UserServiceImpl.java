@@ -2,13 +2,11 @@ package asc.portfolio.ascSb.user.service;
 
 import asc.portfolio.ascSb.common.infra.redis.RedisRepository;
 import asc.portfolio.ascSb.user.domain.PasswordEncoder;
+import asc.portfolio.ascSb.user.domain.TokenService;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
-import asc.portfolio.ascSb.common.auth.jwt.JwtService;
 import asc.portfolio.ascSb.user.dto.*;
 import asc.portfolio.ascSb.user.exception.UnknownUserException;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,11 +22,11 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    private final JwtService jwtService;
-
     private final RedisRepository redisRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final TokenService tokenService;
 
     @Override
     public void signUp(UserSignupDto signUpDto) {
@@ -38,34 +36,50 @@ public class UserServiceImpl implements UserService {
         userRepository.save(newUser);
     }
 
+    private UserLoginResponseDto createTokenResponse(User user) {
+        String accessToken = tokenService.createAccessToken(user.getLoginId());
+        String refreshToken = tokenService.createRefreshToken();
+
+        return UserLoginResponseDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .roleType(user.getRole())
+                .build();
+    }
+
     @Override
     public UserLoginResponseDto checkPassword(String loginId, String password) {
         User targetUser = userRepository.findByLoginId(loginId).orElseThrow(() -> new UnknownUserException());
         targetUser.checkPassword(passwordEncoder, loginId, password);
 
-        return jwtService.createTokenWithLogin(targetUser);
+        UserLoginResponseDto result = createTokenResponse(targetUser);
+
+        //todo : 추상화
+        redisRepository.saveValue(targetUser.getLoginId(), result.getRefreshToken(), tokenService.getRefreshTime());
+
+        return result;
     }
 
     @Override
-    public User checkAccessToken(String jwt) {
-        if ((jwt == null) || jwt.isBlank()) {
-            throw new JwtException("jwt = null");
+    public User checkAccessToken(String token) {
+        if ((token == null) || token.isBlank()) {
+            throw new IllegalArgumentException("token = " + token);
         }
 
-        String[] jwtSplit = jwt.split(" ");
-        if ((jwtSplit.length == 2) && (jwtSplit[0].equals("Bearer"))) {
-            jwt = jwtSplit[1];
+        String[] tokenSplit = token.split(" ");
+        if ((tokenSplit.length == 2) && (tokenSplit[0].equals("Bearer"))) {
+            token = tokenSplit[1];
         }
 
-        log.debug("jwt = {}", jwt);
-        String loginId = jwtService.validCheckAndGetSubject(jwt);
+        log.debug("token = {}", token);
+        String loginId = tokenService.validCheckAndGetSubject(token);
 
         return userRepository.findByLoginId(loginId).orElseThrow();
     }
 
     private Boolean isValidRefreshToken(String refreshToken, String loginId) {
         // refresh token 만료 검증 - 실패 시 throw
-        Claims claims = jwtService.validCheckAndGetBody(refreshToken);
+        String subject = tokenService.validCheckAndGetSubject(refreshToken);
 
         // loginId 로 redis 에서 refresh token 검색 및 비교
         String findToken = redisRepository.getValue(loginId);
@@ -78,7 +92,7 @@ public class UserServiceImpl implements UserService {
         String refreshToken = tokenRequestDto.getRefreshToken();
 
         // AccessToken 에서 LoginId (subject) 추출 - 만료 검증 없이
-        String loginId = jwtService.noValidCheckAndGetSubject(accessToken);
+        String loginId = tokenService.noValidCheckAndGetSubject(accessToken);
 
         // refresh token 검증
         log.debug("Retrieve the refresh token from the repository");
@@ -89,7 +103,7 @@ public class UserServiceImpl implements UserService {
         // AccessToken 과 RefreshToken 재발급, refreshToken 저장
         log.debug("Reissue access token");
         User findUser = userRepository.findByLoginId(loginId).orElseThrow();
-        return new UserLoginResponseDto(findUser.getRole(), jwtService.createAccessToken(loginId), refreshToken);
+        return new UserLoginResponseDto(findUser.getRole(), tokenService.createAccessToken(loginId), refreshToken);
     }
 
     @Override

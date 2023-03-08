@@ -4,10 +4,10 @@ import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRoleType;
 import asc.portfolio.ascSb.common.auth.jwt.LoginUser;
 import asc.portfolio.ascSb.user.dto.*;
+import asc.portfolio.ascSb.user.exception.TokenException;
 import asc.portfolio.ascSb.user.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,10 +29,10 @@ public class UserController {
 
     private final UserService userService;
 
-    @ExceptionHandler(JwtException.class)
-    public ResponseEntity<String> jwtExExHandle(JwtException ex) {
-        log.debug("JwtException ex", ex);
-        return new ResponseEntity<>("Invalid jwt", HttpStatus.UNAUTHORIZED);
+    @ExceptionHandler(TokenException.class)
+    public ResponseEntity<String> tokenExExHandle(TokenException ex) {
+        log.debug("TokenException ex", ex);
+        return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
     }
 
     private String validateSingUpDto(BindingResult bindingResult) {

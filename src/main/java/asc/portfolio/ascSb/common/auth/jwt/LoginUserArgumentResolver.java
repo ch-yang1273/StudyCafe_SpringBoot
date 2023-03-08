@@ -1,8 +1,8 @@
 package asc.portfolio.ascSb.common.auth.jwt;
 
 import asc.portfolio.ascSb.user.domain.User;
+import asc.portfolio.ascSb.user.exception.TokenException;
 import asc.portfolio.ascSb.user.service.UserService;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
@@ -46,11 +46,11 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
         } else {
             // LoginCheckInterceptor 제외 된 경로
             log.info("return principal");
-            String jwt = webRequest.getHeader(HttpHeaders.AUTHORIZATION);
+            String token = webRequest.getHeader(HttpHeaders.AUTHORIZATION);
 
             try {
-                return userService.checkAccessToken(jwt);
-            } catch (JwtException e) {
+                return userService.checkAccessToken(token);
+            } catch (TokenException e) {
                 return null;
             }
         }

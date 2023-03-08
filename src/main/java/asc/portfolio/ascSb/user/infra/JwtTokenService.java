@@ -1,9 +1,13 @@
-package asc.portfolio.ascSb.common.auth.jwt;
+package asc.portfolio.ascSb.user.infra;
 
+import asc.portfolio.ascSb.user.domain.TokenService;
+import asc.portfolio.ascSb.user.exception.ExpiredTokenException;
+import asc.portfolio.ascSb.user.exception.TokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,24 +16,17 @@ import java.util.Date;
 
 @Slf4j
 @Component
-public class JwtTokenProvider {
+public class JwtTokenService implements TokenService {
 
     //  private final String secretKey;
     private final Key secretKey;
     private final long expireTime;
     private final long refreshTime;
 
-    public long getExpireTime() {
-        return expireTime;
-    }
-
-    public long getRefreshTime() {
-        return refreshTime;
-    }
-
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey,
-                            @Value("${jwt.expiration-in-seconds}") Long expireTime,
-                            @Value("${jwt.refresh-in-hour}") Long refreshTime) {
+    @Autowired
+    public JwtTokenService(@Value("${jwt.secret}") String secretKey,
+                           @Value("${jwt.expiration-in-seconds}") Long expireTime,
+                           @Value("${jwt.refresh-in-hour}") Long refreshTime) {
 
         final long second = 1_000L;
         final long minute = 60 * second;
@@ -40,6 +37,17 @@ public class JwtTokenProvider {
         this.refreshTime = refreshTime * hour;
     }
 
+    @Override
+    public long getExpireTime() {
+        return expireTime;
+    }
+
+    @Override
+    public long getRefreshTime() {
+        return refreshTime;
+    }
+
+    @Override
     public String createAccessToken(String subject) {
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + expireTime);
@@ -52,6 +60,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    @Override
     public String createRefreshToken() {
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + refreshTime);
@@ -63,7 +72,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public Claims validCheckAndGetBody(String token) {
+    private Claims validCheckAndGetBody(String token) {
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(secretKey)
@@ -72,28 +81,26 @@ public class JwtTokenProvider {
                     .getBody();
         } catch (ExpiredJwtException e) {
             log.debug("만료된 JWT 토큰입니다.");
-            throw new ExpiredJwtException(e.getHeader(), e.getClaims(), "만료된 JWT 토큰입니다.");
+            throw new ExpiredTokenException(e.getClaims().getSubject(), "만료된 JWT 토큰입니다.");
         } catch (JwtException e) {
             log.debug("올바르지 않은 JWT 토큰입니다.");
-            throw new JwtException("올바르지 않은 JWT 토큰입니다.");
+            throw new TokenException("올바르지 않은 JWT 토큰입니다.");
         }
     }
 
-    public Claims noValidCheckAndGetBody(String token) {
-        try {
-            return this.validCheckAndGetBody(token);
-        } catch (ExpiredJwtException e) {
-            return e.getClaims();
-        }
-    }
-
+    @Override
     public String validCheckAndGetSubject(String token) {
         return validCheckAndGetBody(token)
                 .getSubject();
     }
 
+    @Override
     public String noValidCheckAndGetSubject(String token) {
-        return noValidCheckAndGetBody(token)
-                .getSubject();
+        try {
+            return this.validCheckAndGetBody(token)
+                    .getSubject();
+        } catch (ExpiredTokenException e) {
+            return e.getSubject();
+        }
     }
 }
