@@ -2,7 +2,7 @@ package asc.portfolio.ascSb.user.controller;
 
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRoleType;
-import asc.portfolio.ascSb.common.auth.jwt.LoginUser;
+import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.user.dto.*;
 import asc.portfolio.ascSb.user.exception.TokenException;
 import asc.portfolio.ascSb.user.service.UserService;

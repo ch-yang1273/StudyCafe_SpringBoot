@@ -2,7 +2,7 @@ package asc.portfolio.ascSb.common.controller;
 
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.common.auth.jwt.LoginUser;
+import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.common.infra.payment.PaymentService;
 import asc.portfolio.ascSb.order.service.OrderService;
 import asc.portfolio.ascSb.common.infra.bootpay.domain.Bootpay;

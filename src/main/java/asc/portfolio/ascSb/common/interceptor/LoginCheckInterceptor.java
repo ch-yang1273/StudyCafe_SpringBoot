@@ -1,7 +1,7 @@
 package asc.portfolio.ascSb.common.interceptor;
 
 import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.common.auth.jwt.AuthenticationContext;
+import asc.portfolio.ascSb.common.auth.AuthenticationContext;
 import asc.portfolio.ascSb.user.exception.TokenException;
 import asc.portfolio.ascSb.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -4,7 +4,7 @@ package asc.portfolio.ascSb.product.controller;
 import asc.portfolio.ascSb.common.infra.bootpay.domain.Bootpay;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRoleType;
-import asc.portfolio.ascSb.common.auth.jwt.LoginUser;
+import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.order.service.OrderService;
 import asc.portfolio.ascSb.product.service.ProductService;
 import asc.portfolio.ascSb.ticket.service.TicketService;

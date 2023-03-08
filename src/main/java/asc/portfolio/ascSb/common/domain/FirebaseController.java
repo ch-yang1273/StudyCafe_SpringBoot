@@ -2,7 +2,7 @@ package asc.portfolio.ascSb.common.domain;
 
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRoleType;
-import asc.portfolio.ascSb.common.auth.jwt.LoginUser;
+import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.common.infra.fcm.service.FirebaseCloudMessageService;
 import asc.portfolio.ascSb.common.infra.fcm.service.fcmtoken.FCMTokenService;
 import asc.portfolio.ascSb.common.infra.fcm.dto.FCMRequestDto;

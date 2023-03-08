@@ -1,4 +1,4 @@
-package asc.portfolio.ascSb.common.auth.jwt;
+package asc.portfolio.ascSb.common.auth;
 
 import io.swagger.v3.oas.annotations.Parameter;
 

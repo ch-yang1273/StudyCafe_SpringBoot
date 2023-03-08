@@ -2,7 +2,7 @@ package asc.portfolio.ascSb.cafe.controller;
 
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRoleType;
-import asc.portfolio.ascSb.common.auth.jwt.LoginUser;
+import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.cafe.service.CafeService;
 import asc.portfolio.ascSb.seat.service.SeatService;
 import asc.portfolio.ascSb.cafe.dto.CafeResponseDto;

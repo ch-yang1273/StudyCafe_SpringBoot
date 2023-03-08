@@ -1,4 +1,4 @@
-package asc.portfolio.ascSb.common.auth.jwt;
+package asc.portfolio.ascSb.common.auth;
 
 import asc.portfolio.ascSb.user.domain.User;
 import lombok.Getter;

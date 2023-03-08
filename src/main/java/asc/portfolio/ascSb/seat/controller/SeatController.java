@@ -3,7 +3,7 @@ package asc.portfolio.ascSb.seat.controller;
 import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfo;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRoleType;
-import asc.portfolio.ascSb.common.auth.jwt.LoginUser;
+import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.seatreservationinfo.service.SeatReservationInfoService;
 import asc.portfolio.ascSb.seat.dto.SeatResponseDto;
 import asc.portfolio.ascSb.seat.service.SeatService;

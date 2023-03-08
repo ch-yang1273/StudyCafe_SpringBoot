@@ -3,7 +3,7 @@ package asc.portfolio.ascSb.faq.controller;
 
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRoleType;
-import asc.portfolio.ascSb.common.auth.jwt.LoginUser;
+import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.faq.service.FAQService;
 import asc.portfolio.ascSb.faq.dto.FAQRequestDto;
 import asc.portfolio.ascSb.faq.dto.FAQResponseDto;

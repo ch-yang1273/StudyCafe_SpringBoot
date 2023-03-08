@@ -1,5 +1,5 @@
 package asc.portfolio.ascSb.common.config.webconfig;
-import asc.portfolio.ascSb.common.auth.jwt.LoginUserArgumentResolver;
+import asc.portfolio.ascSb.common.auth.LoginUserArgumentResolver;
 import asc.portfolio.ascSb.common.interceptor.LoginCheckInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
