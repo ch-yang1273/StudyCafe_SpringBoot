@@ -60,7 +60,9 @@ public class User extends BaseTimeEntity {
         this.qrCode = createQrString();
     }
 
-    //TODO ChangePassword 따로 만들기.
+    public void encryptPassword(PasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder.encryptPassword(this.loginId, this.password);
+    }
 
     public void changeCafe(Cafe cafe) {
         this.cafe = cafe;

@@ -15,7 +15,7 @@ import asc.portfolio.ascSb.ticket.domain.TicketStateType;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
 import asc.portfolio.ascSb.user.domain.UserRoleType;
-import asc.portfolio.ascSb.common.auth.loginutil.LoginUtil;
+import asc.portfolio.ascSb.user.infra.MessageDigestPasswordEncoder;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -57,7 +57,7 @@ public class TestDataGeneration {
   ProductRepository productRepository;
 
   @Autowired
-  LoginUtil loginUtil;
+  MessageDigestPasswordEncoder messageDigestPasswordEncoder;
 
   //Test Data
   String[] cafeName = {"서울지점", "부산지점", "인천지점", "대전지점", "광주지점", "울산지점"};
@@ -120,7 +120,7 @@ public class TestDataGeneration {
   private void generateUserData() throws Exception {
 
     for (String userString : userName) {
-      String password = loginUtil.encryptPassword(userString + "_login", userString + "_password");
+      String password = messageDigestPasswordEncoder.encryptPassword(userString + "_login", userString + "_password");
       User user = User.builder()
               .loginId(userString + "_login")
               .password(password)
@@ -135,7 +135,7 @@ public class TestDataGeneration {
     //User Data 추가
     for (int i = 0; i < TEST_USER_COUNT_MAX; i++) {
       String userString = "tUser_" + i;
-      String password = loginUtil.encryptPassword(userString + "_login", userString + "_password");
+      String password = messageDigestPasswordEncoder.encryptPassword(userString + "_login", userString + "_password");
       User user = User.builder()
               .loginId(userString + "_login")
               .password(password)
@@ -150,7 +150,7 @@ public class TestDataGeneration {
 
   private void generateAdminUserData() throws Exception {
     String userName = "adminuser";
-    String password = loginUtil.encryptPassword(userName, userName + "_password");
+    String password = messageDigestPasswordEncoder.encryptPassword(userName, userName + "_password");
 
     User user = User.builder()
             .loginId(userName)

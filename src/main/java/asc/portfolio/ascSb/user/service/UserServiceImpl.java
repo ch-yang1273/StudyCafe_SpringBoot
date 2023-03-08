@@ -1,9 +1,10 @@
 package asc.portfolio.ascSb.user.service;
 
 import asc.portfolio.ascSb.common.infra.redis.RedisRepository;
+import asc.portfolio.ascSb.user.domain.PasswordEncoder;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
-import asc.portfolio.ascSb.common.auth.loginutil.LoginUtil;
+import asc.portfolio.ascSb.user.infra.MessageDigestPasswordEncoder;
 import asc.portfolio.ascSb.common.auth.jwt.JwtService;
 import asc.portfolio.ascSb.user.dto.*;
 import asc.portfolio.ascSb.user.exception.UnknownUserException;
@@ -13,9 +14,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -35,19 +33,14 @@ public class UserServiceImpl implements UserService {
 
     private final RedisRepository redisRepository;
 
-    private final LoginUtil loginUtil;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void signUp(UserSignupDto signUpDto) {
+        User newUser = signUpDto.toEntity();
+        newUser.encryptPassword(passwordEncoder);
 
-        try {
-            // id와 pw를 이용한 암호화
-            signUpDto.setPassword(loginUtil.encryptPassword(signUpDto.getLoginId(), signUpDto.getPassword()));
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-
-        userRepository.save(signUpDto.toEntity());
+        userRepository.save(newUser);
     }
 
     @Override
@@ -71,7 +64,7 @@ public class UserServiceImpl implements UserService {
         if (invalidUser.isPresent()) {
             User validUser = invalidUser.get();
             // id, pw를 통해 암호화된 pw를 확인
-            if (Objects.equals(validUser.getPassword(), loginUtil.encryptPassword(loginId, password))) {
+            if (Objects.equals(validUser.getPassword(), passwordEncoder.encryptPassword(loginId, password))) {
                 return jwtService.createTokenWithLogin(validUser);
             }
         }
