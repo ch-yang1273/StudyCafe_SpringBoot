@@ -12,7 +12,6 @@ import asc.portfolio.ascSb.user.dto.UserSignupDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +27,9 @@ import static org.assertj.core.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserControllerTest {
 
-    String signupUrl = "/api/v1/user/signup";
-    String loginUrl = "/api/v1/user/login";
-    String loginCheckUrl = "/api/v1/user/login-check";
+    static final String SIGNUP_URL = "/api/v1/user/signup";
+    static final String LOGIN_URL = "/api/v1/user/login";
+    static final String LOGIN_CHECK_URL = "/api/v1/user/login-check";
 
     @LocalServerPort
     public int port;
@@ -84,10 +83,8 @@ class UserControllerTest {
                 .email(email)
                 .build();
 
-        String url = "http://localhost:" + port + signupUrl;
-
         //when
-        ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, requestDto, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity(SIGNUP_URL, requestDto, String.class);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -111,11 +108,9 @@ class UserControllerTest {
                 .email(email)
                 .build();
 
-        String url = "http://localhost:" + port + signupUrl;
-
         //when
-        ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, requestDto, String.class);
-        ResponseEntity<String> duplicateEntity = restTemplate.postForEntity(url, requestDto, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity(SIGNUP_URL, requestDto, String.class);
+        ResponseEntity<String> duplicateEntity = restTemplate.postForEntity(SIGNUP_URL, requestDto, String.class);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -135,10 +130,8 @@ class UserControllerTest {
                 .email(email)
                 .build();
 
-        String url = "http://localhost:" + port + signupUrl;
-
         //when
-        ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, requestDto, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity(SIGNUP_URL, requestDto, String.class);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -159,10 +152,8 @@ class UserControllerTest {
                 .email(email)
                 .build();
 
-        String url = "http://localhost:" + port + signupUrl;
-
         //when
-        ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, requestDto, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity(SIGNUP_URL, requestDto, String.class);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -186,15 +177,11 @@ class UserControllerTest {
                 .password(password)
                 .build();
 
-        String urlSignup = "http://localhost:" + port + signupUrl;
-        String urlLogin = "http://localhost:" + port + loginUrl;
-        String urlLoginCheck = "http://localhost:" + port + loginCheckUrl;
-
         //when
         //선 회원가입
-        ResponseEntity<String> respSignupEntity = restTemplate.postForEntity(urlSignup, requestSignupDto, String.class);
+        ResponseEntity<String> respSignupEntity = restTemplate.postForEntity(SIGNUP_URL, requestSignupDto, String.class);
         //후 토큰 수령
-        ResponseEntity<String> respLoginEntity = restTemplate.postForEntity(urlLogin, requestLoginDto, String.class);
+        ResponseEntity<String> respLoginEntity = restTemplate.postForEntity(LOGIN_URL, requestLoginDto, String.class);
 
         //토큰 수령 후 jwt 인증 시도
         Map<String, String> jsonToMap;
@@ -210,7 +197,7 @@ class UserControllerTest {
 
         headers.add("Authorization", accessToken);
         ResponseEntity<String> respLoginCheck = restTemplate.exchange(
-                urlLoginCheck,
+                LOGIN_CHECK_URL,
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 String.class);
