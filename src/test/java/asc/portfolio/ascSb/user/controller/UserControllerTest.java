@@ -46,7 +46,7 @@ class UserControllerTest {
     }
 
     private UserSignupDto createTestUserSignupDto() {
-        return createTestUserSignupDto(null);
+        return createTestUserSignupDto("");
     }
 
     private String fromDtoToJson(Object dto) throws JsonProcessingException {
@@ -130,6 +130,7 @@ class UserControllerTest {
 
     @Transactional
     @Test
+    @DisplayName("기본 login 성공 테스트")
     public void User_Login() throws Exception {
         //given
         UserSignupDto requestSignupDto = createTestUserSignupDto();
@@ -163,6 +164,116 @@ class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get(LOGIN_CHECK_URL)
                         .header(HttpHeaders.AUTHORIZATION, accessToken))
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Transactional
+    @Test
+    @DisplayName("존재하지 않는 loginId로 로그인 시에는 Bad Request를 반환한다.")
+    public void 존재하지_않는_loginId로_로그인() throws Exception {
+        //given
+        UserSignupDto requestSignupDto = createTestUserSignupDto();
+        UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
+                .loginId("f" + requestSignupDto.getLoginId())
+                .password(requestSignupDto.getPassword())
+                .build();
+
+        String signupContent = fromDtoToJson(requestSignupDto);
+        String loginContent = fromDtoToJson(requestLoginDto);
+
+        //when //then
+        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(signupContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginContent))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Transactional
+    @Test
+    @DisplayName("아이디를 넣지 않았을 때는 Bad Request를 반환한다.")
+    public void 아이디를_넣지_않았을_때() throws Exception {
+        //given
+        UserSignupDto requestSignupDto = createTestUserSignupDto();
+        UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
+                .password(requestSignupDto.getPassword())
+                .build();
+
+        String signupContent = fromDtoToJson(requestSignupDto);
+        String loginContent = fromDtoToJson(requestLoginDto);
+
+        //when //then
+        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(signupContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginContent))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Transactional
+    @Test
+    @DisplayName("비밀번호를 넣지 않았을 때에는 Bad Request를 반환한다.")
+    public void 비밀번호를_넣지_않았을_때() throws Exception {
+        //given
+        UserSignupDto requestSignupDto = createTestUserSignupDto();
+        UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
+                .loginId(requestSignupDto.getLoginId())
+                .build();
+
+        String signupContent = fromDtoToJson(requestSignupDto);
+        String loginContent = fromDtoToJson(requestLoginDto);
+
+        //when //then
+        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(signupContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginContent))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Transactional
+    @Test
+    @DisplayName("비밀번호를 틀렸을 때는 Bad Request를 반환한다.")
+    public void 비밀번호를_틀렸을_때() throws Exception {
+        //given
+        UserSignupDto requestSignupDto = createTestUserSignupDto();
+        UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
+                .loginId(requestSignupDto.getLoginId())
+                .password("f" + requestSignupDto.getPassword())
+                .build();
+
+        String signupContent = fromDtoToJson(requestSignupDto);
+        String loginContent = fromDtoToJson(requestLoginDto);
+
+        //when //then
+        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(signupContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginContent))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andDo(MockMvcResultHandlers.print());
     }
 }
