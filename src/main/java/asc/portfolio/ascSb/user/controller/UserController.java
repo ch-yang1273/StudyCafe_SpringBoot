@@ -5,6 +5,7 @@ import asc.portfolio.ascSb.user.domain.UserRoleType;
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.user.dto.*;
 import asc.portfolio.ascSb.user.exception.TokenException;
+import asc.portfolio.ascSb.user.exception.UnknownUserException;
 import asc.portfolio.ascSb.user.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,9 +31,13 @@ public class UserController {
     private final UserService userService;
 
     @ExceptionHandler(TokenException.class)
-    public ResponseEntity<String> tokenExExHandle(TokenException ex) {
-        log.debug("TokenException ex", ex);
+    public ResponseEntity<String> tokenExHandle(TokenException ex) {
         return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(UnknownUserException.class)
+    public ResponseEntity<String> unknownExHandle(UnknownUserException ex) {
+        return new ResponseEntity<>("Unknown User", HttpStatus.BAD_REQUEST);
     }
 
     private String validateSingUpDto(BindingResult bindingResult) {
