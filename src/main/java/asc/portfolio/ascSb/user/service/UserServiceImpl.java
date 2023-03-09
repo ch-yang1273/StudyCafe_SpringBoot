@@ -6,6 +6,7 @@ import asc.portfolio.ascSb.user.domain.TokenService;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
 import asc.portfolio.ascSb.user.dto.*;
+import asc.portfolio.ascSb.user.exception.TokenException;
 import asc.portfolio.ascSb.user.exception.UnknownUserException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,7 +66,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User checkAccessToken(String token) {
         if ((token == null) || token.isBlank()) {
-            throw new IllegalArgumentException("token = " + token);
+            throw new TokenException("No token");
         }
 
         String[] tokenSplit = token.split(" ");
