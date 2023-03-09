@@ -15,19 +15,20 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 @Slf4j
-@Service
-@Transactional
 @RequiredArgsConstructor
+@Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
+    //todo : 추상화
     private final RedisRepository redisRepository;
 
     private final PasswordEncoder passwordEncoder;
 
     private final TokenService tokenService;
 
+    @Transactional
     @Override
     public void signUp(UserSignupDto signUpDto) {
         User newUser = signUpDto.toEntity();
@@ -47,6 +48,7 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    @Transactional
     @Override
     public UserLoginResponseDto checkPassword(String loginId, String password) {
         User targetUser = userRepository.findByLoginId(loginId).orElseThrow(() -> new UnknownUserException());
@@ -54,12 +56,12 @@ public class UserServiceImpl implements UserService {
 
         UserLoginResponseDto result = createTokenResponse(targetUser);
 
-        //todo : 추상화
         redisRepository.saveValue(targetUser.getLoginId(), result.getRefreshToken(), tokenService.getRefreshTime());
 
         return result;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public User checkAccessToken(String token) {
         if ((token == null) || token.isBlank()) {
@@ -86,6 +88,7 @@ public class UserServiceImpl implements UserService {
         return findToken.equals(refreshToken);
     }
 
+    @Transactional
     public UserLoginResponseDto reissueToken(UserTokenRequestDto tokenRequestDto) {
 
         String accessToken = tokenRequestDto.getAccessToken();
@@ -106,11 +109,13 @@ public class UserServiceImpl implements UserService {
         return new UserLoginResponseDto(findUser.getRole(), tokenService.createAccessToken(loginId), refreshToken);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserQrAndNameResponseDto userQrAndName(Long id) {
         return userRepository.findQrAndUserNameById(id);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserForAdminResponseDto AdminCheckUserInfo(String userLoginId) {
         Optional<User> user = userRepository.findByLoginId(userLoginId);
@@ -125,6 +130,7 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public void checkLoginId(String userLoginId) {
         userRepository.findByLoginId(userLoginId).orElseThrow(() -> new UnknownUserException());
