@@ -36,6 +36,19 @@ class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    private UserSignupDto createTestUserSignupDto(String prefix) {
+        return UserSignupDto.builder()
+                .loginId(prefix + "testUSer")
+                .password(prefix + "password")
+                .email(prefix + "email@gmail.com")
+                .name(prefix + "test")
+                .build();
+    }
+
+    private UserSignupDto createTestUserSignupDto() {
+        return createTestUserSignupDto(null);
+    }
+
     private String fromDtoToJson(Object dto) throws JsonProcessingException {
         return new ObjectMapper().writeValueAsString(dto);
     }
@@ -46,15 +59,7 @@ class UserControllerTest {
     public void User_등록() throws Exception {
 
         //given
-        String loginId = "ascUser1";
-        String password = "password";
-        String email = "email@gmail.com";
-
-        UserSignupDto requestDto = UserSignupDto.builder()
-                .loginId(loginId)
-                .password(password)
-                .email(email)
-                .build();
+        UserSignupDto requestDto = createTestUserSignupDto();
 
         String jsonContent = fromDtoToJson(requestDto);
         System.out.println("content = " + jsonContent);
@@ -65,10 +70,10 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
-        User findUser = userRepository.findByLoginId(loginId).orElseThrow();
+        User findUser = userRepository.findByLoginId(requestDto.getLoginId()).orElseThrow();
 
-        assertThat(findUser.getPassword()).isNotEqualTo(password);
-        assertThat(findUser.getEmail()).isEqualTo(email);
+        assertThat(findUser.getPassword()).isNotEqualTo(requestDto.getPassword());
+        assertThat(findUser.getEmail()).isEqualTo(requestDto.getEmail());
     }
 
     @Transactional
@@ -76,16 +81,7 @@ class UserControllerTest {
     @DisplayName("중복등록에는 BadRequest status를 반환한다.")
     public void User_중복등록() throws Exception {
         //given
-        String loginId = "ascUser1";
-        String password = "password";
-        String email = "email@gmail.com";
-
-        UserSignupDto requestDto = UserSignupDto.builder()
-                .loginId(loginId)
-                .password(password)
-                .email(email)
-                .build();
-
+        UserSignupDto requestDto = createTestUserSignupDto();
         String jsonContent = fromDtoToJson(requestDto);
 
         //when //then
@@ -106,17 +102,7 @@ class UserControllerTest {
     @Test
     public void User_패스워드_UppercaseStart() throws Exception {
         //given
-        String loginId = "ascUser1";
-        String password = "Test1234";
-        String email = "email@gmail.com";
-
-        UserSignupDto requestDto = UserSignupDto.builder()
-                .loginId(loginId)
-                .password(password)
-                .email(email)
-                .build();
-
-        //when
+        UserSignupDto requestDto = createTestUserSignupDto("U");
         String jsonContent = fromDtoToJson(requestDto);
 
         //when //then
@@ -125,24 +111,13 @@ class UserControllerTest {
                         .content(jsonContent))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
-
-        User findUser = userRepository.findByLoginId(loginId).orElseThrow();
     }
 
     @Transactional
     @Test
     public void User_패스워드_LowercaseStart() throws Exception {
         //given
-        String loginId = "ascUser1";
-        String password = "test1234";
-        String email = "email@gmail.com";
-
-        UserSignupDto requestDto = UserSignupDto.builder()
-                .loginId(loginId)
-                .password(password)
-                .email(email)
-                .build();
-
+        UserSignupDto requestDto = createTestUserSignupDto("l");
         String jsonContent = fromDtoToJson(requestDto);
 
         //when //then
@@ -157,19 +132,10 @@ class UserControllerTest {
     @Test
     public void User_Login() throws Exception {
         //given
-        String loginId = "ascUser1";
-        String password = "test1234";
-        String email = "email@gmail.com";
-
-        UserSignupDto requestSignupDto = UserSignupDto.builder()
-                .loginId(loginId)
-                .password(password)
-                .email(email)
-                .build();
-
+        UserSignupDto requestSignupDto = createTestUserSignupDto();
         UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
-                .loginId(loginId)
-                .password(password)
+                .loginId(requestSignupDto.getLoginId())
+                .password(requestSignupDto.getPassword())
                 .build();
 
         String signupContent = fromDtoToJson(requestSignupDto);
