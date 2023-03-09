@@ -149,22 +149,12 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+        mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(loginContent))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print())
                 .andReturn();
-
-        String respJson = mvcResult.getResponse().getContentAsString();
-        UserLoginResponseDto dto = new ObjectMapper().readValue(respJson, UserLoginResponseDto.class);
-
-        String accessToken = dto.getAccessToken();
-
-        mockMvc.perform(MockMvcRequestBuilders.get(LOGIN_CHECK_URL)
-                        .header(HttpHeaders.AUTHORIZATION, accessToken))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print());
     }
 
     @Transactional
@@ -274,6 +264,68 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(loginContent))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Transactional
+    @Test
+    @DisplayName("accessToken을 갖고 접근했을 때 OK 반환")
+    public void accessToken을_갖고_접근() throws Exception {
+        //given
+        UserSignupDto requestSignupDto = createTestUserSignupDto();
+        UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
+                .loginId(requestSignupDto.getLoginId())
+                .password(requestSignupDto.getPassword())
+                .build();
+
+        String signupContent = fromDtoToJson(requestSignupDto);
+        String loginContent = fromDtoToJson(requestLoginDto);
+
+        //when //then
+        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(signupContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+
+        String respJson = mvcResult.getResponse().getContentAsString();
+        UserLoginResponseDto dto = new ObjectMapper().readValue(respJson, UserLoginResponseDto.class);
+
+        String accessToken = dto.getAccessToken();
+
+        mockMvc.perform(MockMvcRequestBuilders.get(LOGIN_CHECK_URL)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Transactional
+    @Test
+    @DisplayName("accessToken 없이 갖고 접근했을 때 Unauthorized 반환")
+    public void accessToken_없이_접근() throws Exception {
+        //given
+        //when //then
+        mockMvc.perform(MockMvcRequestBuilders.get(LOGIN_CHECK_URL))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Transactional
+    @Test
+    @DisplayName("올바르지 않은 accessToken으로 접근했을 때 Unauthorized 반환")
+    public void 올바르지_않은_accessToken으로_접근() throws Exception {
+        //given
+        //when //then
+        mockMvc.perform(MockMvcRequestBuilders.get(LOGIN_CHECK_URL)
+                        .header(HttpHeaders.AUTHORIZATION, "test"))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                 .andDo(MockMvcResultHandlers.print());
     }
 }
