@@ -1,76 +1,49 @@
 package asc.portfolio.ascSb.user.controller;
 
-import asc.portfolio.ascSb.cafe.domain.CafeRepository;
-import asc.portfolio.ascSb.product.domain.ProductRepository;
-import asc.portfolio.ascSb.seat.domain.SeatRepository;
-import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoRepository;
-import asc.portfolio.ascSb.ticket.domain.TicketRepository;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
 import asc.portfolio.ascSb.user.dto.UserLoginRequestDto;
+import asc.portfolio.ascSb.user.dto.UserLoginResponseDto;
 import asc.portfolio.ascSb.user.dto.UserSignupDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
-
-import java.util.Map;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+@SpringBootTest
 class UserControllerTest {
 
     static final String SIGNUP_URL = "/api/v1/user/signup";
     static final String LOGIN_URL = "/api/v1/user/login";
     static final String LOGIN_CHECK_URL = "/api/v1/user/login-check";
 
-    @LocalServerPort
-    public int port;
-
-    @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private SeatReservationInfoRepository seatReservationInfoRepository;
-
-    @Autowired
-    private TicketRepository ticketRepository;
-
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private SeatRepository seatRepository;
+    private MockMvc mockMvc;
 
-    @Autowired
-    private CafeRepository cafeRepository;
-
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @BeforeEach
-    public void clearRepository2() {
-        //참조 무결설 제약 위반 Exception 해결을 위해 Seat DB도 초기화
-        productRepository.deleteAllInBatch();
-        seatReservationInfoRepository.deleteAllInBatch();
-        ticketRepository.deleteAllInBatch();
-        seatRepository.deleteAllInBatch();
-        userRepository.deleteAllInBatch();
-        cafeRepository.deleteAllInBatch();
+    private String fromDtoToJson(Object dto) throws JsonProcessingException {
+        return new ObjectMapper().writeValueAsString(dto);
     }
 
+    @Transactional
     @Test
-    public void User_등록() {
+    @DisplayName("올바른 SingUp 등록에는 200을 반환하고, password는 암호화 된다.")
+    public void User_등록() throws Exception {
 
         //given
         String loginId = "ascUser1";
@@ -83,20 +56,25 @@ class UserControllerTest {
                 .email(email)
                 .build();
 
-        //when
-        ResponseEntity<String> responseEntity = restTemplate.postForEntity(SIGNUP_URL, requestDto, String.class);
-
-        //then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        String jsonContent = fromDtoToJson(requestDto);
+        System.out.println("content = " + jsonContent);
+        //when //then
+        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
 
         User findUser = userRepository.findByLoginId(loginId).orElseThrow();
 
-        assertThat(findUser.getId()).isGreaterThan(0L);
+        assertThat(findUser.getPassword()).isNotEqualTo(password);
         assertThat(findUser.getEmail()).isEqualTo(email);
     }
 
+    @Transactional
     @Test
-    public void User_중복등록() {
+    @DisplayName("중복등록에는 BadRequest status를 반환한다.")
+    public void User_중복등록() throws Exception {
         //given
         String loginId = "ascUser1";
         String password = "password";
@@ -108,17 +86,25 @@ class UserControllerTest {
                 .email(email)
                 .build();
 
-        //when
-        ResponseEntity<String> responseEntity = restTemplate.postForEntity(SIGNUP_URL, requestDto, String.class);
-        ResponseEntity<String> duplicateEntity = restTemplate.postForEntity(SIGNUP_URL, requestDto, String.class);
+        String jsonContent = fromDtoToJson(requestDto);
 
-        //then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(duplicateEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        //when //then
+        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonContent))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
     }
 
+    @Transactional
     @Test
-    public void User_패스워드_UppercaseStart() {
+    public void User_패스워드_UppercaseStart() throws Exception {
         //given
         String loginId = "ascUser1";
         String password = "Test1234";
@@ -131,16 +117,21 @@ class UserControllerTest {
                 .build();
 
         //when
-        ResponseEntity<String> responseEntity = restTemplate.postForEntity(SIGNUP_URL, requestDto, String.class);
+        String jsonContent = fromDtoToJson(requestDto);
 
-        //then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        //when //then
+        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
 
         User findUser = userRepository.findByLoginId(loginId).orElseThrow();
     }
 
+    @Transactional
     @Test
-    public void User_패스워드_LowercaseStart() {
+    public void User_패스워드_LowercaseStart() throws Exception {
         //given
         String loginId = "ascUser1";
         String password = "test1234";
@@ -152,15 +143,19 @@ class UserControllerTest {
                 .email(email)
                 .build();
 
-        //when
-        ResponseEntity<String> responseEntity = restTemplate.postForEntity(SIGNUP_URL, requestDto, String.class);
+        String jsonContent = fromDtoToJson(requestDto);
 
-        //then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        //when //then
+        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
     }
 
+    @Transactional
     @Test
-    public void User_Login() {
+    public void User_Login() throws Exception {
         //given
         String loginId = "ascUser1";
         String password = "test1234";
@@ -177,35 +172,31 @@ class UserControllerTest {
                 .password(password)
                 .build();
 
-        //when
-        //선 회원가입
-        ResponseEntity<String> respSignupEntity = restTemplate.postForEntity(SIGNUP_URL, requestSignupDto, String.class);
-        //후 토큰 수령
-        ResponseEntity<String> respLoginEntity = restTemplate.postForEntity(LOGIN_URL, requestLoginDto, String.class);
+        String signupContent = fromDtoToJson(requestSignupDto);
+        String loginContent = fromDtoToJson(requestLoginDto);
 
-        //토큰 수령 후 jwt 인증 시도
-        Map<String, String> jsonToMap;
-        try {
-            jsonToMap = objectMapper.readValue(respLoginEntity.getBody(), new TypeReference<Map<String, String>>() {
-            });
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        //when //then
+        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(signupContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
 
-        String accessToken = jsonToMap.get("accessToken");
-        HttpHeaders headers = new HttpHeaders();
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
 
-        headers.add("Authorization", accessToken);
-        ResponseEntity<String> respLoginCheck = restTemplate.exchange(
-                LOGIN_CHECK_URL,
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                String.class);
+        String respJson = mvcResult.getResponse().getContentAsString();
+        UserLoginResponseDto dto = new ObjectMapper().readValue(respJson, UserLoginResponseDto.class);
 
-        //then
-        //Http Status 확인
-        assertThat(respSignupEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(respLoginEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(respLoginCheck.getStatusCode()).isEqualTo(HttpStatus.OK);
+        String accessToken = dto.getAccessToken();
+
+        mockMvc.perform(MockMvcRequestBuilders.get(LOGIN_CHECK_URL)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
     }
 }
