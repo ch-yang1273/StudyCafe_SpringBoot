@@ -5,8 +5,10 @@ import asc.portfolio.ascSb.user.domain.UserRepository;
 import asc.portfolio.ascSb.user.dto.UserLoginRequestDto;
 import asc.portfolio.ascSb.user.dto.UserLoginResponseDto;
 import asc.portfolio.ascSb.user.dto.UserSignupDto;
+import asc.portfolio.ascSb.user.dto.UserTokenRequestDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ class UserControllerTest {
     static final String SIGNUP_URL = "/api/v1/user/signup";
     static final String LOGIN_URL = "/api/v1/user/login";
     static final String LOGIN_CHECK_URL = "/api/v1/user/login-check";
+    static final String REISSUE_TOKEN_URL = "/api/v1/user/reissue";
 
     @Autowired
     private UserRepository userRepository;
@@ -49,8 +52,12 @@ class UserControllerTest {
         return createTestUserSignupDto("");
     }
 
-    private String fromDtoToJson(Object dto) throws JsonProcessingException {
-        return new ObjectMapper().writeValueAsString(dto);
+    private String fromDtoToJson(Object dto) {
+        try {
+            return new ObjectMapper().writeValueAsString(dto);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Transactional
@@ -327,5 +334,57 @@ class UserControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "test"))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                 .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Transactional
+    @Test
+    @DisplayName("refreshToken으로 accessToken 갱신 성공")
+    public void refreshToken으로_asscessToken_갱신() throws Exception {
+        //given
+        UserSignupDto requestSignupDto = createTestUserSignupDto();
+        UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
+                .loginId(requestSignupDto.getLoginId())
+                .password(requestSignupDto.getPassword())
+                .build();
+
+        String signupContent = fromDtoToJson(requestSignupDto);
+        String loginContent = fromDtoToJson(requestLoginDto);
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(signupContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+
+        String respJson = mvcResult.getResponse().getContentAsString();
+        UserLoginResponseDto loginDto = new ObjectMapper().readValue(respJson, UserLoginResponseDto.class);
+
+        UserTokenRequestDto tokenRequestDto = new UserTokenRequestDto();
+        tokenRequestDto.setAccessToken(loginDto.getAccessToken());
+        tokenRequestDto.setRefreshToken(loginDto.getRefreshToken());
+
+        String tokenReqContent = fromDtoToJson(tokenRequestDto);
+
+        //then
+        mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(REISSUE_TOKEN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(tokenReqContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+
+        respJson =  mvcResult.getResponse().getContentAsString();
+        UserLoginResponseDto reissueDto = new ObjectMapper().readValue(respJson, UserLoginResponseDto.class);
+
+        Assertions.assertThat(loginDto.getAccessToken()).isNotEqualTo(reissueDto.getAccessToken());
+        Assertions.assertThat(loginDto.getRefreshToken()).isEqualTo(reissueDto.getRefreshToken());
     }
 }
