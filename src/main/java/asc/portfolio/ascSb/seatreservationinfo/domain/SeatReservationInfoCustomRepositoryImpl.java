@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static asc.portfolio.ascSb.domain.seatreservationinfo.QSeatReservationInfo.*;
+import static asc.portfolio.ascSb.seatreservationinfo.domain.QSeatReservationInfo.*;
 
 @Slf4j
 @RequiredArgsConstructor

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 
-import static asc.portfolio.ascSb.domain.faq.QFAQ.fAQ;
+import static asc.portfolio.ascSb.faq.domain.QFAQ.*;
 
 @RequiredArgsConstructor
 @Repository

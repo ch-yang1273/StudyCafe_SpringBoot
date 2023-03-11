@@ -1,6 +1,5 @@
 package asc.portfolio.ascSb.ticket.domain;
 
-import asc.portfolio.ascSb.domain.ticket.QTicket;
 import asc.portfolio.ascSb.ticket.dto.TicketForUserResponseDto;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import com.querydsl.core.types.Projections;
@@ -14,8 +13,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static asc.portfolio.ascSb.cafe.domain.QCafe.*;
-import static asc.portfolio.ascSb.domain.ticket.QTicket.ticket;
-import static asc.portfolio.ascSb.domain.user.QUser.user;
+import static asc.portfolio.ascSb.ticket.domain.QTicket.*;
+import static asc.portfolio.ascSb.user.domain.QUser.*;
 
 @Repository
 @RequiredArgsConstructor

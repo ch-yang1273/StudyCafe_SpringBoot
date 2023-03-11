@@ -6,7 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import static asc.portfolio.ascSb.domain.user.QUser.user;
+import static asc.portfolio.ascSb.user.domain.QUser.user;
 
 @RequiredArgsConstructor
 @Repository
