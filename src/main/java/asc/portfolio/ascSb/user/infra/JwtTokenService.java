@@ -1,22 +1,29 @@
 package asc.portfolio.ascSb.user.infra;
 
+import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
 import asc.portfolio.ascSb.user.domain.TokenService;
 import asc.portfolio.ascSb.user.exception.ExpiredTokenException;
 import asc.portfolio.ascSb.user.exception.TokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Slf4j
+@RequiredArgsConstructor
 @Component
 public class JwtTokenService implements TokenService {
+
+    // todo Service 단으로 올리기
+    private final CurrentTimeProvider currentTimeProvider;
 
     //  private final String secretKey;
     private final Key secretKey;
@@ -24,9 +31,12 @@ public class JwtTokenService implements TokenService {
     private final long refreshTime;
 
     @Autowired
-    public JwtTokenService(@Value("${jwt.secret}") String secretKey,
+    public JwtTokenService(CurrentTimeProvider currentTimeProvider,
+                           @Value("${jwt.secret}") String secretKey,
                            @Value("${jwt.expiration-in-seconds}") Long expireTime,
                            @Value("${jwt.refresh-in-hour}") Long refreshTime) {
+
+        this.currentTimeProvider = currentTimeProvider;
 
         final long second = 1_000L;
         final long minute = 60 * second;
@@ -49,7 +59,7 @@ public class JwtTokenService implements TokenService {
 
     @Override
     public String createAccessToken(String subject) {
-        Date now = new Date();
+        Date now = currentTimeProvider.toDate(currentTimeProvider.now());
         Date expireDate = new Date(now.getTime() + expireTime);
 
         return Jwts.builder()
@@ -62,7 +72,7 @@ public class JwtTokenService implements TokenService {
 
     @Override
     public String createRefreshToken() {
-        Date now = new Date();
+        Date now = currentTimeProvider.toDate(currentTimeProvider.now());
         Date expireDate = new Date(now.getTime() + refreshTime);
 
         return Jwts.builder()
