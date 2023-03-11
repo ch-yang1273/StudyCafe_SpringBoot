@@ -1,5 +1,6 @@
 package asc.portfolio.ascSb.user.controller;
 
+import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
 import asc.portfolio.ascSb.user.dto.UserLoginRequestDto;
@@ -11,9 +12,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.*;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -21,6 +24,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -38,6 +43,9 @@ class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @SpyBean
+    private CurrentTimeProvider currentTimeProvider;
 
     private UserSignupDto createTestUserSignupDto(String prefix) {
         return UserSignupDto.builder()
@@ -373,6 +381,8 @@ class UserControllerTest {
 
         String tokenReqContent = fromDtoToJson(tokenRequestDto);
 
+        // 현재 시간을 반환하는 로직이 1분뒤의 시간을 반환하도록 Mocking
+        BDDMockito.given(currentTimeProvider.now()).willReturn(LocalDateTime.now().plusMinutes(1L));
         //then
         mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(REISSUE_TOKEN_URL)
                         .contentType(MediaType.APPLICATION_JSON)
