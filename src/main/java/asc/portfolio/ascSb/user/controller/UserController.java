@@ -109,8 +109,8 @@ public class UserController {
     }
 
     @GetMapping("/admin/check/user-id")
-    public ResponseEntity<Void> adminCheckUserLoginId(@RequestParam String userLoginId) {
-        userService.checkLoginId(userLoginId);
+    public ResponseEntity<Void> checkUserInfo(@RequestParam String userLoginId) {
+        userService.getUserInfo(userLoginId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

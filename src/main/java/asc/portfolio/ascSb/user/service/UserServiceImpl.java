@@ -92,10 +92,4 @@ public class UserServiceImpl implements UserService {
         User findUser = userRepository.findByLoginId(userLoginId).orElseThrow(() -> new UnknownUserException());
         return new UserProfileDto(findUser);
     }
-
-    @Transactional(readOnly = true)
-    @Override
-    public void checkLoginId(String userLoginId) {
-        userRepository.findByLoginId(userLoginId).orElseThrow(() -> new UnknownUserException());
-    }
 }

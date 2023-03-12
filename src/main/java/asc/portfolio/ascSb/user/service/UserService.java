@@ -16,6 +16,4 @@ public interface UserService {
     UserQrAndNameResponseDto userQrAndName(Long id);
 
     UserProfileDto getUserInfo(String userId);
-
-    void checkLoginId(String userLoginId);
 }
