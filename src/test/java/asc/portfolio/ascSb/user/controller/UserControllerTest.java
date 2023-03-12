@@ -3,10 +3,7 @@ package asc.portfolio.ascSb.user.controller;
 import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
-import asc.portfolio.ascSb.user.dto.UserLoginRequestDto;
-import asc.portfolio.ascSb.user.dto.UserLoginResponseDto;
-import asc.portfolio.ascSb.user.dto.UserSignupDto;
-import asc.portfolio.ascSb.user.dto.UserTokenRequestDto;
+import asc.portfolio.ascSb.user.dto.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
@@ -37,6 +34,7 @@ class UserControllerTest {
     static final String LOGIN_URL = "/api/v1/user/login";
     static final String LOGIN_CHECK_URL = "/api/v1/user/login-check";
     static final String REISSUE_TOKEN_URL = "/api/v1/user/reissue";
+    static final String QR_REQ_URL = "/api/v1/user/qr-name";
 
     @Autowired
     private UserRepository userRepository;
@@ -396,5 +394,51 @@ class UserControllerTest {
 
         Assertions.assertThat(loginDto.getAccessToken()).isNotEqualTo(reissueDto.getAccessToken());
         Assertions.assertThat(loginDto.getRefreshToken()).isEqualTo(reissueDto.getRefreshToken());
+    }
+
+    //todo : auth 테스트랑 테스트 클래스 나누기
+    @Transactional
+    @Test
+    @DisplayName("QrCode를 요청 시 QrCode 반환. OK")
+    public void qrCode_요청() throws Exception {
+        //given
+        UserSignupDto requestSignupDto = createTestUserSignupDto();
+        UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
+                .loginId(requestSignupDto.getLoginId())
+                .password(requestSignupDto.getPassword())
+                .build();
+
+        String signupContent = fromDtoToJson(requestSignupDto);
+        String loginContent = fromDtoToJson(requestLoginDto);
+
+        //when //then
+        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(signupContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        MvcResult loginResult = mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+
+        String loginJson = loginResult.getResponse().getContentAsString();
+        UserLoginResponseDto dto = new ObjectMapper().readValue(loginJson, UserLoginResponseDto.class);
+
+        String accessToken = dto.getAccessToken();
+
+        MvcResult qrResult = mockMvc.perform(MockMvcRequestBuilders.get(QR_REQ_URL)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+
+        String qrJson = qrResult.getResponse().getContentAsString();
+        UserQrAndNameResponseDto qrDto = new ObjectMapper().readValue(qrJson, UserQrAndNameResponseDto.class);
+        assertThat(qrDto.getName()).isNotBlank();
+        assertThat(qrDto.getQrCode()).isNotBlank();
     }
 }
