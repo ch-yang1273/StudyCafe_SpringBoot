@@ -9,7 +9,9 @@ public interface TokenService {
 
     String createRefreshToken();
 
-    String validCheckAndGetSubject(String token);
+    String verifyAndGetSubject(String token);
 
-    String noValidCheckAndGetSubject(String token);
+    String verifyAndGetSubject(String token, String compare);
+
+    String noVerifyAndGetSubject(String token);
 }

@@ -89,7 +89,9 @@ public class UserController {
     //
     @PostMapping("/reissue")
     public ResponseEntity<UserLoginResponseDto> reissueToken(@RequestBody @Valid UserTokenRequestDto tokenRequestDto) {
-        return new ResponseEntity<>(userService.reissueToken(tokenRequestDto), HttpStatus.OK);
+        return new ResponseEntity<>(
+                userService.reissueToken(tokenRequestDto.getAccessToken(), tokenRequestDto.getRefreshToken()),
+                HttpStatus.OK);
     }
 
     @GetMapping("/qr-name")

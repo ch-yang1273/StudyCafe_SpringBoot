@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Slf4j
@@ -98,16 +97,42 @@ public class JwtTokenService implements TokenService {
         }
     }
 
+    private String checkFormat(String token) {
+        log.debug("token = {}", token);
+        if ((token == null) || token.isBlank()) {
+            throw new TokenException("No token");
+        }
+
+        String[] tokenSplit = token.split(" ");
+        if ((tokenSplit.length == 2) && (tokenSplit[0].equals("Bearer"))) {
+            token = tokenSplit[1];
+        }
+
+        return token;
+    }
+
     @Override
-    public String validCheckAndGetSubject(String token) {
-        return validCheckAndGetBody(token)
+    public String verifyAndGetSubject(String token) {
+        String baseToken = checkFormat(token);
+        return validCheckAndGetBody(baseToken)
                 .getSubject();
     }
 
     @Override
-    public String noValidCheckAndGetSubject(String token) {
+    public String verifyAndGetSubject(String token, String compare) {
+        if (!token.equals(compare)) {
+            throw new TokenException("일치하지 않는 토큰입니다.");
+        }
+        String baseToken = checkFormat(token);
+        return validCheckAndGetBody(baseToken)
+                .getSubject();
+    }
+
+    @Override
+    public String noVerifyAndGetSubject(String token) {
+        String baseToken = checkFormat(token);
         try {
-            return this.validCheckAndGetBody(token)
+            return this.validCheckAndGetBody(baseToken)
                     .getSubject();
         } catch (ExpiredTokenException e) {
             return e.getSubject();

@@ -6,7 +6,6 @@ import asc.portfolio.ascSb.user.domain.TokenService;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
 import asc.portfolio.ascSb.user.dto.*;
-import asc.portfolio.ascSb.user.exception.TokenException;
 import asc.portfolio.ascSb.user.exception.UnknownUserException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,54 +57,26 @@ public class UserServiceImpl implements UserService {
         UserLoginResponseDto result = createTokenResponse(targetUser);
 
         redisRepository.saveValue(targetUser.getLoginId(), result.getRefreshToken(), tokenService.getRefreshTime());
-
         return result;
     }
 
     @Transactional(readOnly = true)
     @Override
     public User checkAccessToken(String token) {
-        if ((token == null) || token.isBlank()) {
-            throw new TokenException("No token");
-        }
-
-        String[] tokenSplit = token.split(" ");
-        if ((tokenSplit.length == 2) && (tokenSplit[0].equals("Bearer"))) {
-            token = tokenSplit[1];
-        }
-
-        log.debug("token = {}", token);
-        String loginId = tokenService.validCheckAndGetSubject(token);
-
+        String loginId = tokenService.verifyAndGetSubject(token);
+        // todo : pk만 return 하도록 수정
         return userRepository.findByLoginId(loginId).orElseThrow();
     }
 
-    private Boolean isValidRefreshToken(String refreshToken, String loginId) {
-        // refresh token 만료 검증 - 실패 시 throw
-        String subject = tokenService.validCheckAndGetSubject(refreshToken);
-
-        // loginId 로 redis 에서 refresh token 검색 및 비교
-        String findToken = redisRepository.getValue(loginId);
-        return findToken.equals(refreshToken);
-    }
-
-    @Transactional
-    public UserLoginResponseDto reissueToken(UserTokenRequestDto tokenRequestDto) {
-
-        String accessToken = tokenRequestDto.getAccessToken();
-        String refreshToken = tokenRequestDto.getRefreshToken();
-
+    @Transactional(readOnly = true)
+    @Override
+    public UserLoginResponseDto reissueToken(String accessToken, String refreshToken) {
         // AccessToken 에서 LoginId (subject) 추출 - 만료 검증 없이
-        String loginId = tokenService.noValidCheckAndGetSubject(accessToken);
+        String loginId = tokenService.noVerifyAndGetSubject(accessToken);
 
-        // refresh token 검증
-        log.debug("Retrieve the refresh token from the repository");
-        if (!this.isValidRefreshToken(refreshToken, loginId)) {
-            return null;
-        }
+        tokenService.verifyAndGetSubject(refreshToken, redisRepository.getValue(loginId));
 
         // AccessToken 과 RefreshToken 재발급, refreshToken 저장
-        log.debug("Reissue access token");
         User findUser = userRepository.findByLoginId(loginId).orElseThrow();
         return new UserLoginResponseDto(findUser.getRole(), tokenService.createAccessToken(loginId), refreshToken);
     }

@@ -2,6 +2,7 @@ package asc.portfolio.ascSb.user.service;
 
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.dto.*;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface UserService {
 
@@ -11,7 +12,7 @@ public interface UserService {
 
     User checkAccessToken(String token);
 
-    UserLoginResponseDto reissueToken(UserTokenRequestDto tokenRequestDto);
+    UserLoginResponseDto reissueToken(String accessToken, String refreshToken);
 
     UserQrAndNameResponseDto userQrAndName(Long id);
 
