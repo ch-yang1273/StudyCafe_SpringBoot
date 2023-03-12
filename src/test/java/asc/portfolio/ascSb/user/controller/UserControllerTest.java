@@ -527,4 +527,44 @@ class UserControllerTest {
                 .andDo(MockMvcResultHandlers.print())
                 .andReturn();
     }
+
+    @Transactional
+    @Test
+    @DisplayName("Admin 권한의 없는 회원 조회")
+    public void 없는_회원조회_byAdmin() throws Exception {
+        //given
+        User admin = User.builder()
+                .loginId("testAdmin")
+                .email("testAdmin@gmail.com")
+                .password("adminPassword")
+                .name("admin")
+                .role(UserRoleType.ADMIN)
+                .build();
+
+        admin.encryptPassword(passwordEncoder);
+        userRepository.save(admin);
+
+        UserLoginRequestDto requestLoginDto = new UserLoginRequestDto(admin.getLoginId(), "adminPassword");
+        String loginContent = fromDtoToJson(requestLoginDto);
+
+        //when //then
+        MvcResult loginResult = mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+
+        String loginJson = loginResult.getResponse().getContentAsString();
+        UserLoginResponseDto dto = new ObjectMapper().readValue(loginJson, UserLoginResponseDto.class);
+
+        String accessToken = dto.getAccessToken();
+
+        mockMvc.perform(MockMvcRequestBuilders.get(USER_INFO_URL)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("userLoginId", "toFail"))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+    }
 }
