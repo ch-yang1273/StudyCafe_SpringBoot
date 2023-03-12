@@ -12,8 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -65,7 +63,7 @@ public class UserServiceImpl implements UserService {
     public User checkAccessToken(String token) {
         String loginId = tokenService.verifyAndGetSubject(token);
         // todo : pk만 return 하도록 수정
-        return userRepository.findByLoginId(loginId).orElseThrow();
+        return userRepository.findByLoginId(loginId).orElseThrow(() -> new UnknownUserException());
     }
 
     @Transactional(readOnly = true)
@@ -77,30 +75,22 @@ public class UserServiceImpl implements UserService {
         tokenService.verifyAndGetSubject(refreshToken, redisRepository.getValue(loginId));
 
         // AccessToken 과 RefreshToken 재발급, refreshToken 저장
-        User findUser = userRepository.findByLoginId(loginId).orElseThrow();
+        User findUser = userRepository.findByLoginId(loginId).orElseThrow(() -> new UnknownUserException());
         return new UserLoginResponseDto(findUser.getRole(), tokenService.createAccessToken(loginId), refreshToken);
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserQrAndNameResponseDto userQrAndName(Long id) {
-        User findUser = userRepository.findById(id).orElseThrow();
+        User findUser = userRepository.findById(id).orElseThrow(() -> new UnknownUserException());
         return new UserQrAndNameResponseDto(findUser.getName(), findUser.getQrCode());
     }
 
     @Transactional(readOnly = true)
     @Override
-    public UserForAdminResponseDto AdminCheckUserInfo(String userLoginId) {
-        Optional<User> user = userRepository.findByLoginId(userLoginId);
-        try {
-            if (user.isPresent()) {
-                User userInfo = user.get();
-                return new UserForAdminResponseDto(userInfo);
-            }
-        } catch (Exception e) {
-            log.error("해당하는 유저가 없습니다");
-        }
-        return null;
+    public UserProfileDto getUserInfo(String userLoginId) {
+        User findUser = userRepository.findByLoginId(userLoginId).orElseThrow(() -> new UnknownUserException());
+        return new UserProfileDto(findUser);
     }
 
     @Transactional(readOnly = true)

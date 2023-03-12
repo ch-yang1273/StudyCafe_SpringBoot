@@ -100,12 +100,12 @@ public class UserController {
     }
 
     @GetMapping("/admin/check")
-    public ResponseEntity<UserForAdminResponseDto> adminCheckUserInfo(@LoginUser User user, @RequestParam String userLoginId) {
+    public ResponseEntity<UserProfileDto> getUserInfo(@LoginUser User user, @RequestParam String userLoginId) {
         //todo : 서비스로 넣지 말고 security 적용 후 메서드 접근 권한 설정
         if (user.getRole() != UserRoleType.ADMIN) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(userService.AdminCheckUserInfo(userLoginId), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getUserInfo(userLoginId), HttpStatus.OK);
     }
 
     @GetMapping("/admin/check/user-id")

@@ -2,19 +2,17 @@ package asc.portfolio.ascSb.user.dto;
 
 import asc.portfolio.ascSb.user.domain.User;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
-public class UserForAdminResponseDto {
-    private String loginId;
-    private String email;
-    private String name;
-    private LocalDateTime createDate;
+public class UserProfileDto {
+    private final String loginId;
+    private final String email;
+    private final String name;
+    private final LocalDateTime createDate;
 
-    public UserForAdminResponseDto(User user) {
+    public UserProfileDto(User user) {
         this.loginId = user.getLoginId();
         this.email = user.getEmail();
         this.name = user.getName();
