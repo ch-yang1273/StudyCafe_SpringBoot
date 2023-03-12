@@ -84,7 +84,8 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public UserQrAndNameResponseDto userQrAndName(Long id) {
-        return userRepository.findQrAndUserNameById(id);
+        User findUser = userRepository.findById(id).orElseThrow();
+        return new UserQrAndNameResponseDto(findUser.getName(), findUser.getQrCode());
     }
 
     @Transactional(readOnly = true)
