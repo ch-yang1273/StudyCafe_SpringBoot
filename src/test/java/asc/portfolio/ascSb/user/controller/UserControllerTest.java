@@ -1,8 +1,10 @@
 package asc.portfolio.ascSb.user.controller;
 
 import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
+import asc.portfolio.ascSb.user.domain.PasswordEncoder;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
+import asc.portfolio.ascSb.user.domain.UserRoleType;
 import asc.portfolio.ascSb.user.dto.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,12 +37,16 @@ class UserControllerTest {
     static final String LOGIN_CHECK_URL = "/api/v1/user/login-check";
     static final String REISSUE_TOKEN_URL = "/api/v1/user/reissue";
     static final String QR_REQ_URL = "/api/v1/user/qr-name";
+    static final String USER_INFO_URL = "/api/v1/user//admin/check";
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @SpyBean
     private CurrentTimeProvider currentTimeProvider;
@@ -440,5 +446,85 @@ class UserControllerTest {
         UserQrAndNameResponseDto qrDto = new ObjectMapper().readValue(qrJson, UserQrAndNameResponseDto.class);
         assertThat(qrDto.getName()).isNotBlank();
         assertThat(qrDto.getQrCode()).isNotBlank();
+    }
+
+    @Transactional
+    @Test
+    @DisplayName("Admin 권한의 회원 조회")
+    public void 회원조회_byAdmin() throws Exception {
+        //given
+        User admin = User.builder()
+                .loginId("testAdmin")
+                .email("testAdmin@gmail.com")
+                .password("adminPassword")
+                .name("admin")
+                .role(UserRoleType.ADMIN)
+                .build();
+
+        admin.encryptPassword(passwordEncoder);
+        userRepository.save(admin);
+
+        UserLoginRequestDto requestLoginDto = new UserLoginRequestDto(admin.getLoginId(), "adminPassword");
+        String loginContent = fromDtoToJson(requestLoginDto);
+
+        //when //then
+        MvcResult loginResult = mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+
+        String loginJson = loginResult.getResponse().getContentAsString();
+        UserLoginResponseDto dto = new ObjectMapper().readValue(loginJson, UserLoginResponseDto.class);
+
+        String accessToken = dto.getAccessToken();
+
+        mockMvc.perform(MockMvcRequestBuilders.get(USER_INFO_URL)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("userLoginId", admin.getLoginId()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+    }
+
+    @Transactional
+    @Test
+    @DisplayName("USER 권한의 회원 조회 실패")
+    public void 회원조회_byUser() throws Exception {
+        //given
+        User admin = User.builder()
+                .loginId("testAdmin")
+                .email("testAdmin@gmail.com")
+                .password("adminPassword")
+                .name("admin")
+                .role(UserRoleType.USER)
+                .build();
+
+        admin.encryptPassword(passwordEncoder);
+        userRepository.save(admin);
+
+        UserLoginRequestDto requestLoginDto = new UserLoginRequestDto(admin.getLoginId(), "adminPassword");
+        String loginContent = fromDtoToJson(requestLoginDto);
+
+        //when //then
+        MvcResult loginResult = mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginContent))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+
+        String loginJson = loginResult.getResponse().getContentAsString();
+        UserLoginResponseDto dto = new ObjectMapper().readValue(loginJson, UserLoginResponseDto.class);
+
+        String accessToken = dto.getAccessToken();
+
+        mockMvc.perform(MockMvcRequestBuilders.get(USER_INFO_URL)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("userLoginId", admin.getLoginId()))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
     }
 }
