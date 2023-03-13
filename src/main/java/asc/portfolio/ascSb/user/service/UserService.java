@@ -13,6 +13,8 @@ public interface UserService {
 
     UserLoginResponseDto reissueToken(String accessToken, String refreshToken);
 
+    void checkAdminRole(Long userId);
+
     UserQrAndNameResponseDto userQrAndName(Long id);
 
     UserProfileDto getUserInfo(String userId);

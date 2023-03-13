@@ -1,9 +1,9 @@
 package asc.portfolio.ascSb.user.controller;
 
 import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.user.domain.UserRoleType;
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.user.dto.*;
+import asc.portfolio.ascSb.user.exception.AccessDeniedException;
 import asc.portfolio.ascSb.user.exception.TokenException;
 import asc.portfolio.ascSb.user.exception.UnknownUserException;
 import asc.portfolio.ascSb.user.service.UserService;
@@ -32,12 +32,17 @@ public class UserController {
 
     @ExceptionHandler(TokenException.class)
     public ResponseEntity<String> tokenExHandle(TokenException ex) {
-        return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>("TokenException", HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(UnknownUserException.class)
     public ResponseEntity<String> unknownExHandle(UnknownUserException ex) {
-        return new ResponseEntity<>("Unknown User", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("UnknownUserException", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<String> accessDeniedExHandle(AccessDeniedException ex) {
+        return new ResponseEntity<>("AccessDeniedException", HttpStatus.BAD_REQUEST);
     }
 
     private String validateSingUpDto(BindingResult bindingResult) {
@@ -95,10 +100,7 @@ public class UserController {
 
     @GetMapping("/admin/check")
     public ResponseEntity<UserProfileDto> getUserInfo(@LoginUser User user, @RequestParam String userLoginId) {
-        //todo : 서비스로 넣지 말고 security 적용 후 메서드 접근 권한 설정
-        if (user.getRole() != UserRoleType.ADMIN) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        userService.checkAdminRole(user.getId());
         return new ResponseEntity<>(userService.getUserInfo(userLoginId), HttpStatus.OK);
     }
 

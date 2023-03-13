@@ -2,6 +2,7 @@ package asc.portfolio.ascSb.user.service;
 
 import asc.portfolio.ascSb.user.domain.*;
 import asc.portfolio.ascSb.user.dto.*;
+import asc.portfolio.ascSb.user.exception.AccessDeniedException;
 import asc.portfolio.ascSb.user.exception.UnknownUserException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,9 +78,21 @@ public class UserServiceImpl implements UserService {
         return new UserLoginResponseDto(findUser.getRole(), tokenService.createAccessToken(subject), refreshToken);
     }
 
+    //todo : 추후 security 적용 후 메서드 삭제
+    @Transactional(readOnly = true)
+    @Override
+    public void checkAdminRole(Long userId) {
+        User findUser = userRepository.findById(userId).orElseThrow();
+        if (findUser.getRole() != UserRoleType.ADMIN) {
+            throw new AccessDeniedException("need admin role");
+        }
+
+    }
+
     @Transactional(readOnly = true)
     @Override
     public UserQrAndNameResponseDto userQrAndName(Long id) {
+
         User findUser = userRepository.findById(id).orElseThrow(() -> new UnknownUserException());
         return new UserQrAndNameResponseDto(findUser.getName(), findUser.getQrCode());
     }
