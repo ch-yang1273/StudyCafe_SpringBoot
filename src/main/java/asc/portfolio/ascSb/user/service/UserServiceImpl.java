@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserLoginResponseDto createTokenResponse(User user) {
-        String accessToken = tokenService.createAccessToken(user.getLoginId());
+        String accessToken = tokenService.createAccessToken(user.getId().toString());
         String refreshToken = tokenService.createRefreshToken();
 
         return UserLoginResponseDto.builder()
@@ -49,29 +49,32 @@ public class UserServiceImpl implements UserService {
 
         UserLoginResponseDto result = createTokenResponse(targetUser);
 
-        tokenRepository.saveToken(targetUser.getLoginId(), result.getRefreshToken(), tokenService.getRefreshTime());
+        tokenRepository.saveToken(targetUser.getId().toString(), result.getRefreshToken(), tokenService.getRefreshTime());
         return result;
     }
 
     @Transactional(readOnly = true)
     @Override
     public User checkAccessToken(String token) {
-        String loginId = tokenService.verifyAndGetSubject(token);
+        String subject = tokenService.verifyAndGetSubject(token);
+        long userId = Long.parseLong(subject);
+
         // todo : pk만 return 하도록 수정
-        return userRepository.findByLoginId(loginId).orElseThrow(() -> new UnknownUserException());
+        return userRepository.findById(userId).orElseThrow(() -> new UnknownUserException());
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserLoginResponseDto reissueToken(String accessToken, String refreshToken) {
         // AccessToken 에서 LoginId (subject) 추출 - 만료 검증 없이
-        String loginId = tokenService.noVerifyAndGetSubject(accessToken);
+        String subject = tokenService.noVerifyAndGetSubject(accessToken);
+        long userId = Long.parseLong(subject);
 
-        tokenService.verifyAndGetSubject(refreshToken, tokenRepository.getToken(loginId));
+        tokenService.verifyAndGetSubject(refreshToken, tokenRepository.getToken(subject));
 
         // AccessToken 과 RefreshToken 재발급, refreshToken 저장
-        User findUser = userRepository.findByLoginId(loginId).orElseThrow(() -> new UnknownUserException());
-        return new UserLoginResponseDto(findUser.getRole(), tokenService.createAccessToken(loginId), refreshToken);
+        User findUser = userRepository.findById(userId).orElseThrow(() -> new UnknownUserException());
+        return new UserLoginResponseDto(findUser.getRole(), tokenService.createAccessToken(subject), refreshToken);
     }
 
     @Transactional(readOnly = true)

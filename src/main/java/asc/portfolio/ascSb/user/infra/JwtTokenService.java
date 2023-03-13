@@ -21,7 +21,6 @@ import java.util.Date;
 @Component
 public class JwtTokenService implements TokenService {
 
-    // todo Service 단으로 올리기
     private final CurrentTimeProvider currentTimeProvider;
 
     //  private final String secretKey;
