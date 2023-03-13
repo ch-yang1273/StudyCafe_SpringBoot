@@ -1,7 +1,5 @@
 package asc.portfolio.ascSb.common.interceptor;
 
-import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.common.auth.AuthenticationContext;
 import asc.portfolio.ascSb.user.exception.TokenException;
 import asc.portfolio.ascSb.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +11,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,8 +19,6 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class LoginCheckInterceptor implements HandlerInterceptor {
-
-    private final AuthenticationContext authenticationContext;
 
     private final UserService userService;
 
@@ -33,28 +30,25 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         try {
-            User findUser = userService.checkAccessToken(token);
-
-            log.info("Authorized User={}", findUser.getLoginId());
-            authenticationContext.setPrincipal(findUser);
-
+            request.setAttribute("payload", userService.checkAccessToken(token));
             // Controller 진행
             return true;
         } catch (TokenException e) {
-            log.debug("Unauthorized access = {}", request.getRequestURL());
-
-            response.setContentType("application/json");
-            response.setCharacterEncoding("utf-8");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
-            Map<String, String> map = new HashMap<>();
-            map.put("message", e.getMessage());
-            String result = objectMapper.writeValueAsString(map);
-
-            response.getWriter().write(result);
-
+            responseUnauthorized(response, e);
             // Controller 진행 중지
             return false;
         }
+    }
+
+    private void responseUnauthorized(HttpServletResponse response, TokenException e) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("utf-8");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+        Map<String, String> map = new HashMap<>();
+        map.put("message", e.getMessage());
+        String result = objectMapper.writeValueAsString(map);
+
+        response.getWriter().write(result);
     }
 }

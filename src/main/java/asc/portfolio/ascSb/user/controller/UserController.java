@@ -77,16 +77,10 @@ public class UserController {
 
     @GetMapping("/login-check") //Test
     public ResponseEntity<Void> loginCheck(@LoginUser User user) {
+        log.debug("login user = {}", user.getLoginId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/login-test") //Test
-    public ResponseEntity<String> loginCheckWithoutInterceptor(@LoginUser User user) {
-        // LoginCheckInterceptor 를 통과하지 않은 Controller
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    //
     @PostMapping("/reissue")
     public ResponseEntity<UserLoginResponseDto> reissueToken(@RequestBody @Valid UserTokenRequestDto tokenRequestDto) {
         return new ResponseEntity<>(
