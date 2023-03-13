@@ -1,10 +1,6 @@
 package asc.portfolio.ascSb.user.service;
 
-import asc.portfolio.ascSb.common.infra.redis.RedisRepository;
-import asc.portfolio.ascSb.user.domain.PasswordEncoder;
-import asc.portfolio.ascSb.user.domain.TokenService;
-import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.user.domain.UserRepository;
+import asc.portfolio.ascSb.user.domain.*;
 import asc.portfolio.ascSb.user.dto.*;
 import asc.portfolio.ascSb.user.exception.UnknownUserException;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +15,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    //todo : 추상화
-    private final RedisRepository redisRepository;
+    private final TokenRepository tokenRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -54,7 +49,7 @@ public class UserServiceImpl implements UserService {
 
         UserLoginResponseDto result = createTokenResponse(targetUser);
 
-        redisRepository.saveValue(targetUser.getLoginId(), result.getRefreshToken(), tokenService.getRefreshTime());
+        tokenRepository.saveToken(targetUser.getLoginId(), result.getRefreshToken(), tokenService.getRefreshTime());
         return result;
     }
 
@@ -72,7 +67,7 @@ public class UserServiceImpl implements UserService {
         // AccessToken 에서 LoginId (subject) 추출 - 만료 검증 없이
         String loginId = tokenService.noVerifyAndGetSubject(accessToken);
 
-        tokenService.verifyAndGetSubject(refreshToken, redisRepository.getValue(loginId));
+        tokenService.verifyAndGetSubject(refreshToken, tokenRepository.getToken(loginId));
 
         // AccessToken 과 RefreshToken 재발급, refreshToken 저장
         User findUser = userRepository.findByLoginId(loginId).orElseThrow(() -> new UnknownUserException());
