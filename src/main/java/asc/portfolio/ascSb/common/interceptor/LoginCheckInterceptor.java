@@ -1,7 +1,7 @@
 package asc.portfolio.ascSb.common.interceptor;
 
 import asc.portfolio.ascSb.user.exception.TokenException;
-import asc.portfolio.ascSb.user.service.UserService;
+import asc.portfolio.ascSb.user.service.UserAuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class LoginCheckInterceptor implements HandlerInterceptor {
 
-    private final UserService userService;
+    private final UserAuthService userAuthService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -30,7 +30,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         try {
-            request.setAttribute("payload", userService.checkAccessToken(token));
+            request.setAttribute("payload", userAuthService.checkAccessToken(token));
             // Controller 진행
             return true;
         } catch (TokenException e) {

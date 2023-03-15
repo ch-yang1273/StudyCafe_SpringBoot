@@ -1,19 +1,9 @@
 package asc.portfolio.ascSb.user.service;
 
-import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.user.dto.*;
+import asc.portfolio.ascSb.user.dto.UserProfileDto;
+import asc.portfolio.ascSb.user.dto.UserQrAndNameResponseDto;
 
 public interface UserService {
-
-    void signUp(UserSignupDto signUpDto);
-
-    UserLoginResponseDto checkPassword(String loginId, String password);
-
-    User checkAccessToken(String token);
-
-    UserLoginResponseDto reissueToken(String accessToken, String refreshToken);
-
-    void checkAdminRole(Long userId);
 
     UserQrAndNameResponseDto userQrAndName(Long id);
 

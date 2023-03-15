@@ -402,7 +402,6 @@ class UserControllerTest {
         Assertions.assertThat(loginDto.getRefreshToken()).isEqualTo(reissueDto.getRefreshToken());
     }
 
-    //todo : auth 테스트랑 테스트 클래스 나누기
     @Transactional
     @Test
     @DisplayName("QrCode를 요청 시 QrCode 반환. OK")

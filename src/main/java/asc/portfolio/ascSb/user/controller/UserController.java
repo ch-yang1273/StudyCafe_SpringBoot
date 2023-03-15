@@ -6,6 +6,7 @@ import asc.portfolio.ascSb.user.dto.*;
 import asc.portfolio.ascSb.user.exception.AccessDeniedException;
 import asc.portfolio.ascSb.user.exception.TokenException;
 import asc.portfolio.ascSb.user.exception.UnknownUserException;
+import asc.portfolio.ascSb.user.service.UserAuthService;
 import asc.portfolio.ascSb.user.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +29,7 @@ import java.util.Map;
 @RequestMapping("/api/v1/user")
 public class UserController {
 
+    private final UserAuthService userAuthService;
     private final UserService userService;
 
     @ExceptionHandler(TokenException.class)
@@ -66,7 +68,7 @@ public class UserController {
         }
 
         try {
-            userService.signUp(signUpDto);
+            userAuthService.signUp(signUpDto);
         } catch (DataIntegrityViolationException ex) {
             return new ResponseEntity<>("Unique violation", HttpStatus.BAD_REQUEST);
         }
@@ -76,7 +78,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponseDto> login(@RequestBody @Valid UserLoginRequestDto loginDto) {
-        UserLoginResponseDto loginRespDto = userService.checkPassword(loginDto.getLoginId(), loginDto.getPassword());
+        UserLoginResponseDto loginRespDto = userAuthService.checkPassword(loginDto.getLoginId(), loginDto.getPassword());
         return new ResponseEntity<>(loginRespDto, HttpStatus.OK);
     }
 
@@ -89,7 +91,7 @@ public class UserController {
     @PostMapping("/reissue")
     public ResponseEntity<UserLoginResponseDto> reissueToken(@RequestBody @Valid UserTokenRequestDto tokenRequestDto) {
         return new ResponseEntity<>(
-                userService.reissueToken(tokenRequestDto.getAccessToken(), tokenRequestDto.getRefreshToken()),
+                userAuthService.reissueToken(tokenRequestDto.getAccessToken(), tokenRequestDto.getRefreshToken()),
                 HttpStatus.OK);
     }
 
@@ -100,7 +102,7 @@ public class UserController {
 
     @GetMapping("/admin/check")
     public ResponseEntity<UserProfileDto> getUserInfo(@LoginUser User user, @RequestParam String userLoginId) {
-        userService.checkAdminRole(user.getId());
+        userAuthService.checkAdminRole(user.getId());
         return new ResponseEntity<>(userService.getUserInfo(userLoginId), HttpStatus.OK);
     }
 
