@@ -1,6 +1,7 @@
 package asc.portfolio.ascSb.user.infra;
 
 import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
+import asc.portfolio.ascSb.common.dto.TokenPayload;
 import asc.portfolio.ascSb.user.domain.TokenService;
 import asc.portfolio.ascSb.user.exception.ExpiredTokenException;
 import asc.portfolio.ascSb.user.exception.TokenException;
@@ -56,12 +57,12 @@ public class JwtTokenService implements TokenService {
     }
 
     @Override
-    public String createAccessToken(String subject) {
+    public String createAccessToken(TokenPayload payload) {
         Date now = currentTimeProvider.toDate(currentTimeProvider.now());
         Date expireDate = new Date(now.getTime() + expireTime);
 
         return Jwts.builder()
-                .setSubject(subject)
+                .addClaims(payload.toMap())
                 .setIssuedAt(now)
                 .setExpiration(expireDate)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -89,7 +90,7 @@ public class JwtTokenService implements TokenService {
                     .getBody();
         } catch (ExpiredJwtException e) {
             log.debug("만료된 JWT 토큰입니다.");
-            throw new ExpiredTokenException(e.getClaims().getSubject(), "만료된 JWT 토큰입니다.");
+            throw new ExpiredTokenException(createTokenPayload(e.getClaims()), "만료된 JWT 토큰입니다.");
         } catch (JwtException e) {
             log.debug("올바르지 않은 JWT 토큰입니다.");
             throw new TokenException("올바르지 않은 JWT 토큰입니다.");
@@ -110,31 +111,33 @@ public class JwtTokenService implements TokenService {
         return token;
     }
 
-    @Override
-    public String verifyAndGetSubject(String token) {
-        String baseToken = checkFormat(token);
-        return validCheckAndGetBody(baseToken)
-                .getSubject();
+    private TokenPayload createTokenPayload(Claims claims) {
+        Long userId = claims.get("id", Long.class);
+        return new TokenPayload(userId);
     }
 
     @Override
-    public String verifyAndGetSubject(String token, String compare) {
+    public TokenPayload verifyAndGetPayload(String token) {
+        String baseToken = checkFormat(token);
+        return createTokenPayload(validCheckAndGetBody(baseToken));
+    }
+
+    @Override
+    public TokenPayload verifyAndGetPayload(String token, String compare) {
         if (!token.equals(compare)) {
             throw new TokenException("일치하지 않는 토큰입니다.");
         }
         String baseToken = checkFormat(token);
-        return validCheckAndGetBody(baseToken)
-                .getSubject();
+        return createTokenPayload(validCheckAndGetBody(baseToken));
     }
 
     @Override
-    public String noVerifyAndGetSubject(String token) {
+    public TokenPayload noVerifyAndGetPayload(String token) {
         String baseToken = checkFormat(token);
         try {
-            return this.validCheckAndGetBody(baseToken)
-                    .getSubject();
+            return createTokenPayload(validCheckAndGetBody(baseToken));
         } catch (ExpiredTokenException e) {
-            return e.getSubject();
+            return e.getPayload();
         }
     }
 }

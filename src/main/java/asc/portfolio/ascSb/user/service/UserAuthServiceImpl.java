@@ -1,11 +1,11 @@
 package asc.portfolio.ascSb.user.service;
 
+import asc.portfolio.ascSb.common.dto.TokenPayload;
 import asc.portfolio.ascSb.user.domain.*;
 import asc.portfolio.ascSb.user.dto.*;
 import asc.portfolio.ascSb.user.exception.AccessDeniedException;
 import asc.portfolio.ascSb.user.exception.UnknownUserException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +31,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     private UserLoginResponseDto createTokenResponse(User user) {
-        String accessToken = tokenService.createAccessToken(user.getId().toString());
+        String accessToken = tokenService.createAccessToken(new TokenPayload(user.getId()));
         String refreshToken = tokenService.createRefreshToken();
 
         return UserLoginResponseDto.builder()
@@ -56,25 +56,24 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Transactional(readOnly = true)
     @Override
     public User checkAccessToken(String token) {
-        String subject = tokenService.verifyAndGetSubject(token);
-        long userId = Long.parseLong(subject);
+        TokenPayload payload = tokenService.verifyAndGetPayload(token);
 
         // todo : pk만 return 하도록 수정
-        return userRepository.findById(userId).orElseThrow(() -> new UnknownUserException());
+        return userRepository.findById(payload.getUserId()).orElseThrow(() -> new UnknownUserException());
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserLoginResponseDto reissueToken(String accessToken, String refreshToken) {
-        // AccessToken 에서 LoginId (subject) 추출 - 만료 검증 없이
-        String subject = tokenService.noVerifyAndGetSubject(accessToken);
-        long userId = Long.parseLong(subject);
+        // AccessToken 에서 Payload 추출 - 만료 검증 없이
+        TokenPayload payload = tokenService.noVerifyAndGetPayload(accessToken);
+        Long userId = payload.getUserId();
 
-        tokenService.verifyAndGetSubject(refreshToken, tokenRepository.getToken(subject));
+        tokenService.verifyAndGetPayload(refreshToken, tokenRepository.getToken(userId.toString()));
 
         // AccessToken 과 RefreshToken 재발급, refreshToken 저장
         User findUser = userRepository.findById(userId).orElseThrow(() -> new UnknownUserException());
-        return new UserLoginResponseDto(findUser.getRole(), tokenService.createAccessToken(subject), refreshToken);
+        return new UserLoginResponseDto(findUser.getRole(), tokenService.createAccessToken(payload), refreshToken);
     }
 
     //todo : 추후 security 적용 후 메서드 삭제

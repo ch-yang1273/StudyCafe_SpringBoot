@@ -1,20 +1,22 @@
 package asc.portfolio.ascSb.user.exception;
 
+import asc.portfolio.ascSb.common.dto.TokenPayload;
+
 public class ExpiredTokenException extends TokenException {
 
-    private final String subject;
+    private final TokenPayload payload;
 
-    public ExpiredTokenException(String subject, String message) {
+    public ExpiredTokenException(TokenPayload payload, String message) {
         super(message);
-        this.subject = subject;
+        this.payload = payload;
     }
 
-    public ExpiredTokenException(String subject, String message, Throwable cause) {
+    public ExpiredTokenException(TokenPayload payload, String message, Throwable cause) {
         super(message, cause);
-        this.subject = subject;
+        this.payload = payload;
     }
 
-    public String getSubject() {
-        return subject;
+    public TokenPayload getPayload() {
+        return payload;
     }
 }
