@@ -1,7 +1,6 @@
 package asc.portfolio.ascSb.common.infra.payment;
 
 import asc.portfolio.ascSb.order.domain.Orders;
-import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.product.service.ProductService;
 import asc.portfolio.ascSb.ticket.service.TicketService;
 import asc.portfolio.ascSb.common.infra.bootpay.dto.BootPayOrderDto;
@@ -23,11 +22,11 @@ public class PaymentServiceImpl implements PaymentService {
 
     // 결제 검증 완료된 데이터 DML 시의 transaction 통일을 위한 method
     @Transactional(propagation = Propagation.REQUIRED)
-    public boolean modifyAndAddValidPayment(Orders orders, User user, BootPayOrderDto dto) {
+    public boolean modifyAndAddValidPayment(Orders orders, Long userId, BootPayOrderDto dto) {
         try {
             orders.completeOrder();
-            productService.saveProduct(user, dto, orders);
-            ticketService.saveProductToTicket(user, dto, orders);
+            productService.saveProduct(userId, dto, orders);
+            ticketService.saveProductToTicket(userId, dto, orders);
         } catch (TransactionalException e) {
             log.info("transaction is failed");
             e.printStackTrace();

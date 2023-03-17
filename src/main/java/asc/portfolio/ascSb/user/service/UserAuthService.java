@@ -9,7 +9,7 @@ public interface UserAuthService {
 
     UserLoginResponseDto checkPassword(String loginId, String password);
 
-    User checkAccessToken(String token);
+    Long checkAccessToken(String token);
 
     UserLoginResponseDto reissueToken(String accessToken, String refreshToken);
 

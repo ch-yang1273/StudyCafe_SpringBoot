@@ -133,9 +133,9 @@ public class SeatRepositoryTest {
         Seat seat = createNewSeat(cafe, 0);
         Ticket ticket = createNewFixedTicket(cafe, user, LocalDateTime.now().plusSeconds(5));
 
-        cafeService.changeReservedUserCafe(user, "testData_서울");
+        cafeService.changeReservedUserCafe(user.getId(), "testData_서울");
 
-        seatService.reserveSeat(user, 0, 4L);
+        seatService.reserveSeat(user.getId(), 0, 4L);
         seatRepository.saveAndFlush(seat);
     }
 
@@ -144,12 +144,12 @@ public class SeatRepositoryTest {
         Cafe cafe = createNewCafe("testData_서울");
         User user = createNewUser("ascUser");
         Seat seat = createNewSeat(cafe, 0);
-        cafeService.changeReservedUserCafe(user, "testData_서울");
+        cafeService.changeReservedUserCafe(user.getId(), "testData_서울");
 
         // 3 초 후 만료되는 FixedTicket 으로 좌석 예약
         Ticket ticket = createNewFixedTicket(cafe, user, LocalDateTime.now().plusSeconds(3));
 
-        seatService.reserveSeat(user, 0, 4L);
+        seatService.reserveSeat(user.getId(), 0, 4L);
 
         // 4초 후 만료 여부 확인
         sleepMillis(4000);
@@ -162,12 +162,12 @@ public class SeatRepositoryTest {
         Cafe cafe = createNewCafe("testData_서울");
         User user = createNewUser("ascUser");
         Seat seat = createNewSeat(cafe, 0);
-        cafeService.changeReservedUserCafe(user, "testData_서울");
+        cafeService.changeReservedUserCafe(user.getId(), "testData_서울");
 
         // 100 초 후 만료되는 FixedTicket 으로 좌석 예약
         Ticket ticket = createNewFixedTicket(cafe, user, LocalDateTime.now().plusSeconds(100));
 
-        seatService.reserveSeat(user, 0, 4L);
+        seatService.reserveSeat(user.getId(), 0, 4L);
 
         // 4초 후 만료 여부 확인
         sleepMillis(4000);
@@ -181,16 +181,16 @@ public class SeatRepositoryTest {
         User user = createNewUser("ascUser");
         Seat seat = createNewSeat(cafe, 0);
 
-        cafeService.changeReservedUserCafe(user, "testData_서울");
+        cafeService.changeReservedUserCafe(user.getId(), "testData_서울");
         Ticket ticket = createNewFixedTicket(cafe, user, LocalDateTime.now().plusSeconds(100));
 
         // 0시간 동안 좌석 예약 (만료 O)
-        seatService.reserveSeat(user, 0, 0L);
+        seatService.reserveSeat(user.getId(), 0, 0L);
         int count = seatService.updateAllReservedSeatState();
         Assertions.assertThat(count).isEqualTo(1);
 
         // 1시간 동안 좌석 예약 (만료 X)
-        seatService.reserveSeat(user, 0, 1L);
+        seatService.reserveSeat(user.getId(), 0, 1L);
         count = seatService.updateAllReservedSeatState();
         Assertions.assertThat(count).isEqualTo(0);
     }
@@ -200,12 +200,12 @@ public class SeatRepositoryTest {
         Cafe cafe = createNewCafe("testData_서울");
         User user = createNewUser("ascUser");
         Seat seat = createNewSeat(cafe, 0);
-        cafeService.changeReservedUserCafe(user, "testData_서울");
+        cafeService.changeReservedUserCafe(user.getId(), "testData_서울");
 
         // 60 분 후 만료되는 PartTimeTicket 으로 좌석 예약
         Ticket ticket = createNewPartTimeTicket(cafe, user, 60L);
 
-        seatService.reserveSeat(user, 0, 4L);
+        seatService.reserveSeat(user.getId(), 0, 4L);
 
         // 바로 만료 확인
         int count = seatService.updateAllReservedSeatState();
@@ -219,12 +219,12 @@ public class SeatRepositoryTest {
         Cafe cafe = createNewCafe("testData_서울");
         User user = createNewUser("ascUser");
         Seat seat = createNewSeat(cafe, 0);
-        cafeService.changeReservedUserCafe(user, "testData_서울");
+        cafeService.changeReservedUserCafe(user.getId(), "testData_서울");
 
         // 1 분 후 만료되는 PartTimeTicket 으로 좌석 예약
         Ticket ticket = createNewPartTimeTicket(cafe, user, 1L);
 
-        seatService.reserveSeat(user, 0, 4L);
+        seatService.reserveSeat(user.getId(), 0, 4L);
 
         // 1 분 후 만료 확인
         sleepMillis(65 * 1000);

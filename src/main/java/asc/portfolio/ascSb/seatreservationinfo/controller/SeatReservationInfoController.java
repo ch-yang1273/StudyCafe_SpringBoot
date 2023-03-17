@@ -1,7 +1,5 @@
 package asc.portfolio.ascSb.seatreservationinfo.controller;
 
-
-import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.seatreservationinfo.dto.SeatReservationInfoSelectResponseDto;
 import asc.portfolio.ascSb.seatreservationinfo.service.SeatReservationInfoService;
@@ -19,12 +17,7 @@ public class SeatReservationInfoController {
 
     private final SeatReservationInfoService seatReservationInfoService;
     @GetMapping("/")
-    public ResponseEntity<SeatReservationInfoSelectResponseDto> userSeatReservationInfo(@LoginUser User user) {
-        if(user == null) {
-            log.error("유효하지 않은 사용자입니다. 다시 로그인 해주세요");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(seatReservationInfoService.showUserSeatReservationInfo(
-                user.getLoginId(), user.getCafe().getCafeName()), HttpStatus.OK);
+    public ResponseEntity<SeatReservationInfoSelectResponseDto> userSeatReservationInfo(@LoginUser Long userId) {
+        return new ResponseEntity<>(seatReservationInfoService.showUserSeatReservationInfo(userId), HttpStatus.OK);
     }
 }

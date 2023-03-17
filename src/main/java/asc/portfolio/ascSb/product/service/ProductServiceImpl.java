@@ -1,5 +1,6 @@
 package asc.portfolio.ascSb.product.service;
 
+import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.product.domain.Product;
 import asc.portfolio.ascSb.product.domain.ProductRepository;
@@ -32,16 +33,13 @@ public class ProductServiceImpl implements ProductService {
     private final UserRepository userRepository;
 
     @Override
-    public List<ProductListResponseDto> adminSalesManagementOneUser(String userLoginId, String cafeName) {
-        Optional<User> user = userRepository.findByLoginId(userLoginId);
-        if(user.isPresent()) {
-            User userDto = user.get();
-            Long id = userDto.getId();
-            return productRepository.findProductListByUserIdAndCafeName(id, cafeName).stream()
-                    .map(ProductListResponseDto::new)
-                    .collect(Collectors.toList());
-        }
-        return null;
+    public List<ProductListResponseDto> adminSalesManagementOneUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow();
+        Cafe cafe = user.getCafe();
+
+        return productRepository.findProductListByUserIdAndCafeName(userId, cafe.getCafeName()).stream()
+                .map(ProductListResponseDto::new)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -54,7 +52,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product saveProduct(User user, BootPayOrderDto dto, Orders orders) {
+    public void saveProduct(Long userId, BootPayOrderDto dto, Orders orders) {
+        User user = userRepository.findById(userId).orElseThrow();
         Product productDto = ProductDto.builder()
                 .cafe(user.getCafe())
                 .user(user)
@@ -64,8 +63,6 @@ public class ProductServiceImpl implements ProductService {
                 .productLabel(orders.getProductLabel())
                 .build()
                 .toEntity();
-
-        return productRepository.save(productDto);
     }
 
     @Override

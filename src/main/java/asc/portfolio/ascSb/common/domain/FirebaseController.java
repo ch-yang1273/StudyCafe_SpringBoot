@@ -1,7 +1,5 @@
 package asc.portfolio.ascSb.common.domain;
 
-import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.user.domain.UserRoleType;
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.common.infra.fcm.service.FirebaseCloudMessageService;
 import asc.portfolio.ascSb.common.infra.fcm.service.fcmtoken.FCMTokenService;
@@ -25,32 +23,21 @@ public class FirebaseController {
     private final FirebaseCloudMessageService firebaseCloudMessageService;
 
     @PostMapping("/cm-token/confirm")
-    public ResponseEntity<?> checkFCMToken(@LoginUser User user, @RequestParam String fCMToken) {
-
-        if (user == null) {
-            log.info("유저가 일치하지 않습니다");
-            return new ResponseEntity<>("User Data incorrect", HttpStatus.BAD_REQUEST);
-        }
-
-        if (fCMToken == null) {
-            log.info("fCMToken 값이 비어있습니다");
-            return new ResponseEntity<>("FCMToken incorrect", HttpStatus.BAD_REQUEST);
-        }
-
-        if (user.getRole() == UserRoleType.USER) {
-            Boolean confirm = fcmTokenService.confirmToken(user, fCMToken);
-            if (confirm)
-                return new ResponseEntity<>("OK", HttpStatus.OK);
-        }
-
-        if (user.getRole() == UserRoleType.ADMIN) {
-            Long id = fcmTokenService.confirmAdminFCMToken(user, fCMToken);
-            if (id == null) {
-                log.info("admin fcm token verify failed");
-                return new ResponseEntity<>("FAIL", HttpStatus.BAD_REQUEST);
-            }
+    public ResponseEntity<?> checkFCMToken(@LoginUser Long userId, @RequestParam String fCMToken) {
+        //todo : USER Role Check
+        Boolean confirm = fcmTokenService.confirmToken(userId, fCMToken);
+        if (confirm)
             return new ResponseEntity<>("OK", HttpStatus.OK);
-        }
+
+        //todo : ADMIN 용은 따로 만들어야 함.
+//        if (user.getRole() == UserRoleType.ADMIN) {
+//            Long id = fcmTokenService.confirmAdminFCMToken(user, fCMToken);
+//            if (id == null) {
+//                log.info("admin fcm token verify failed");
+//                return new ResponseEntity<>("FAIL", HttpStatus.BAD_REQUEST);
+//            }
+//            return new ResponseEntity<>("OK", HttpStatus.OK);
+//        }
 
         log.info("fcm token check error");
         return  new ResponseEntity<>("FAIL", HttpStatus.BAD_REQUEST);

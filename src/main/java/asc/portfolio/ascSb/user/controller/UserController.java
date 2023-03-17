@@ -1,6 +1,5 @@
 package asc.portfolio.ascSb.user.controller;
 
-import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.user.dto.*;
 import asc.portfolio.ascSb.user.exception.AccessDeniedException;
@@ -83,8 +82,8 @@ public class UserController {
     }
 
     @GetMapping("/login-check") //Test
-    public ResponseEntity<Void> loginCheck(@LoginUser User user) {
-        log.debug("login user = {}", user.getLoginId());
+    public ResponseEntity<Void> loginCheck(@LoginUser Long userId) {
+        log.debug("login user = {}", userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -96,13 +95,13 @@ public class UserController {
     }
 
     @GetMapping("/qr-name")
-    public ResponseEntity<UserQrAndNameResponseDto> userQrAndNameInfo(@LoginUser User user) {
-        return new ResponseEntity<>(userService.userQrAndName(user.getId()), HttpStatus.OK);
+    public ResponseEntity<UserQrAndNameResponseDto> userQrAndNameInfo(@LoginUser Long userId) {
+        return new ResponseEntity<>(userService.userQrAndName(userId), HttpStatus.OK);
     }
 
     @GetMapping("/admin/check")
-    public ResponseEntity<UserProfileDto> getUserInfo(@LoginUser User user, @RequestParam String userLoginId) {
-        userAuthService.checkAdminRole(user.getId());
+    public ResponseEntity<UserProfileDto> getUserInfo(@LoginUser Long userId, @RequestParam String userLoginId) {
+        userAuthService.checkAdminRole(userId);
         return new ResponseEntity<>(userService.getUserInfo(userLoginId), HttpStatus.OK);
     }
 

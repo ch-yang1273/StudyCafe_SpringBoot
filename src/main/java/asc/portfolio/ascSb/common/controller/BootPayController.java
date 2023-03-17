@@ -1,7 +1,6 @@
 package asc.portfolio.ascSb.common.controller;
 
 import asc.portfolio.ascSb.order.domain.Orders;
-import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.common.infra.payment.PaymentService;
 import asc.portfolio.ascSb.order.service.OrderService;
@@ -28,9 +27,9 @@ public class BootPayController {
     private final PaymentService paymentService;
 
     @PostMapping("/order")
-    public ResponseEntity<String> pay(@LoginUser User user, @RequestBody OrderDto dto) {
+    public ResponseEntity<String> pay(@LoginUser Long userId, @RequestBody OrderDto dto) {
         try {
-            Long receiptOrderId = orderService.saveOrder(user, dto);
+            Long receiptOrderId = orderService.saveOrder(userId, dto);
             log.info("주문번호={}", receiptOrderId);
         } catch (Exception e) {
             return new ResponseEntity<>("유효하지 않은 주문입니다.", HttpStatus.BAD_REQUEST);
@@ -40,7 +39,7 @@ public class BootPayController {
 
     @GetMapping("/confirm")
     public ResponseEntity<?> confirmPay(
-            @LoginUser User user,
+            @LoginUser Long userId,
             @RequestParam("receipt-id") String receipt_id) throws Exception {
 
         String getDataJson = "";
@@ -74,7 +73,7 @@ public class BootPayController {
             log.info("BootPay 서버 <-> 제품 검증 완료");
 
             /* 검증 완료시 orders 상태 Done(완료)으로 변경, Product에 제품추가, Ticket에 이용권추가 */
-            boolean isCompleted = paymentService.modifyAndAddValidPayment(orders, user, dto);
+            boolean isCompleted = paymentService.modifyAndAddValidPayment(orders, userId, dto);
             if(isCompleted) {
                 return ResponseEntity.ok("OK");
             }

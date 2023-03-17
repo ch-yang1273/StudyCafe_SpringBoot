@@ -14,13 +14,13 @@ public interface TicketService {
 
     TicketForUserResponseDto userValidTicket(Long id, String cafeName);
 
-    Long saveProductToTicket(User user, BootPayOrderDto bootPayOrderDto, Orders orders);
+    Long saveProductToTicket(Long userId, BootPayOrderDto bootPayOrderDto, Orders orders);
 
-    public List<TicketForUserResponseDto> lookupUserTickets(String targetUserLoginId, Cafe cafe);
+    public List<TicketForUserResponseDto> lookupUserTickets(String targetUserLoginId, Long adminId);
 //
 //    Long saveTicket(TicketRequestDto dto, Long id);
 
-    TicketForAdminResponseDto adminLookUpUserValidTicket(String userLoginID, String cafeName);
+    TicketForAdminResponseDto adminLookUpUserValidTicket(String userLoginID, Long adminId);
 
     void setInvalidTicket(String productLabel);
 

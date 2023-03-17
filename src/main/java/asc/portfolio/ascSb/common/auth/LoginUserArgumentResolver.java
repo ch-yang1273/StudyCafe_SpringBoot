@@ -1,6 +1,5 @@
 package asc.portfolio.ascSb.common.auth;
 
-import asc.portfolio.ascSb.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
@@ -24,7 +23,7 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
         //"@LoginUser" User user
         boolean hasLoginUserAnnotation = parameter.hasParameterAnnotation(LoginUser.class);
         //@LoginUser "User" user
-        boolean hasUserType = User.class.isAssignableFrom(parameter.getParameterType());
+        boolean hasUserType = Long.class.isAssignableFrom(parameter.getParameterType());
 
         return hasLoginUserAnnotation && hasUserType;
     }

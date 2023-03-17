@@ -55,11 +55,9 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Transactional(readOnly = true)
     @Override
-    public User checkAccessToken(String token) {
+    public Long checkAccessToken(String token) {
         TokenPayload payload = tokenService.verifyAndGetPayload(token);
-
-        // todo : pk만 return 하도록 수정
-        return userRepository.findById(payload.getUserId()).orElseThrow(() -> new UnknownUserException());
+        return payload.getUserId();
     }
 
     @Transactional(readOnly = true)

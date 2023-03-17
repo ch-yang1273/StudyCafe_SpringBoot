@@ -1,5 +1,4 @@
 package asc.portfolio.ascSb.seat.service;
-import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.seat.dto.SeatResponseDto;
 import asc.portfolio.ascSb.seat.dto.SeatSelectResponseDto;
@@ -11,13 +10,13 @@ public interface SeatService {
 
     List<SeatSelectResponseDto> showCurrentAllSeatState(String cafeName);
 
-    public SeatResponseDto showSeatStateOne(String cafeName, Integer seatNumber);
+    public SeatResponseDto showSeatStateOne(Long userId, Integer seatNumber);
 
-    public Boolean exitSeat(User user);
+    public Boolean exitSeat(Long userId);
 
-    public Boolean reserveSeat(User user, Integer seatNumber, Long startTime);
+    public Boolean reserveSeat(Long userId, Integer seatNumber, Long startTime);
 
-    public void exitSeatBySeatNumber(Cafe cafe, int seatNumber);
+    public void exitSeatBySeatNumber(Long adminId, int seatNumber);
 
     public int updateAllReservedSeatState();
 

@@ -1,7 +1,5 @@
 package asc.portfolio.ascSb.cafe.controller;
 
-import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.user.domain.UserRoleType;
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.cafe.service.CafeService;
 import asc.portfolio.ascSb.seat.service.SeatService;
@@ -43,17 +41,9 @@ public class CafeController {
 
   @Parameter(name = "cafeName", example = "서울지점")
   @PostMapping("/change/{cafeName}")
-  public ResponseEntity<String> changeReservedUserCafe(@LoginUser User user, @PathVariable String cafeName) {
-    if (user.getRole() == UserRoleType.USER) {
-      String resultName = cafeService.changeReservedUserCafe(user, cafeName);
-      if (resultName != null) {
-        return new ResponseEntity<>(resultName, HttpStatus.OK);
-      } else {
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-      }
-    } else {
-      log.info("Admin 유저의 카페 변경은 비활성화 되어 있습니다.");
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
+  public ResponseEntity<String> changeReservedUserCafe(@LoginUser Long userId, @PathVariable String cafeName) {
+    //todo : UserRoleType.USER 체크
+      String resultName = cafeService.changeReservedUserCafe(userId, cafeName);
+      return new ResponseEntity<>(resultName, HttpStatus.OK);
   }
 }
