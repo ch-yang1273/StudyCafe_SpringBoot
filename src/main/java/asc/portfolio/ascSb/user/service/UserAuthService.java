@@ -1,6 +1,5 @@
 package asc.portfolio.ascSb.user.service;
 
-import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.dto.*;
 
 public interface UserAuthService {
@@ -14,4 +13,6 @@ public interface UserAuthService {
     UserLoginResponseDto reissueToken(String accessToken, String refreshToken);
 
     void checkAdminRole(Long userId);
+
+    void checkUserRole(Long userId);
 }

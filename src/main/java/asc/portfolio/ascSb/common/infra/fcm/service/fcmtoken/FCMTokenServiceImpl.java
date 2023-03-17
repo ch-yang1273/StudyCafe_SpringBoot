@@ -29,8 +29,9 @@ public class FCMTokenServiceImpl implements FCMTokenService {
 
     // 관리자가 FCM 토큰을 이미 가지고 있는지, 가지고 있으면 유효한 토큰인지 검사
     @Override
-    public Boolean isAdminHasToken(User user, String adminFCMToken) {
-        Optional<AdminFCMToken> token = adminFCMTokenRepository.findById(user.getId());
+    public Boolean isAdminHasToken(Long adminId, String adminFCMToken) {
+
+        Optional<AdminFCMToken> token = adminFCMTokenRepository.findById(adminId);
         if (token.isPresent()) {
             AdminFCMToken existToken = token.get();
             String pastToken = token.get().getFCMToken();
@@ -40,20 +41,21 @@ public class FCMTokenServiceImpl implements FCMTokenService {
                 adminFCMTokenRepository.save(existToken);
                 return true;
             }
-            Optional<AdminFCMToken> fcmToken = adminFCMTokenRepository.findById(user.getId());
+            Optional<AdminFCMToken> fcmToken = adminFCMTokenRepository.findById(adminId);
             if (fcmToken.isPresent()) {
                 String checkDistinct = fcmToken.get().getFCMToken();
                 return Objects.equals(checkDistinct, adminFCMToken);
                 }
-            }
-            return false;
         }
+        return false;
+    }
 
     // FCM Token을 ADMIN_FCM_TOKEN 테이블에 저장 (Redis X) , 관리자 토큰은 RDBMS 에 별도 저장
     @Override
-    public Long confirmAdminFCMToken (User user, String adminFCMToken) throws IllegalArgumentException {
+    public Long confirmAdminFCMToken (Long userId, String adminFCMToken) throws IllegalArgumentException {
+        User user = userRepository.findById(userId).orElseThrow();
 
-        Boolean validation = isAdminHasToken(user, adminFCMToken);
+        Boolean validation = isAdminHasToken(user.getId(), adminFCMToken);
 
         if (!validation) {
             AdminFCMToken adminFCMTokenRequestDto =

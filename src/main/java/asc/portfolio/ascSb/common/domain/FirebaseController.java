@@ -4,6 +4,7 @@ import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.common.infra.fcm.service.FirebaseCloudMessageService;
 import asc.portfolio.ascSb.common.infra.fcm.service.fcmtoken.FCMTokenService;
 import asc.portfolio.ascSb.common.infra.fcm.dto.FCMRequestDto;
+import asc.portfolio.ascSb.user.service.UserAuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,27 +21,31 @@ public class FirebaseController {
 
     private final FCMTokenService fcmTokenService;
 
+    private final UserAuthService userAuthService;
+
     private final FirebaseCloudMessageService firebaseCloudMessageService;
 
     @PostMapping("/cm-token/confirm")
     public ResponseEntity<?> checkFCMToken(@LoginUser Long userId, @RequestParam String fCMToken) {
-        //todo : USER Role Check
-        Boolean confirm = fcmTokenService.confirmToken(userId, fCMToken);
-        if (confirm)
+        userAuthService.checkUserRole(userId);
+        if (fcmTokenService.confirmToken(userId, fCMToken)) {
             return new ResponseEntity<>("OK", HttpStatus.OK);
+        } else {
+            return  new ResponseEntity<>("FAIL", HttpStatus.BAD_REQUEST);
+        }
+    }
 
-        //todo : ADMIN 용은 따로 만들어야 함.
-//        if (user.getRole() == UserRoleType.ADMIN) {
-//            Long id = fcmTokenService.confirmAdminFCMToken(user, fCMToken);
-//            if (id == null) {
-//                log.info("admin fcm token verify failed");
-//                return new ResponseEntity<>("FAIL", HttpStatus.BAD_REQUEST);
-//            }
-//            return new ResponseEntity<>("OK", HttpStatus.OK);
-//        }
+    @PostMapping("/cm-token/admin/confirm")
+    public ResponseEntity<String> checkAdminFcmToken(@LoginUser Long adminId, @RequestParam String fCMToken) {
+        userAuthService.checkAdminRole(adminId);
 
-        log.info("fcm token check error");
-        return  new ResponseEntity<>("FAIL", HttpStatus.BAD_REQUEST);
+        //todo : 반환 된 id 체크 없이 throw하는 방식으로 변경
+        Long id = fcmTokenService.confirmAdminFCMToken(adminId, fCMToken);
+        if (id == null) {
+            log.info("admin fcm token verify failed");
+            return new ResponseEntity<>("FAIL", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 
     @PostMapping("/send/cloud-message")
@@ -48,14 +53,14 @@ public class FirebaseController {
 
         log.info("FCM SEND {} {}", requestDTO.getTitle(), requestDTO.getBody());
 
-            String targetToken = fcmTokenService.adminFindSpecificToken(requestDTO.getUser_name());
+        String targetToken = fcmTokenService.adminFindSpecificToken(requestDTO.getUser_name());
 
-            firebaseCloudMessageService.sendMessageToSpecificUser(
-                    targetToken,
-                    requestDTO.getTitle(),
-                    requestDTO.getBody());
+        firebaseCloudMessageService.sendMessageToSpecificUser(
+                targetToken,
+                requestDTO.getTitle(),
+                requestDTO.getBody());
 
-            return new ResponseEntity<>("OK", HttpStatus.OK);
+        return new ResponseEntity<>("OK", HttpStatus.OK);
 
     }
 }

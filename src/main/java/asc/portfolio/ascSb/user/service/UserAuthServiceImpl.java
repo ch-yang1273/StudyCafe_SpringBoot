@@ -75,12 +75,22 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     //todo : 추후 security 적용 후 메서드 삭제
+    private void checkRole(Long userId, UserRoleType roleType) {
+        User user = userRepository.findById(userId).orElseThrow();
+        if (user.getRole() != roleType) {
+            throw new AccessDeniedException("Need Role = " + roleType);
+        }
+    }
+
     @Transactional(readOnly = true)
     @Override
-    public void checkAdminRole(Long userId) {
-        User findUser = userRepository.findById(userId).orElseThrow();
-        if (findUser.getRole() != UserRoleType.ADMIN) {
-            throw new AccessDeniedException("need admin role");
-        }
+    public void checkAdminRole(Long adminId) {
+        checkRole(adminId, UserRoleType.ADMIN);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public void checkUserRole(Long userId) {
+        checkRole(userId, UserRoleType.USER);
     }
 }
