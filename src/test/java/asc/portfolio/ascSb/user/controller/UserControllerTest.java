@@ -5,7 +5,12 @@ import asc.portfolio.ascSb.user.domain.PasswordEncoder;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
 import asc.portfolio.ascSb.user.domain.UserRoleType;
-import asc.portfolio.ascSb.user.dto.*;
+import asc.portfolio.ascSb.user.dto.UserLoginRequestDto;
+import asc.portfolio.ascSb.user.dto.UserLoginResponseDto;
+import asc.portfolio.ascSb.user.dto.UserQrAndNameResponseDto;
+import asc.portfolio.ascSb.user.dto.UserSignupDto;
+import asc.portfolio.ascSb.user.dto.UserTokenRequestDto;
+import asc.portfolio.ascSb.user.infra.MapTokenRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
@@ -16,7 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.http.*;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -28,6 +35,7 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
 
+@Import(MapTokenRepository.class)
 @AutoConfigureMockMvc
 @SpringBootTest
 class UserControllerTest {
