@@ -12,7 +12,7 @@ public class Cafe {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "C_ID", nullable = false)
+    @Column(name = "CAFE_ID")
     private Long id;
 
     @Column(unique = true, nullable = false)
@@ -20,15 +20,13 @@ public class Cafe {
 
     private String cafeArea;
 
-    private String cafeState; // 카페 영업 여부
-
-    private int businessHour; // 영업시간
+    @Column(name = "IS_OPEN")
+    private boolean isOpen;
 
     @Builder
-    public Cafe(String cafeName, String cafeArea, String cafeState, int businessHour) {
+    public Cafe(String cafeName, String cafeArea, boolean isOpen) {
         this.cafeName = cafeName;
         this.cafeArea = cafeArea;
-        this.cafeState = cafeState;
-        this.businessHour = businessHour;
+        this.isOpen = isOpen;
     }
 }
