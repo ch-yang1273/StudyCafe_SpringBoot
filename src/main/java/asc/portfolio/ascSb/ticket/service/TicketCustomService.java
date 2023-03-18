@@ -1,6 +1,6 @@
 package asc.portfolio.ascSb.ticket.service;
 
-import asc.portfolio.ascSb.commonenum.product.ProductNameType;
+import asc.portfolio.ascSb.product.domain.ProductNameType;
 
 import java.time.LocalDateTime;
 

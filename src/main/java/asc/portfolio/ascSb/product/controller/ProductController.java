@@ -1,7 +1,7 @@
 package asc.portfolio.ascSb.product.controller;
 
 
-import asc.portfolio.ascSb.common.infra.bootpay.domain.Bootpay;
+import asc.portfolio.ascSb.bootpay.domain.Bootpay;
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.order.service.OrderService;
 import asc.portfolio.ascSb.product.service.ProductService;

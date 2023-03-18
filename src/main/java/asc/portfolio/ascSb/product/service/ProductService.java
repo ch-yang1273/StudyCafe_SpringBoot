@@ -1,7 +1,7 @@
 package asc.portfolio.ascSb.product.service;
 
 import asc.portfolio.ascSb.order.domain.Orders;
-import asc.portfolio.ascSb.common.infra.bootpay.dto.BootPayOrderDto;
+import asc.portfolio.ascSb.bootpay.dto.BootPayOrderDto;
 import asc.portfolio.ascSb.product.dto.ProductListResponseDto;
 
 import java.util.List;

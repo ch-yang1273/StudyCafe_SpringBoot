@@ -1,6 +1,6 @@
 package asc.portfolio.ascSb.product.dto;
 
-import asc.portfolio.ascSb.commonenum.product.ProductNameType;
+import asc.portfolio.ascSb.product.domain.ProductNameType;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.product.domain.Product;
 import asc.portfolio.ascSb.product.domain.ProductStateType;

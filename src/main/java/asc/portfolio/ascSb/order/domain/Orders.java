@@ -1,7 +1,7 @@
 package asc.portfolio.ascSb.order.domain;
 
 import asc.portfolio.ascSb.common.domain.BaseTimeEntity;
-import asc.portfolio.ascSb.commonenum.product.ProductNameType;
+import asc.portfolio.ascSb.product.domain.ProductNameType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

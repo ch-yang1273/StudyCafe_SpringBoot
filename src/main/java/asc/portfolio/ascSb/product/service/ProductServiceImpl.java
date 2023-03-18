@@ -7,7 +7,7 @@ import asc.portfolio.ascSb.product.domain.ProductRepository;
 import asc.portfolio.ascSb.product.domain.ProductStateType;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
-import asc.portfolio.ascSb.common.infra.bootpay.dto.BootPayOrderDto;
+import asc.portfolio.ascSb.bootpay.dto.BootPayOrderDto;
 import asc.portfolio.ascSb.product.dto.ProductDto;
 import asc.portfolio.ascSb.product.dto.ProductListResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

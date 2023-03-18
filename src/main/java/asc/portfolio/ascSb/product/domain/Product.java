@@ -3,7 +3,6 @@ package asc.portfolio.ascSb.product.domain;
 
 import asc.portfolio.ascSb.common.domain.BaseTimeEntity;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
-import asc.portfolio.ascSb.commonenum.product.ProductNameType;
 import asc.portfolio.ascSb.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;

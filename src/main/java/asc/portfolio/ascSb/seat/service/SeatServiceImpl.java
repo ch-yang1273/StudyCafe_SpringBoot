@@ -9,7 +9,7 @@ import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoReposit
 import asc.portfolio.ascSb.ticket.domain.Ticket;
 import asc.portfolio.ascSb.ticket.domain.TicketRepository;
 import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.common.infra.fcm.service.FirebaseCloudMessageService;
+import asc.portfolio.ascSb.firebase.service.FirebaseCloudMessageService;
 import asc.portfolio.ascSb.seat.dto.SeatResponseDto;
 import asc.portfolio.ascSb.seat.dto.SeatSelectResponseDto;
 import asc.portfolio.ascSb.user.domain.UserRepository;

@@ -1,10 +1,8 @@
 package asc.portfolio.ascSb.ticket.service;
 
-import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
-import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.common.infra.bootpay.dto.BootPayOrderDto;
+import asc.portfolio.ascSb.bootpay.dto.BootPayOrderDto;
 import asc.portfolio.ascSb.ticket.dto.TicketForAdminResponseDto;
 import asc.portfolio.ascSb.ticket.dto.TicketForUserResponseDto;
 

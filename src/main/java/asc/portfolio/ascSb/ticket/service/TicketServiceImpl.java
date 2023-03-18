@@ -8,7 +8,7 @@ import asc.portfolio.ascSb.ticket.domain.TicketRepository;
 import asc.portfolio.ascSb.ticket.domain.TicketStateType;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
-import asc.portfolio.ascSb.common.infra.bootpay.dto.BootPayOrderDto;
+import asc.portfolio.ascSb.bootpay.dto.BootPayOrderDto;
 import asc.portfolio.ascSb.ticket.dto.TicketForAdminResponseDto;
 import asc.portfolio.ascSb.ticket.dto.TicketRequestDto;
 import asc.portfolio.ascSb.ticket.dto.TicketForUserResponseDto;
