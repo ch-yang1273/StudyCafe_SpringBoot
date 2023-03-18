@@ -2,16 +2,26 @@ package asc.portfolio.ascSb.user.domain;
 
 import asc.portfolio.ascSb.common.domain.BaseTimeEntity;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
-import asc.portfolio.ascSb.ticket.domain.Ticket;
 import asc.portfolio.ascSb.user.exception.UserNotFoundException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 @Getter
@@ -25,26 +35,29 @@ public class User extends BaseTimeEntity {
     @Column(name = "USER_ID")
     private Long id;
 
-    @OneToMany(mappedBy = "user")
-    private List<Ticket> tickets = new ArrayList<>();
-
+    // todo : User는 Cafe 관계 없이 예약 가능해야겠다. 괜히 복잡하게 만든다.
+    // 추후 좌석 예약 기능 정리 하고 삭제
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
-    @JoinColumn(name = "C_ID")
+    @JoinColumn(name = "CAFE_ID")
     private Cafe cafe;
 
     @Size(min = 8, max = 16)
-    @Column(name = "L_ID", unique = true, nullable = false)
+    @Column(name = "LOGIN_ID", unique = true, nullable = false)
     private String loginId;
 
     @Size(min = 8)
+    @Column(name = "PASSWORD")
     private String password;
 
     @Email
-    @Column(unique = true)
+    @Column(name = "EMAIL", unique = true)
     private String email;
 
+    @Column(name = "NAME")
     private String name;
+
+    @Column(name = "QR")
     private String qrCode;
 
     @Column(name = "USER_ROLE", nullable = false)
@@ -82,12 +95,10 @@ public class User extends BaseTimeEntity {
         int targetStringLength = 10;
         Random random = new Random();
 
-        String generatedString = random.ints(leftLimit, rightLimit + 1)
+        return random.ints(leftLimit, rightLimit + 1)
                 .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
                 .limit(targetStringLength)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
-
-        return generatedString;
     }
 }
