@@ -91,8 +91,6 @@ public class TestDataGeneration {
       Cafe cafe = Cafe.builder()
               .cafeName(cafeName[i])
               .cafeArea(cafeArea[i])
-              .cafeState("OPEN")
-              .businessHour(24)
               .build();
 
       cafeRepository.save(cafe);
