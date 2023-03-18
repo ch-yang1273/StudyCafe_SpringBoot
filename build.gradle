@@ -5,10 +5,10 @@ buildscript {
 }
 
 plugins {
+    id 'java'
     id 'org.springframework.boot' version '2.7.5'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
-    id 'java'
-    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10" // querydsl gradle configure 11/09 by padonan
+    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
 group = 'asc.portfolio'
@@ -22,39 +22,36 @@ configurations {
 }
 
 repositories {
-    maven { url 'https://jitpack.io' }
+    maven { url 'https://jitpack.io' } // for BootPay
     mavenCentral()
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-    testImplementation 'org.projectlombok:lombok:1.18.24'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'com.h2database:h2' // 11 04 h2 database변경 by padonan
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    runtimeOnly 'com.h2database:h2'
     annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    implementation group: 'com.konghq', name: 'unirest-objectmapper-jackson', version: '4.0.0-RC1'
-    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
-    implementation 'com.google.code.gson:gson:2.10'
-    implementation group: 'commons-io', name: 'commons-io', version: '2.7'
-    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
-    compile group: 'com.google.code.gson', name: 'gson', version: '2.10'
-    compile group: 'commons-io', name: 'commons-io', version: '2.7'
 
-    // querydsl 디펜던시 추가 11/09 by padonan
+//    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // querydsl
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
     annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}"
 
+    // jjwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
     // BootPay 사용을 위한 gradle
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.7'
     implementation 'com.github.bootpay:backend-java:+'
 
     // swagger 의 스프링 라이브러리 springdoc 적용.
@@ -69,10 +66,7 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-
-// 11/09 by padonan
 // 5.0 이상의 querydsl 사용을 위한 설정
-// querydsl 사용할 경로 지정합니다. 현재 지정한 부분은 .gitignore에 포함되므로 git에 올라가지 않습니다.
 def querydslDir = "$buildDir/generated/querydsl" // asc\ascSb\build\generated\querydsl Q클래스 생성 경로
 
 // JPA 사용여부 및 사용 경로 설정

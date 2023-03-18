@@ -1,6 +1,5 @@
 package asc.portfolio.ascSb.seat.service;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
-import asc.portfolio.ascSb.cafe.domain.CafeRepository;
 import asc.portfolio.ascSb.common.infra.redis.RedisRepository;
 import asc.portfolio.ascSb.seat.domain.Seat;
 import asc.portfolio.ascSb.seat.domain.SeatRepository;
@@ -10,9 +9,10 @@ import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoReposit
 import asc.portfolio.ascSb.ticket.domain.Ticket;
 import asc.portfolio.ascSb.ticket.domain.TicketRepository;
 import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.common.infra.fcm.service.FirebaseCloudMessageService;
+import asc.portfolio.ascSb.firebase.service.FirebaseCloudMessageService;
 import asc.portfolio.ascSb.seat.dto.SeatResponseDto;
 import asc.portfolio.ascSb.seat.dto.SeatSelectResponseDto;
+import asc.portfolio.ascSb.user.domain.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,9 +29,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SeatServiceImpl implements SeatService {
 
-    private final CafeRepository cafeRepository;
-
     private final SeatRepository seatRepository;
+
+    private final UserRepository userRepository;
 
     private final SeatReservationInfoRepository reservationInfoRepository;
 
@@ -49,14 +49,15 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
-    public SeatResponseDto showSeatStateOne(String cafeName, Integer seatNumber) {
-        if ((cafeName == null) || (seatNumber == null)) {
+    public SeatResponseDto showSeatStateOne(Long userId, Integer seatNumber) {
+        User user = userRepository.findById(userId).orElseThrow();
+        Cafe cafe = user.getCafe();
+
+        if ((cafe.getCafeName() == null) || (seatNumber == null)) {
             log.info("NullPointer Ex : cafeName, seatNumber");
             throw new NullPointerException("NullPointer Ex : cafeName, seatNumber");
         }
 
-        Optional<Cafe> cafeOpt = cafeRepository.findByCafeName(cafeName);
-        Cafe cafe = cafeOpt.orElseThrow(() -> new IllegalArgumentException("Unknown cafe name"));
         Seat seat = seatRepository.findByCafeAndSeatNumber(cafe, seatNumber);
         if (seat.getSeatState() == SeatStateType.UNRESERVED) {
             return SeatResponseDto.setUnReservedSeat(seatNumber, seat.getSeatState());
@@ -88,8 +89,8 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
-    public Boolean exitSeat(User user) {
-        log.info("Exit Seat. user = {}", user.getLoginId());
+    public Boolean exitSeat(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow();
 
         //ReservationInfo 수정
         List<SeatReservationInfo> userRezInfo = reservationInfoRepository.findValidSeatRezInfoByLoginId(user.getLoginId());
@@ -128,13 +129,18 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
-    public void exitSeatBySeatNumber(Cafe cafe, int seatNumber) {
+    public void exitSeatBySeatNumber(Long adminId, int seatNumber) {
+        User admin = userRepository.findById(adminId).orElseThrow();
+        Cafe cafe = admin.getCafe();
         Seat findSeat = seatRepository.findByCafeAndSeatNumber(cafe, seatNumber);
-        exitSeat(findSeat.getUser());
+
+        //todo exitMySeat, exitSeatBySeatNumber로 구분해야겠다.
+        exitSeat(findSeat.getUser().getId());
     }
 
     @Override
-    public Boolean reserveSeat(User user, Integer seatNumber, Long startTime) {
+    public Boolean reserveSeat(Long userId, Integer seatNumber, Long startTime) {
+        User user = userRepository.findById(userId).orElseThrow();
         Cafe cafe = user.getCafe();
         if (cafe == null) {
             log.error("선택 된 카페가 없는 유저 입니다.");
@@ -162,7 +168,7 @@ public class SeatServiceImpl implements SeatService {
         }
 
         //기존에 차지하고 있던 자리가 있으면 exit
-        exitSeat(user);
+        exitSeat(userId);
 
         //seat 에 User, ticket 을 할당
         findSeat.reserveSeat(user, ticketOpt.get());

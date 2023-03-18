@@ -1,6 +1,6 @@
 package asc.portfolio.ascSb.order.dto;
 
-import asc.portfolio.ascSb.commonenum.product.ProductNameType;
+import asc.portfolio.ascSb.product.domain.ProductNameType;
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.order.domain.OrderStateType;
 import lombok.Builder;

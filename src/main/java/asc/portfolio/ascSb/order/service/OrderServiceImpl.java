@@ -6,6 +6,7 @@ import asc.portfolio.ascSb.order.domain.OrdersRepository;
 import asc.portfolio.ascSb.order.domain.OrderStateType;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.order.dto.OrderDto;
+import asc.portfolio.ascSb.user.domain.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,12 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrdersRepository ordersRepository;
 
+    private final UserRepository userRepository;
+
     @Override
-    public Long saveOrder(User user, OrderDto orderDto) {
+    public Long saveOrder(Long userId, OrderDto orderDto) {
+        User user = userRepository.findById(userId).orElseThrow();
+
         orderDto.setUserId(user.getLoginId());
         orderDto.setOrderStateType(OrderStateType.ORDER);
         Orders orders = orderDto.toEntity();

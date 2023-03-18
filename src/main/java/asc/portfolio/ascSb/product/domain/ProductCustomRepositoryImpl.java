@@ -1,7 +1,6 @@
 package asc.portfolio.ascSb.product.domain;
 
 import asc.portfolio.ascSb.cafe.domain.QCafe;
-import asc.portfolio.ascSb.domain.product.QProduct;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static asc.portfolio.ascSb.cafe.domain.QCafe.*;
-import static asc.portfolio.ascSb.domain.product.QProduct.product;
+import static asc.portfolio.ascSb.product.domain.QProduct.*;
 
 @RequiredArgsConstructor
 @Repository

@@ -1,12 +1,11 @@
 package asc.portfolio.ascSb.cafe.controller;
 
-import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.user.domain.UserRoleType;
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.cafe.service.CafeService;
 import asc.portfolio.ascSb.seat.service.SeatService;
 import asc.portfolio.ascSb.cafe.dto.CafeResponseDto;
 import asc.portfolio.ascSb.seat.dto.SeatSelectResponseDto;
+import asc.portfolio.ascSb.user.service.UserAuthService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +22,7 @@ import java.util.List;
 public class CafeController {
 
   private final CafeService cafeService;
+  private final UserAuthService userAuthService;
   private final SeatService seatService;
 
   @GetMapping("")
@@ -43,17 +43,9 @@ public class CafeController {
 
   @Parameter(name = "cafeName", example = "서울지점")
   @PostMapping("/change/{cafeName}")
-  public ResponseEntity<String> changeReservedUserCafe(@LoginUser User user, @PathVariable String cafeName) {
-    if (user.getRole() == UserRoleType.USER) {
-      String resultName = cafeService.changeReservedUserCafe(user, cafeName);
-      if (resultName != null) {
-        return new ResponseEntity<>(resultName, HttpStatus.OK);
-      } else {
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-      }
-    } else {
-      log.info("Admin 유저의 카페 변경은 비활성화 되어 있습니다.");
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
+  public ResponseEntity<String> changeReservedUserCafe(@LoginUser Long userId, @PathVariable String cafeName) {
+    userAuthService.checkUserRole(userId);
+      String resultName = cafeService.changeReservedUserCafe(userId, cafeName);
+      return new ResponseEntity<>(resultName, HttpStatus.OK);
   }
 }

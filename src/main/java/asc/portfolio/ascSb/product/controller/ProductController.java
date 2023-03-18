@@ -1,14 +1,13 @@
 package asc.portfolio.ascSb.product.controller;
 
 
-import asc.portfolio.ascSb.common.infra.bootpay.domain.Bootpay;
-import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.user.domain.UserRoleType;
+import asc.portfolio.ascSb.bootpay.domain.Bootpay;
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.order.service.OrderService;
 import asc.portfolio.ascSb.product.service.ProductService;
 import asc.portfolio.ascSb.ticket.service.TicketService;
 import asc.portfolio.ascSb.product.dto.ProductListResponseDto;
+import asc.portfolio.ascSb.user.service.UserAuthService;
 import kr.co.bootpay.model.request.Cancel;
 import kr.co.bootpay.model.response.ResDefault;
 import lombok.RequiredArgsConstructor;
@@ -28,37 +27,32 @@ public class ProductController {
 
     private final ProductService productService;
 
+    private final UserAuthService userAuthService;
+
     private final OrderService orderService;
 
     private final TicketService ticketService;
 
     @RequestMapping(value = "/admin/management", method = RequestMethod.GET)
-    public ResponseEntity<List<ProductListResponseDto>> productInfoOneUser(@LoginUser User user, @RequestParam String userLoginId) {
-        if(user.getRole() != UserRoleType.ADMIN) {
-            log.error("관리자 계정이 아닙니다.");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(productService.adminSalesManagementOneUser(userLoginId, user.getCafe().getCafeName()), HttpStatus.OK);
+    public ResponseEntity<List<ProductListResponseDto>> productInfoOneUser(@LoginUser Long userId, @RequestParam String userLoginId) {
+        userAuthService.checkAdminRole(userId);
+        return new ResponseEntity<>(productService.adminSalesManagementOneUser(userId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/admin/management/start-time/{cafeName}", method = RequestMethod.GET)
-    public ResponseEntity<List<ProductListResponseDto>> productInfoWithConstTerm(@LoginUser User user, @PathVariable String cafeName,
-                                                                   @RequestHeader(value = "dateString") String dateString) {
-        if(user.getRole() != UserRoleType.ADMIN) {
-            log.error("관리자 계정이 아닙니다.");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<List<ProductListResponseDto>> productInfoWithConstTerm(
+            @LoginUser Long userId,
+            @PathVariable String cafeName,
+            @RequestHeader(value = "dateString") String dateString) {
+        userAuthService.checkAdminRole(userId);
         return new ResponseEntity<>(productService.adminSalesManagementWithStartDate(cafeName, dateString), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/admin/management/cancel/product", method = RequestMethod.POST)
-    public ResponseEntity<String> cancelOneProduct(@LoginUser User user, @RequestParam("product-label") String productLabel) throws Exception {
+    public ResponseEntity<String> cancelOneProduct(@LoginUser Long userId, @RequestParam("product-label") String productLabel) throws Exception {
 
         final String receiptId = orderService.findReceiptIdToProductLabel(productLabel.substring(11)).getReceiptOrderId();
-
-        if(user.getRole() != UserRoleType.ADMIN) {
-            return new ResponseEntity<>("관리자 계정이 아닙니다",HttpStatus.BAD_REQUEST);
-        }
+        userAuthService.checkAdminRole(userId);
 
         String rest_application_id = "";
         String private_key = "";

@@ -93,7 +93,7 @@ class SeatServiceTest {
                 .build();
         ticketRepository.save(ticket);
 
-        Boolean isReserved = seatService.reserveSeat(user, 5, 10L);
+        Boolean isReserved = seatService.reserveSeat(user.getId(), 5, 10L);
         //log.info("isReserved={}", isReserved);
 
         //when
@@ -170,12 +170,12 @@ class SeatServiceTest {
                 .build();
         ticketRepository.save(ticket);
 
-        Boolean isReserved = seatService.reserveSeat(user, 5, 10L);
+        Boolean isReserved = seatService.reserveSeat(user.getId(), 5, 10L);
         //log.info("isReserved={}", isReserved);
 
         //when
-        SeatResponseDto reservedSeat = seatService.showSeatStateOne(cafe.getCafeName(), 5);
-        SeatResponseDto unreservedSeat = seatService.showSeatStateOne(cafe.getCafeName(), 3);
+        SeatResponseDto reservedSeat = seatService.showSeatStateOne(user.getId(), 5);
+        SeatResponseDto unreservedSeat = seatService.showSeatStateOne(user.getId(), 3);
 
         //then
         assertThat(reservedSeat.getSeatState()).isEqualTo(SeatStateType.RESERVED);

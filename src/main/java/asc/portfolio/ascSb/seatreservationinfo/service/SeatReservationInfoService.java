@@ -6,8 +6,8 @@ import asc.portfolio.ascSb.seatreservationinfo.dto.SeatReservationInfoSelectResp
 
 public interface SeatReservationInfoService {
 
-    public SeatReservationInfoSelectResponseDto showUserSeatReservationInfo(String loginId, String cafeName);
+    public SeatReservationInfoSelectResponseDto showUserSeatReservationInfo(Long userId);
 
-    SeatReservationInfo validUserSeatReservationInfo(User user);
+    SeatReservationInfo validUserSeatReservationInfo(Long userId);
 
 }

@@ -1,12 +1,11 @@
 package asc.portfolio.ascSb.seat.controller;
 
 import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfo;
-import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.user.domain.UserRoleType;
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.seatreservationinfo.service.SeatReservationInfoService;
 import asc.portfolio.ascSb.seat.dto.SeatResponseDto;
 import asc.portfolio.ascSb.seat.service.SeatService;
+import asc.portfolio.ascSb.user.service.UserAuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 public class SeatController {
 
     private final SeatService seatService;
+
+    private final UserAuthService userAuthService;
 
     private final SeatReservationInfoService seatReservationInfoService;
 
@@ -36,31 +37,26 @@ public class SeatController {
     }
 
     @GetMapping("/one")
-    public ResponseEntity<SeatResponseDto> seatStateOne(@LoginUser User user) {
+    public ResponseEntity<SeatResponseDto> seatStateOne(Long userId) {
 
         // 유저가 사용중인 seatNumber
-        int seatNumber = seatReservationInfoService.validUserSeatReservationInfo(user).getSeatNumber();
+        int seatNumber = seatReservationInfoService.validUserSeatReservationInfo(userId).getSeatNumber();
 
-        return new ResponseEntity<>(seatService.showSeatStateOne(user.getCafe().getCafeName(), seatNumber), HttpStatus.OK);
+        return new ResponseEntity<>(seatService.showSeatStateOne(userId, seatNumber), HttpStatus.OK);
     }
 
     @PostMapping("/reservation/")
-    public ResponseEntity<String> reserveSeat(@LoginUser User user, @RequestParam("seat") Integer seatNumber,
+    public ResponseEntity<String> reserveSeat(@LoginUser Long userId, @RequestParam("seat") Integer seatNumber,
                                               @RequestParam("time") Long startTime) {
         Long checkTime = startTime;
 
-        //선택 된 카페가 없음.
-        if (user.getCafe() == null) {
-            return new ResponseEntity<>("Select a cafe first", HttpStatus.BAD_REQUEST);
-        }
-
         // 프론트에서 보내는 startTime이 0이면 => 자리 교체 요청 => 사용중인 좌석을 찾아서 그 값을 startTime에 대입
         if(startTime == 0) {
-             SeatReservationInfo validSeatRezInfo = seatReservationInfoService.validUserSeatReservationInfo(user);
+             SeatReservationInfo validSeatRezInfo = seatReservationInfoService.validUserSeatReservationInfo(userId);
              checkTime = validSeatRezInfo.getStartTime() - validSeatRezInfo.updateTimeInUse();
         }
 
-        Boolean isSuccess = seatService.reserveSeat(user, seatNumber, checkTime);
+        Boolean isSuccess = seatService.reserveSeat(userId, seatNumber, checkTime);
         if (!isSuccess) {
             return new ResponseEntity<>("Failed", HttpStatus.BAD_REQUEST);
         }
@@ -68,9 +64,9 @@ public class SeatController {
     }
 
     @PostMapping("/exit")
-    public ResponseEntity<String> exitSeat(@LoginUser User user) {
+    public ResponseEntity<String> exitSeat(@LoginUser Long userId) {
 
-        Boolean isSuccess = seatService.exitSeat(user);
+        Boolean isSuccess = seatService.exitSeat(userId);
         if (!isSuccess) {
             return new ResponseEntity<>("No seat where the user sat", HttpStatus.BAD_REQUEST);
         }
@@ -78,20 +74,9 @@ public class SeatController {
     }
 
     @PostMapping("/exit-admin/{seatNumber}")
-    public ResponseEntity<String> exitSeat(@LoginUser User admin, @PathVariable int seatNumber) {
-        if (admin.getRole() == UserRoleType.ADMIN) {
-            if (admin.getCafe() != null) {
-                log.info("Exit Seat By Admin = {}", admin.getLoginId());
-                seatService.exitSeatBySeatNumber(admin.getCafe(), seatNumber);
-                return new ResponseEntity<>("Success", HttpStatus.OK);
-            } else {
-                log.warn("Set up a cafe field first");
-                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-            }
-
-        } else {
-            log.info("Unauthorized User");
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
+    public ResponseEntity<String> exitSeat(@LoginUser Long adminId, @PathVariable int seatNumber) {
+        userAuthService.checkAdminRole(adminId);
+        seatService.exitSeatBySeatNumber(adminId, seatNumber);
+        return new ResponseEntity<>("Success", HttpStatus.OK);
     }
 }

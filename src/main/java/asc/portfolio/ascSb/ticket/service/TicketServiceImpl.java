@@ -8,7 +8,7 @@ import asc.portfolio.ascSb.ticket.domain.TicketRepository;
 import asc.portfolio.ascSb.ticket.domain.TicketStateType;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
-import asc.portfolio.ascSb.common.infra.bootpay.dto.BootPayOrderDto;
+import asc.portfolio.ascSb.bootpay.dto.BootPayOrderDto;
 import asc.portfolio.ascSb.ticket.dto.TicketForAdminResponseDto;
 import asc.portfolio.ascSb.ticket.dto.TicketRequestDto;
 import asc.portfolio.ascSb.ticket.dto.TicketForUserResponseDto;
@@ -54,7 +54,8 @@ public class TicketServiceImpl implements TicketService, TicketCustomService {
         }
 
     @Override
-    public Long saveProductToTicket(User user, BootPayOrderDto bootPayOrderDto, Orders orders) {
+    public Long saveProductToTicket(Long userId, BootPayOrderDto bootPayOrderDto, Orders orders) {
+        User user = userRepository.findById(userId).orElseThrow();
         Optional<TicketForUserResponseDto> findUserValidTicket =
                 ticketRepository.findAvailableTicketInfoByIdAndCafeName(user.getId(), user.getCafe().getCafeName());
 
@@ -98,26 +99,21 @@ public class TicketServiceImpl implements TicketService, TicketCustomService {
     }
 
     @Override
-    public List<TicketForUserResponseDto> lookupUserTickets(String targetUserLoginId, Cafe cafe) {
-        return ticketRepository.findAllTicketInfoByLoginIdAndCafe(targetUserLoginId, cafe);
+    public List<TicketForUserResponseDto> lookupUserTickets(String targetUserLoginId, Long adminId) {
+        User admin = userRepository.findById(adminId).orElseThrow();
+        return ticketRepository.findAllTicketInfoByLoginIdAndCafe(targetUserLoginId, admin.getCafe());
     }
 
     @Override
-    public TicketForAdminResponseDto adminLookUpUserValidTicket(String userLoginId, String cafeName) throws NullPointerException {
-        Optional<User> user = userRepository.findByLoginId(userLoginId);
-        try {
-            if (user.isPresent()) {
-                User userDto = user.get();
-                Long userDtoId = userDto.getId();
-                Ticket ticket = ticketRepository.findValidTicketInfoForAdminByUserIdAndCafeName(userDtoId, cafeName);
-                String productNameType = productRepository.findByProductLabelContains(ticket.getProductLabel()).getProductNameType().getValue();
-                return new TicketForAdminResponseDto(ticket, productNameType);
-            }
-        } catch (NullPointerException exception) {
-            log.info("유저의 유효한 티켓이 존재하지 않습니다.");
-            exception.printStackTrace();
-        }
-        return null;
+    public TicketForAdminResponseDto adminLookUpUserValidTicket(String userLoginId, Long adminId) throws NullPointerException {
+        User admin = userRepository.findById(adminId).orElseThrow();
+        Cafe adminCafe = admin.getCafe();
+        User user = userRepository.findByLoginId(userLoginId).orElseThrow();
+
+        Long userId = user.getId();
+        Ticket ticket = ticketRepository.findValidTicketInfoForAdminByUserIdAndCafeName(userId, adminCafe.getCafeName());
+        String productNameType = productRepository.findByProductLabelContains(ticket.getProductLabel()).getProductNameType().getValue();
+        return new TicketForAdminResponseDto(ticket, productNameType);
     }
 
     @Override

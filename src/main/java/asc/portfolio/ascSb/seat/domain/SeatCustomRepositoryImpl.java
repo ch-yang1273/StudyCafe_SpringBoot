@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static asc.portfolio.ascSb.cafe.domain.QCafe.*;
-import static asc.portfolio.ascSb.domain.seat.QSeat.*;
-import static asc.portfolio.ascSb.domain.seatreservationinfo.QSeatReservationInfo.seatReservationInfo;
-import static asc.portfolio.ascSb.domain.ticket.QTicket.*;
+import static asc.portfolio.ascSb.seat.domain.QSeat.*;
+import static asc.portfolio.ascSb.seatreservationinfo.domain.QSeatReservationInfo.*;
+import static asc.portfolio.ascSb.ticket.domain.QTicket.*;
 
 @Slf4j
 @RequiredArgsConstructor
