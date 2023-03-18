@@ -9,7 +9,7 @@ import asc.portfolio.ascSb.user.dto.UserSignupDto;
 import asc.portfolio.ascSb.user.dto.UserTokenRequestDto;
 import asc.portfolio.ascSb.user.exception.AccessDeniedException;
 import asc.portfolio.ascSb.user.exception.TokenException;
-import asc.portfolio.ascSb.user.exception.UnknownUserException;
+import asc.portfolio.ascSb.user.exception.UserNotFoundException;
 import asc.portfolio.ascSb.user.service.UserAuthService;
 import asc.portfolio.ascSb.user.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -42,8 +42,8 @@ public class UserController {
         return new ResponseEntity<>("TokenException", HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(UnknownUserException.class)
-    public ResponseEntity<String> unknownExHandle(UnknownUserException ex) {
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<String> unknownExHandle(UserNotFoundException ex) {
         return new ResponseEntity<>("UnknownUserException", HttpStatus.BAD_REQUEST);
     }
 

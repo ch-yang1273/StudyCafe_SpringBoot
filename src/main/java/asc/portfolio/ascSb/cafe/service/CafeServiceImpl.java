@@ -24,6 +24,9 @@ public class CafeServiceImpl implements CafeService {
     private final CafeRepository cafeRepository;
 
     // todo : 패키지 순환 발생 Seat -> Cafe , CafeService -> SeatRepository
+    // seat 쪽으로 옮겨야 패키지 순환이 발생하지 않겠다.
+    // findByCafe도 findByCafeId로 바뀌는 것이 좋겠다. 괜히 Cafe 가져온다.
+    // Seat의 Cafe 필드를 Id 참조로 변경
     private final SeatRepository seatRepository;
 
     @Transactional(readOnly = true)

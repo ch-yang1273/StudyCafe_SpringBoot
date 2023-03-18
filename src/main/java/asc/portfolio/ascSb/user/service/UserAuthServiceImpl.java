@@ -10,7 +10,7 @@ import asc.portfolio.ascSb.user.domain.UserRoleType;
 import asc.portfolio.ascSb.user.dto.UserLoginResponseDto;
 import asc.portfolio.ascSb.user.dto.UserSignupDto;
 import asc.portfolio.ascSb.user.exception.AccessDeniedException;
-import asc.portfolio.ascSb.user.exception.UnknownUserException;
+import asc.portfolio.ascSb.user.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +50,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Transactional
     @Override
     public UserLoginResponseDto checkPassword(String loginId, String password) {
-        User targetUser = userRepository.findByLoginId(loginId).orElseThrow(() -> new UnknownUserException());
+        User targetUser = userRepository.findByLoginId(loginId).orElseThrow(() -> new UserNotFoundException());
         targetUser.checkPassword(passwordEncoder, loginId, password);
 
         UserLoginResponseDto result = createTokenResponse(targetUser);
@@ -76,7 +76,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         tokenService.verifyAndGetPayload(refreshToken, tokenRepository.getToken(userId.toString()));
 
         // AccessToken 과 RefreshToken 재발급, refreshToken 저장
-        User findUser = userRepository.findById(userId).orElseThrow(() -> new UnknownUserException());
+        User findUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         return new UserLoginResponseDto(findUser.getRole(), tokenService.createAccessToken(payload), refreshToken);
     }
 

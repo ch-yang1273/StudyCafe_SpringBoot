@@ -3,7 +3,7 @@ package asc.portfolio.ascSb.user.domain;
 import asc.portfolio.ascSb.common.domain.BaseTimeEntity;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
-import asc.portfolio.ascSb.user.exception.UnknownUserException;
+import asc.portfolio.ascSb.user.exception.UserNotFoundException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
@@ -68,7 +68,7 @@ public class User extends BaseTimeEntity {
     public void checkPassword(PasswordEncoder passwordEncoder, String loginId, String rawPassword) {
         String encrypt = passwordEncoder.encryptPassword(loginId, rawPassword);
         if (!this.password.equals(encrypt)) {
-            throw new UnknownUserException();
+            throw new UserNotFoundException();
         }
     }
 

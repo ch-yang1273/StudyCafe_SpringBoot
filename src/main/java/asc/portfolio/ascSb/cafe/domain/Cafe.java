@@ -35,7 +35,7 @@ public class Cafe {
     }
 
     public void closeCafe() {
-        //todo : 사용 중인 seat도 종료
+        //todo : 사용 중인 seat도 종료, 이벤트 쓰는 것이 좋겠다.
         this.isOpen = false;
     }
 }

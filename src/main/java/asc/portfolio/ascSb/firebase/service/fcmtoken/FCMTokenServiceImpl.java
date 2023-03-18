@@ -6,7 +6,7 @@ import asc.portfolio.ascSb.common.infra.redis.RedisRepository;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.firebase.dto.fcmtoken.AdminFCMTokenRequestDto;
 import asc.portfolio.ascSb.user.domain.UserRepository;
-import asc.portfolio.ascSb.user.exception.UnknownUserException;
+import asc.portfolio.ascSb.user.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -81,7 +81,7 @@ public class FCMTokenServiceImpl implements FCMTokenService {
     // user 의 FCM 토큰을 Redis 에 저장
     @Override
     public Boolean confirmToken (Long userId, String userFCMToken) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UnknownUserException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
 
         String userKeyType = user.getLoginId() + "_" + user.getRole() + "_FCM_TOKEN"; // "${userLoginId}_${userRole}_FCM_TOKEN"
         Long timeOutDay = 30L * 24L * 3600L; // 30일
