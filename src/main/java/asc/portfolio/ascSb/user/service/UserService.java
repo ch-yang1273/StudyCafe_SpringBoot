@@ -7,5 +7,7 @@ public interface UserService {
 
     UserQrAndNameResponseDto userQrAndName(Long id);
 
-    UserProfileDto getUserInfo(String userId);
+    UserProfileDto getUserInfoByLoginId(String userId);
+
+    void updateUserCafe(Long userId, Long cafeId);
 }

@@ -1,5 +1,8 @@
 package asc.portfolio.ascSb.user.service;
 
+import asc.portfolio.ascSb.cafe.domain.Cafe;
+import asc.portfolio.ascSb.cafe.domain.CafeRepository;
+import asc.portfolio.ascSb.cafe.exception.CafeNotFoundException;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
 import asc.portfolio.ascSb.user.dto.UserProfileDto;
@@ -15,6 +18,8 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
+    private final CafeRepository cafeRepository;
+
     @Transactional(readOnly = true)
     @Override
     public UserQrAndNameResponseDto userQrAndName(Long id) {
@@ -24,8 +29,15 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public UserProfileDto getUserInfo(String userLoginId) {
+    public UserProfileDto getUserInfoByLoginId(String userLoginId) {
         User findUser = userRepository.findByLoginId(userLoginId).orElseThrow(() -> new UnknownUserException());
         return new UserProfileDto(findUser);
+    }
+
+    @Override
+    public void updateUserCafe(Long userId, Long cafeId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UnknownUserException());
+        Cafe cafe = cafeRepository.findById(cafeId).orElseThrow(() -> new CafeNotFoundException());
+        user.changeCafe(cafe);
     }
 }

@@ -11,7 +11,5 @@ public interface CafeService {
 
     Page<CafeResponseDto> getCafeList(Pageable pageable);
 
-    String changeReservedUserCafe(Long userId, String cafeName);
-
     List<SeatStatusDto> getAllSeatsByCafeId(Long cafeId);
 }

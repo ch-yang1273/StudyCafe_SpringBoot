@@ -1,11 +1,8 @@
 package asc.portfolio.ascSb.cafe.controller;
 
 import asc.portfolio.ascSb.cafe.dto.SeatStatusDto;
-import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.cafe.service.CafeService;
 import asc.portfolio.ascSb.cafe.dto.CafeResponseDto;
-import asc.portfolio.ascSb.user.service.UserAuthService;
-import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,7 +20,6 @@ import java.util.List;
 public class CafeController {
 
     private final CafeService cafeService;
-    private final UserAuthService userAuthService;
 
     @GetMapping("/list")
     public Page<CafeResponseDto> getCafeList(Pageable pageable) {
@@ -33,13 +29,5 @@ public class CafeController {
     @GetMapping("/{cafeId}/seats")
     public ResponseEntity<List<SeatStatusDto>> getAllSeatsByCafeId(@PathVariable Long cafeId) {
         return new ResponseEntity<>(cafeService.getAllSeatsByCafeId(cafeId), HttpStatus.OK);
-    }
-
-    @Parameter(name = "cafeName", example = "서울지점")
-    @PostMapping("/change/{cafeName}")
-    public ResponseEntity<String> changeReservedUserCafe(@LoginUser Long userId, @PathVariable String cafeName) {
-        userAuthService.checkUserRole(userId);
-        String resultName = cafeService.changeReservedUserCafe(userId, cafeName);
-        return new ResponseEntity<>(resultName, HttpStatus.OK);
     }
 }
