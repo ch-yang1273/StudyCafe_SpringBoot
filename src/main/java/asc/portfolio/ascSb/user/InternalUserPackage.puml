@@ -1,0 +1,215 @@
+@startuml
+class user.exception.UnknownUserException {
+}
+class user.exception.TokenException {
+}
+enum user.domain.UserRoleType {
++  USER
++  ADMIN
+}
+class user.infra.JwtTokenService {
+- CurrentTimeProvider currentTimeProvider
+- Key secretKey
+- long expireTime
+- long refreshTime
++ long getExpireTime()
++ long getRefreshTime()
++ String createAccessToken(TokenPayload)
++ String createRefreshToken()
+- Claims validCheckAndGetBody(String)
+- String checkFormat(String)
+- TokenPayload createTokenPayload(Claims)
++ TokenPayload verifyAndGetPayload(String)
++ TokenPayload verifyAndGetPayload(String,String)
++ TokenPayload noVerifyAndGetPayload(String)
+}
+interface user.service.UserService {
+~ UserQrAndNameResponseDto userQrAndName(Long)
+~ UserProfileDto getUserInfo(String)
+}
+interface user.domain.TokenService {
+~ long getExpireTime()
+~ long getRefreshTime()
+~ String createAccessToken(TokenPayload)
+~ String createRefreshToken()
+~ TokenPayload verifyAndGetPayload(String)
+~ TokenPayload verifyAndGetPayload(String,String)
+~ TokenPayload noVerifyAndGetPayload(String)
+}
+class user.infra.MessageDigestPasswordEncoder {
++ String encryptPassword(String,String)
+}
+interface user.domain.TokenRepository {
+~ void saveToken(String,String,Long)
+~ String getToken(String)
+~ Boolean hasKey(String)
+~ void deleteToken(String)
+}
+class user.service.UserAuthServiceImpl {
+- UserRepository userRepository
+- TokenRepository tokenRepository
+- PasswordEncoder passwordEncoder
+- TokenService tokenService
++ void signUp(UserSignupDto)
+- UserLoginResponseDto createTokenResponse(User)
++ UserLoginResponseDto checkPassword(String,String)
++ Long checkAccessToken(String)
++ UserLoginResponseDto reissueToken(String,String)
+- void checkRole(Long,UserRoleType)
++ void checkAdminRole(Long)
++ void checkUserRole(Long)
+}
+class user.dto.UserTokenRequestDto {
+- String accessToken
+- String refreshToken
+}
+class user.dto.UserQrAndNameResponseDto {
+- String name
+- String qrCode
+}
+interface user.domain.PasswordEncoder {
+~ String encryptPassword(String,String)
+}
+class user.dto.UserSignupDto {
+- String loginId
+- String password
+- String email
+- String name
++ User toEntity()
+}
+class user.service.UserServiceImpl {
+- UserRepository userRepository
++ UserQrAndNameResponseDto userQrAndName(Long)
++ UserProfileDto getUserInfo(String)
+}
+class user.infra.InMemoryTokenRepository {
+- InMemoryRepository repository
++ void saveToken(String,String,Long)
++ String getToken(String)
++ Boolean hasKey(String)
++ void deleteToken(String)
+}
+class user.domain.User {
+- Long id
+- List<Ticket> tickets
+- Cafe cafe
+- String loginId
+- String password
+- String email
+- String name
+- String qrCode
+- UserRoleType role
++ void encryptPassword(PasswordEncoder)
++ void checkPassword(PasswordEncoder,String,String)
++ void changeCafe(Cafe)
++ String createQrString()
+}
+class user.dto.UserLoginResponseDto {
+~ UserRoleType roleType
+~ String accessToken
+~ String refreshToken
+}
+class user.dto.UserLoginRequestDto {
+- String loginId
+- String password
+}
+class user.dto.UserProfileDto {
+- String loginId
+- String email
+- String name
+- LocalDateTime createDate
+}
+interface user.service.UserAuthService {
+~ void signUp(UserSignupDto)
+~ UserLoginResponseDto checkPassword(String,String)
+~ Long checkAccessToken(String)
+~ UserLoginResponseDto reissueToken(String,String)
+~ void checkAdminRole(Long)
+~ void checkUserRole(Long)
+}
+class user.exception.AccessDeniedException {
+}
+class user.exception.ExpiredTokenException {
+- TokenPayload payload
++ TokenPayload getPayload()
+}
+class user.controller.UserController {
+- UserAuthService userAuthService
+- UserService userService
++ ResponseEntity<String> tokenExHandle(TokenException)
++ ResponseEntity<String> unknownExHandle(UnknownUserException)
++ ResponseEntity<String> accessDeniedExHandle(AccessDeniedException)
+- String validateSingUpDto(BindingResult)
++ ResponseEntity<String> singUp(UserSignupDto,BindingResult)
++ ResponseEntity<UserLoginResponseDto> login(UserLoginRequestDto)
++ ResponseEntity<Void> loginCheck(Long)
++ ResponseEntity<UserLoginResponseDto> reissueToken(UserTokenRequestDto)
++ ResponseEntity<UserQrAndNameResponseDto> userQrAndNameInfo(Long)
++ ResponseEntity<UserProfileDto> getUserInfo(Long,String)
++ ResponseEntity<Void> checkUserInfo(String)
+}
+interface user.domain.UserRepository {
+~ Optional<User> findByLoginId(String)
+~ User findByNameContains(String)
+}
+
+
+user.exception.RuntimeException <|-- user.exception.UnknownUserException
+user.exception.RuntimeException <|-- user.exception.TokenException
+user.exception.RuntimeException <|-- user.exception.AccessDeniedException
+user.exception.TokenException <|-- user.exception.ExpiredTokenException
+
+'controller 패키지
+controller ...> user.dto
+UserController ...> UserLoginRequestDto
+UserController ...> UserLoginResponseDto
+UserController ...> UserProfileDto
+UserController ...> UserQrAndNameResponseDto
+UserController ...> UserSignupDto
+UserController ...> UserTokenRequestDto
+
+controller ---> service
+UserController ---> UserAuthService
+UserController ---> UserService
+
+UserController ...> AccessDeniedException
+UserController ...> TokenException
+UserController ...> UnknownUserException
+
+'domain 패키지
+User ...> UnknownUserException
+
+'dto 패키지
+UserLoginResponseDto ---> UserRoleType
+UserProfileDto ...> User
+UserSignupDto ...> User
+UserSignupDto ...> UserRoleType
+
+'infra 패키지
+TokenRepository <|.. InMemoryTokenRepository
+TokenService <|.. JwtTokenService
+JwtTokenService ...> ExpiredTokenException
+JwtTokenService ...> TokenException
+PasswordEncoder <|.. MessageDigestPasswordEncoder
+
+'service 패키지
+UserAuthService ...> UserLoginResponseDto
+UserAuthService ...> UserSignupDto
+
+UserAuthService <|.. UserAuthServiceImpl
+UserAuthServiceImpl --> UserRepository
+UserAuthServiceImpl --> TokenRepository
+UserAuthServiceImpl --> PasswordEncoder
+UserAuthServiceImpl --> TokenService
+UserAuthServiceImpl ..> User
+UserAuthServiceImpl ..> UserRoleType
+UserAuthServiceImpl ..> UserLoginResponseDto
+UserAuthServiceImpl ..> UserSignupDto
+UserAuthServiceImpl ..> AccessDeniedException
+UserAuthServiceImpl ..> UnknownUserException
+
+user.service.UserService <|.. user.service.UserServiceImpl
+
+
+
+@enduml

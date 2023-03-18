@@ -1,6 +1,7 @@
 package asc.portfolio.ascSb.user.service;
 
-import asc.portfolio.ascSb.user.dto.*;
+import asc.portfolio.ascSb.user.dto.UserLoginResponseDto;
+import asc.portfolio.ascSb.user.dto.UserSignupDto;
 
 public interface UserAuthService {
 
