@@ -1,11 +1,11 @@
 package asc.portfolio.ascSb.seat.domain;
-import asc.portfolio.ascSb.user.domain.User;
+import asc.portfolio.ascSb.cafe.domain.Cafe;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface SeatRepository extends JpaRepository<Seat, Long>, SeatCustomRepository {
 
-  Optional<Seat> findByUser(User user);
+  List<Seat> findByCafe(Cafe cafe);
 
 }

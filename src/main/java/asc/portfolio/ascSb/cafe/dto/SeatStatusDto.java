@@ -1,5 +1,4 @@
-package asc.portfolio.ascSb.seat.dto;
-
+package asc.portfolio.ascSb.cafe.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,8 +7,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class SeatSelectResponseDto {
+public class SeatStatusDto {
 
-    private Integer seatNumber;
+    private Long id;
     private boolean isReserved;
 }

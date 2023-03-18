@@ -1,11 +1,12 @@
 package asc.portfolio.ascSb.seat.domain;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
+import asc.portfolio.ascSb.cafe.domain.QCafe;
+import asc.portfolio.ascSb.seatreservationinfo.domain.QSeatReservationInfo;
 import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfo;
 import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoRepository;
 import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoStateType;
+import asc.portfolio.ascSb.ticket.domain.QTicket;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
-import asc.portfolio.ascSb.seat.dto.SeatSelectResponseDto;
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +15,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static asc.portfolio.ascSb.cafe.domain.QCafe.*;
-import static asc.portfolio.ascSb.seat.domain.QSeat.*;
-import static asc.portfolio.ascSb.seatreservationinfo.domain.QSeatReservationInfo.*;
-import static asc.portfolio.ascSb.ticket.domain.QTicket.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -35,11 +31,11 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
 
         // Fixed-Term Ticket Update
         List<Seat> seatList = query
-                .selectFrom(seat)
-                .join(seat.ticket, ticket)
-                .where(seat.seatState.eq(SeatStateType.RESERVED),
-                        ticket.productLabel.contains("FIXED-TERM"),
-                        ticket.fixedTermTicket.before(LocalDateTime.now()))
+                .selectFrom(QSeat.seat)
+                .join(QSeat.seat.ticket, QTicket.ticket)
+                .where(QSeat.seat.isReserved.isTrue(),
+                        QTicket.ticket.productLabel.contains("FIXED-TERM"),
+                        QTicket.ticket.fixedTermTicket.before(LocalDateTime.now()))
                 .fetch();
 
         // 만료된 Fixed-Term Ticket 에 따른 Seat, seatReservationInfo 종료 처리
@@ -58,19 +54,19 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
 
         // Part-Time Ticket Update
         List<Seat> seatList = query
-                .selectFrom(seat)
-                .join(seat.ticket, ticket)
-                .where(seat.seatState.eq(SeatStateType.RESERVED),
-                        ticket.productLabel.contains("PART-TIME"))
+                .selectFrom(QSeat.seat)
+                .join(QSeat.seat.ticket, QTicket.ticket)
+                .where(QSeat.seat.isReserved.isTrue(),
+                        QTicket.ticket.productLabel.contains("PART-TIME"))
                 .fetch();
 
         for (Seat seatOne : seatList) {
             Cafe cafe = seatOne.getCafe();
             SeatReservationInfo info = query
-                    .selectFrom(seatReservationInfo)
-                    .where(seatReservationInfo.isValid.eq(SeatReservationInfoStateType.VALID),
-                            seatReservationInfo.cafeName.eq(cafe.getCafeName()),
-                            seatReservationInfo.seatNumber.eq(seatOne.getSeatNumber()))
+                    .selectFrom(QSeatReservationInfo.seatReservationInfo)
+                    .where(QSeatReservationInfo.seatReservationInfo.isValid.eq(SeatReservationInfoStateType.VALID),
+                            QSeatReservationInfo.seatReservationInfo.cafeName.eq(cafe.getCafeName()),
+                            QSeatReservationInfo.seatReservationInfo.seatNumber.eq(seatOne.getSeatNumber()))
                     .fetchOne();
 
             if (info == null) {
@@ -96,9 +92,9 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
     public int updateAllReservedSeatStateWithStartTime() {
         int count = 0;
         List<SeatReservationInfo> seatRezInfoList = query
-                .selectFrom(seatReservationInfo)
-                .where(seatReservationInfo.isValid.eq(SeatReservationInfoStateType.VALID),
-                        seatReservationInfo.endTime.before(LocalDateTime.now()))
+                .selectFrom(QSeatReservationInfo.seatReservationInfo)
+                .where(QSeatReservationInfo.seatReservationInfo.isValid.eq(SeatReservationInfoStateType.VALID),
+                        QSeatReservationInfo.seatReservationInfo.endTime.before(LocalDateTime.now()))
                 .fetch();
 
         for (SeatReservationInfo info : seatRezInfoList) {
@@ -120,12 +116,12 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
         LocalDateTime timeBefore = timeNow.plusMinutes(minute + 1);
 
         return query
-                .selectFrom(seat)
-                .join(seat.ticket, ticket)
-                .where(seat.seatState.eq(SeatStateType.RESERVED),
-                        ticket.productLabel.contains("FIXED-TERM"),
-                        ticket.fixedTermTicket.after(timeAfter),
-                        ticket.fixedTermTicket.before(timeBefore))
+                .selectFrom(QSeat.seat)
+                .join(QSeat.seat.ticket, QTicket.ticket)
+                .where(QSeat.seat.isReserved.isTrue(),
+                        QTicket.ticket.productLabel.contains("FIXED-TERM"),
+                        QTicket.ticket.fixedTermTicket.after(timeAfter),
+                        QTicket.ticket.fixedTermTicket.before(timeBefore))
                 .fetch();
     }
 
@@ -138,10 +134,10 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
         LocalDateTime timeBefore = timeNow.plusMinutes(minute + 1);
 
         List<SeatReservationInfo> seatRezInfoList = query
-                .selectFrom(seatReservationInfo)
-                .where(seatReservationInfo.isValid.eq(SeatReservationInfoStateType.VALID),
-                        seatReservationInfo.endTime.after(timeAfter),
-                        seatReservationInfo.endTime.before(timeBefore))
+                .selectFrom(QSeatReservationInfo.seatReservationInfo)
+                .where(QSeatReservationInfo.seatReservationInfo.isValid.eq(SeatReservationInfoStateType.VALID),
+                        QSeatReservationInfo.seatReservationInfo.endTime.after(timeAfter),
+                        QSeatReservationInfo.seatReservationInfo.endTime.before(timeBefore))
                 .fetch();
 
 
@@ -169,51 +165,23 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
         seatRezInfoEntity.endUsingSeat();
     }
 
-//    public void updateSeatState(String cafeName) {
-//        List<Seat> seatList = query
-//                .selectFrom(seat)
-//                .where(seat.cafe.cafeName.eq(cafeName))
-//                .orderBy(seat.seatNumber.asc())
-//                .fetch();
-//
-//        for (Seat seat : seatList) {
-//            if (seat.getSeatState() == SeatStateType.RESERVED) {
-//                if (!seat.getTicket().isValidTicket()) {
-//                    log.info("Update SeatState SeatNumber={}", seat.getSeatNumber());
-//                    seat.setSeatStateTypeUnReserved();
-//                }
-//            }
-//        }
-//    }
-
-    public List<SeatSelectResponseDto> findSeatNumberAndSeatStateList(String cafeName) {
-        //updateSeatState(cafeName);
-
-        return query
-                .select(Projections.bean(SeatSelectResponseDto.class, seat.seatNumber, seat.seatState))
-                .from(seat)
-                .where(seat.cafe.cafeName.eq(cafeName))
-                .orderBy(seat.seatNumber.asc())
-                .fetch();
-    }
-
     @Override
     public Seat findByCafeAndSeatNumber(Cafe cafeObject, Integer seatNumber) {
         return query
-                .select(seat)
-                .from(seat)
-                .join(seat.cafe, cafe)
-                .where(cafe.eq(cafeObject), seat.seatNumber.eq(seatNumber))
+                .select(QSeat.seat)
+                .from(QSeat.seat)
+                .join(QSeat.seat.cafe, QCafe.cafe)
+                .where(QCafe.cafe.eq(cafeObject), QSeat.seat.seatNumber.eq(seatNumber))
                 .fetchOne();
     }
 
     @Override
     public Seat findByCafeNameAndSeatNumber(String cafeName, int seatNumber) {
         return query
-                .select(seat)
-                .from(seat)
-                .join(seat.cafe, cafe)
-                .where(cafe.cafeName.eq(cafeName), seat.seatNumber.eq(seatNumber))
+                .select(QSeat.seat)
+                .from(QSeat.seat)
+                .join(QSeat.seat.cafe, QCafe.cafe)
+                .where(QCafe.cafe.cafeName.eq(cafeName), QSeat.seat.seatNumber.eq(seatNumber))
                 .fetchOne();
     }
 }

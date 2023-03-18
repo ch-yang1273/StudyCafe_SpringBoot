@@ -1,10 +1,9 @@
 package asc.portfolio.ascSb.cafe.controller;
 
+import asc.portfolio.ascSb.cafe.dto.SeatStatusDto;
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.cafe.service.CafeService;
-import asc.portfolio.ascSb.seat.service.SeatService;
 import asc.portfolio.ascSb.cafe.dto.CafeResponseDto;
-import asc.portfolio.ascSb.seat.dto.SeatSelectResponseDto;
 import asc.portfolio.ascSb.user.service.UserAuthService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
@@ -25,21 +24,15 @@ public class CafeController {
 
     private final CafeService cafeService;
     private final UserAuthService userAuthService;
-    private final SeatService seatService;
 
     @GetMapping("/list")
     public Page<CafeResponseDto> getCafeList(Pageable pageable) {
         return cafeService.getCafeList(pageable);
     }
 
-    @Parameter(name = "cafeName", example = "서울지점")
-    @GetMapping("/state/{cafeName}")
-    public ResponseEntity<List<SeatSelectResponseDto>> seatStateList(@PathVariable String cafeName) {
-        if (cafeName.isEmpty()) {
-            log.info("cafe 명이 비어 있습니다.");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(seatService.showCurrentAllSeatState(cafeName), HttpStatus.OK);
+    @GetMapping("/{cafeId}/seats")
+    public ResponseEntity<List<SeatStatusDto>> getAllSeatsByCafeId(@PathVariable Long cafeId) {
+        return new ResponseEntity<>(cafeService.getAllSeatsByCafeId(cafeId), HttpStatus.OK);
     }
 
     @Parameter(name = "cafeName", example = "서울지점")

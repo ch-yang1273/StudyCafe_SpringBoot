@@ -4,7 +4,6 @@ import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeRepository;
 import asc.portfolio.ascSb.seat.domain.Seat;
 import asc.portfolio.ascSb.seat.domain.SeatRepository;
-import asc.portfolio.ascSb.seat.domain.SeatStateType;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
 import asc.portfolio.ascSb.ticket.domain.TicketRepository;
 import asc.portfolio.ascSb.ticket.domain.TicketStateType;
@@ -49,6 +48,7 @@ class SeatServiceTest {
     @Autowired
     SeatService seatService;
 
+    //todo : seats 조회는 cafe 서비스로 이동
     @Disabled
     @DisplayName("스케쥴러 테스트. 해당 카페의 Seat State Dto 조회 시, 상태 검증 후 반환")
     @Test
@@ -97,7 +97,7 @@ class SeatServiceTest {
         //log.info("isReserved={}", isReserved);
 
         //when
-        List<SeatSelectResponseDto> listA = seatService.showCurrentAllSeatState(cafe.getCafeName());
+        List<SeatSelectResponseDto> listA = null; //seatService.getAllSeats(cafe.getId());
 
         try {
             TimeUnit.SECONDS.sleep(4);
@@ -105,20 +105,20 @@ class SeatServiceTest {
             e.printStackTrace();
         }
 
-        List<SeatSelectResponseDto> listB = seatService.showCurrentAllSeatState(cafe.getCafeName());
+        List<SeatSelectResponseDto> listB = null; //seatService.getAllSeats(cafe.getCafeName());
 
         //then
         int countA = 0;
         int countB = 0;
 
         for (SeatSelectResponseDto dto : listA) {
-            if (dto.getSeatState() == SeatStateType.RESERVED) {
+            if (dto.isReserved()) {
                 countA++;
             }
         }
 
         for (SeatSelectResponseDto dto : listB) {
-            if (dto.getSeatState() == SeatStateType.RESERVED) {
+            if (dto.isReserved()) {
                 countB++;
             }
         }
@@ -178,7 +178,7 @@ class SeatServiceTest {
         SeatResponseDto unreservedSeat = seatService.showSeatStateOne(user.getId(), 3);
 
         //then
-        assertThat(reservedSeat.getSeatState()).isEqualTo(SeatStateType.RESERVED);
-        assertThat(unreservedSeat.getSeatState()).isEqualTo(SeatStateType.UNRESERVED);
+        assertThat(reservedSeat.isReserved()).isTrue();
+        assertThat(unreservedSeat.isReserved()).isFalse();
     }
 }

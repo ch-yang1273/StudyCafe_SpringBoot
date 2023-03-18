@@ -1,5 +1,4 @@
 package asc.portfolio.ascSb.seat.dto;
-import asc.portfolio.ascSb.seat.domain.SeatStateType;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +11,7 @@ public class SeatResponseDto {
 
     //From Seat
     private Integer seatNumber;
-    private SeatStateType seatState;
+    private boolean isReserved;
 
     //Form SeatReservationInfo
     private Long startTime;
@@ -24,9 +23,9 @@ public class SeatResponseDto {
     private Long remainingTime;
 
     @Builder
-    private SeatResponseDto(Integer seatNumber, SeatStateType seatState, Long startTime, Long timeInUse, LocalDateTime fixedTermTicket, Long partTimeTicket, Long remainingTime) {
+    private SeatResponseDto(Integer seatNumber, boolean isReserved, Long startTime, Long timeInUse, LocalDateTime fixedTermTicket, Long partTimeTicket, Long remainingTime) {
         this.seatNumber = seatNumber;
-        this.seatState = seatState;
+        this.isReserved = isReserved;
         this.startTime = startTime;
         this.timeInUse = timeInUse;
         this.fixedTermTicket = fixedTermTicket;
@@ -35,18 +34,18 @@ public class SeatResponseDto {
     }
 
     //정적 팩토리 매세드
-    public static SeatResponseDto setUnReservedSeat(Integer seatNumber, SeatStateType seatState) {
+    public static SeatResponseDto createUnReservedSeatDto(Integer seatNumber) {
         return SeatResponseDto.builder()
                 .seatNumber(seatNumber)
-                .seatState(seatState)
+                .isReserved(false)
                 .build();
     }
 
     //정적 팩토리 메서드
-    public static SeatResponseDto setFixedTermSeat(Integer seatNumber, SeatStateType seatState, Long startTime, Long timeInUse, LocalDateTime fixedTermTicket) {
+    public static SeatResponseDto setFixedTermSeat(Integer seatNumber, Long startTime, Long timeInUse, LocalDateTime fixedTermTicket) {
         return SeatResponseDto.builder()
                 .seatNumber(seatNumber)
-                .seatState(seatState)
+                .isReserved(true)
                 .startTime(startTime)
                 .timeInUse(timeInUse)
                 .fixedTermTicket(fixedTermTicket)
@@ -54,10 +53,10 @@ public class SeatResponseDto {
     }
 
     //정적 팩토리 메서드
-    public static SeatResponseDto setPartTimeSeat(Integer seatNumber, SeatStateType seatState, Long startTime, Long timeInUse, Long partTimeTicket, Long remainingTime) {
+    public static SeatResponseDto setPartTimeSeat(Integer seatNumber, Long startTime, Long timeInUse, Long partTimeTicket, Long remainingTime) {
         return SeatResponseDto.builder()
                 .seatNumber(seatNumber)
-                .seatState(seatState)
+                .isReserved(true)
                 .startTime(startTime)
                 .timeInUse(timeInUse)
                 .partTimeTicket(partTimeTicket)
