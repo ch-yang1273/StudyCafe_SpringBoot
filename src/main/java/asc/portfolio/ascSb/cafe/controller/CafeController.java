@@ -9,6 +9,8 @@ import asc.portfolio.ascSb.user.service.UserAuthService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +27,9 @@ public class CafeController {
     private final UserAuthService userAuthService;
     private final SeatService seatService;
 
-    @GetMapping("")
-    public List<CafeResponseDto> respCafeNames() {
-
-        return cafeService.showAllCafeList();
+    @GetMapping("/list")
+    public Page<CafeResponseDto> getCafeList(Pageable pageable) {
+        return cafeService.getCafeList(pageable);
     }
 
     @Parameter(name = "cafeName", example = "서울지점")

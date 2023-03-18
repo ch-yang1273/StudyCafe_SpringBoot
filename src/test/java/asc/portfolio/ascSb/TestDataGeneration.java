@@ -1,4 +1,4 @@
-package asc.portfolio.ascSb.domain;
+package asc.portfolio.ascSb;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeRepository;
@@ -17,7 +17,6 @@ import asc.portfolio.ascSb.user.domain.UserRepository;
 import asc.portfolio.ascSb.user.domain.UserRoleType;
 import asc.portfolio.ascSb.user.infra.MessageDigestPasswordEncoder;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,16 +73,6 @@ public class TestDataGeneration {
 
   String[] productLabel = {"FIXED-TERM1", "FIXED-TERM2", "FIXED-TERM3", "FIXED-TERM", "FIXED-TERM",
           "FIXED-TERM", "FIXED-TERM"};
-  
-  @BeforeEach
-  public void clearRepository() {
-    productRepository.deleteAllInBatch();
-    seatReservationInfoRepository.deleteAllInBatch();
-    seatRepository.deleteAllInBatch();
-    ticketRepository.deleteAllInBatch();
-    userRepository.deleteAllInBatch();
-    cafeRepository.deleteAllInBatch();
-  }
 
   private void generateCafeSeatData() {
 
