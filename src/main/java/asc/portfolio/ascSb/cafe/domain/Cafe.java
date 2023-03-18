@@ -1,10 +1,10 @@
 package asc.portfolio.ascSb.cafe.domain;
+
 import lombok.*;
 
 import javax.persistence.*;
 
 @Getter
-@Setter // test 용
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "CAFE")
@@ -24,9 +24,18 @@ public class Cafe {
     private boolean isOpen;
 
     @Builder
-    public Cafe(String cafeName, String cafeArea, boolean isOpen) {
+    public Cafe(String cafeName, String cafeArea) {
         this.cafeName = cafeName;
         this.cafeArea = cafeArea;
-        this.isOpen = isOpen;
+        this.isOpen = false;
+    }
+
+    public void openCafe() {
+        this.isOpen = true;
+    }
+
+    public void closeCafe() {
+        //todo : 사용 중인 seat도 종료
+        this.isOpen = false;
     }
 }

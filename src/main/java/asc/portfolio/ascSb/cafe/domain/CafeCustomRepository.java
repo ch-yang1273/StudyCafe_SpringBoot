@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface CafeCustomRepository {
 
-  public List<CafeResponseDto> findAllCafeNameAndArea();
+    public List<CafeResponseDto> findAllCafeNameAndArea();
 }

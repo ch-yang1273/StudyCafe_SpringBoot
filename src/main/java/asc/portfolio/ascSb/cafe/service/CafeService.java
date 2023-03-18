@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface CafeService {
 
-  public List<CafeResponseDto> showAllCafeList();
+    public List<CafeResponseDto> showAllCafeList();
 
-  public String changeReservedUserCafe(Long userId, String cafeName);
+    public String changeReservedUserCafe(Long userId, String cafeName);
 }

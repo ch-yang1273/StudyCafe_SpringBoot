@@ -21,31 +21,31 @@ import java.util.List;
 @RequestMapping("/api/v1/cafe")
 public class CafeController {
 
-  private final CafeService cafeService;
-  private final UserAuthService userAuthService;
-  private final SeatService seatService;
+    private final CafeService cafeService;
+    private final UserAuthService userAuthService;
+    private final SeatService seatService;
 
-  @GetMapping("")
-  public List<CafeResponseDto> respCafeNames() {
+    @GetMapping("")
+    public List<CafeResponseDto> respCafeNames() {
 
-    return cafeService.showAllCafeList();
-  }
-
-  @Parameter(name = "cafeName", example = "서울지점")
-  @GetMapping("/state/{cafeName}")
-  public ResponseEntity<List<SeatSelectResponseDto>> seatStateList(@PathVariable String cafeName) {
-    if(cafeName.isEmpty()) {
-      log.info("cafe 명이 비어 있습니다.");
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return cafeService.showAllCafeList();
     }
-    return new ResponseEntity<>(seatService.showCurrentAllSeatState(cafeName), HttpStatus.OK);
-  }
 
-  @Parameter(name = "cafeName", example = "서울지점")
-  @PostMapping("/change/{cafeName}")
-  public ResponseEntity<String> changeReservedUserCafe(@LoginUser Long userId, @PathVariable String cafeName) {
-    userAuthService.checkUserRole(userId);
-      String resultName = cafeService.changeReservedUserCafe(userId, cafeName);
-      return new ResponseEntity<>(resultName, HttpStatus.OK);
-  }
+    @Parameter(name = "cafeName", example = "서울지점")
+    @GetMapping("/state/{cafeName}")
+    public ResponseEntity<List<SeatSelectResponseDto>> seatStateList(@PathVariable String cafeName) {
+        if (cafeName.isEmpty()) {
+            log.info("cafe 명이 비어 있습니다.");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(seatService.showCurrentAllSeatState(cafeName), HttpStatus.OK);
+    }
+
+    @Parameter(name = "cafeName", example = "서울지점")
+    @PostMapping("/change/{cafeName}")
+    public ResponseEntity<String> changeReservedUserCafe(@LoginUser Long userId, @PathVariable String cafeName) {
+        userAuthService.checkUserRole(userId);
+        String resultName = cafeService.changeReservedUserCafe(userId, cafeName);
+        return new ResponseEntity<>(resultName, HttpStatus.OK);
+    }
 }

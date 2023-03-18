@@ -14,14 +14,14 @@ import static asc.portfolio.ascSb.cafe.domain.QCafe.*;
 @Repository
 public class CafeCustomRepositoryImpl implements CafeCustomRepository {
 
-  private final JPAQueryFactory query;
+    private final JPAQueryFactory query;
 
-  @Override
-  public List<CafeResponseDto> findAllCafeNameAndArea() {
-    return query
-            .select(Projections.constructor(CafeResponseDto.class, cafe.cafeName, cafe.cafeArea))
-            .from(cafe)
-            .orderBy(cafe.cafeArea.asc())
-            .fetch();
-  }
+    @Override
+    public List<CafeResponseDto> findAllCafeNameAndArea() {
+        return query
+                .select(Projections.constructor(CafeResponseDto.class, cafe.cafeName, cafe.cafeArea))
+                .from(cafe)
+                .orderBy(cafe.cafeArea.asc())
+                .fetch();
+    }
 }

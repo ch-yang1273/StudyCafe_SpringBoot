@@ -20,26 +20,26 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CafeServiceImpl implements CafeService {
 
-  private final CafeRepository cafeRepository;
+    private final CafeRepository cafeRepository;
 
-  private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-  @Override
-  public List<CafeResponseDto> showAllCafeList() {
-    return cafeRepository.findAllCafeNameAndArea();
-  }
-
-  @Override
-  public String changeReservedUserCafe(Long userId, String cafeName) {
-    User user = userRepository.findById(userId).orElseThrow(() -> new UnknownUserException());
-    Optional<Cafe> findCafeOpt = cafeRepository.findByCafeName(cafeName);
-
-    if (findCafeOpt.isEmpty()) {
-      log.error("Unknown Cafe Name = {}", cafeName);
-      return null;
-    } else {
-      findCafeOpt.ifPresent(c -> user.changeCafe(c));
-      return findCafeOpt.get().getCafeName();
+    @Override
+    public List<CafeResponseDto> showAllCafeList() {
+        return cafeRepository.findAllCafeNameAndArea();
     }
-  }
+
+    @Override
+    public String changeReservedUserCafe(Long userId, String cafeName) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UnknownUserException());
+        Optional<Cafe> findCafeOpt = cafeRepository.findByCafeName(cafeName);
+
+        if (findCafeOpt.isEmpty()) {
+            log.error("Unknown Cafe Name = {}", cafeName);
+            return null;
+        } else {
+            findCafeOpt.ifPresent(c -> user.changeCafe(c));
+            return findCafeOpt.get().getCafeName();
+        }
+    }
 }
