@@ -10,7 +10,7 @@ import asc.portfolio.ascSb.ticket.domain.TicketRepository;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.firebase.service.FirebaseCloudMessageService;
 import asc.portfolio.ascSb.seat.dto.SeatResponseDto;
-import asc.portfolio.ascSb.user.domain.UserRepository;
+import asc.portfolio.ascSb.user.domain.UserFinder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,20 +28,15 @@ import java.util.stream.Collectors;
 public class SeatServiceImpl implements SeatService {
 
     private final SeatRepository seatRepository;
-
-    private final UserRepository userRepository;
-
+    private final UserFinder userFinder;
     private final SeatReservationInfoRepository reservationInfoRepository;
-
     private final TicketRepository ticketRepository;
-
     private final RedisRepository redisRepository;
-
     private final FirebaseCloudMessageService firebaseCloudMessageService;
 
     @Override
     public SeatResponseDto showSeatStateOne(Long userId, Integer seatNumber) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userFinder.findById(userId);
         Cafe cafe = user.getCafe();
 
         if ((cafe.getCafeName() == null) || (seatNumber == null)) {
@@ -79,7 +74,7 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public Boolean exitSeat(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userFinder.findById(userId);
 
         //ReservationInfo 수정
         List<SeatReservationInfo> userRezInfo = reservationInfoRepository.findValidSeatRezInfoByLoginId(user.getLoginId());
@@ -119,7 +114,7 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public void exitSeatBySeatNumber(Long adminId, int seatNumber) {
-        User admin = userRepository.findById(adminId).orElseThrow();
+        User admin = userFinder.findById(adminId);
         Cafe cafe = admin.getCafe();
         Seat findSeat = seatRepository.findByCafeAndSeatNumber(cafe, seatNumber);
 
@@ -129,7 +124,7 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public Boolean reserveSeat(Long userId, Integer seatNumber, Long startTime) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userFinder.findById(userId);
         Cafe cafe = user.getCafe();
         if (cafe == null) {
             log.error("선택 된 카페가 없는 유저 입니다.");

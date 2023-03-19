@@ -1,12 +1,11 @@
 package asc.portfolio.ascSb.order.service;
 
-
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.order.domain.OrdersRepository;
 import asc.portfolio.ascSb.order.domain.OrderStateType;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.order.dto.OrderDto;
-import asc.portfolio.ascSb.user.domain.UserRepository;
+import asc.portfolio.ascSb.user.domain.UserFinder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,12 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderServiceImpl implements OrderService {
 
     private final OrdersRepository ordersRepository;
-
-    private final UserRepository userRepository;
+    private final UserFinder userFinder;
 
     @Override
     public Long saveOrder(Long userId, OrderDto orderDto) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userFinder.findById(userId);
 
         orderDto.setUserId(user.getLoginId());
         orderDto.setOrderStateType(OrderStateType.ORDER);

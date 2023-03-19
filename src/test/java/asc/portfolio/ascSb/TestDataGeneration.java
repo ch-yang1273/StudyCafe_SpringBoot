@@ -189,7 +189,7 @@ public class TestDataGeneration {
       Product product = Product.builder()
               .cafe(cafeRepository.findByCafeNameContains("서울지점"))
               .productNameType(ProductNameType.FOUR_WEEK_FIXED_TERM_TICKET)
-              .user(userRepository.findByNameContains(userName[2]))
+              .user(userRepository.findByNameContains(userName[2])) //todo : 삭제
               .productState(ProductStateType.SALE)
               .description("테스트 product")
               .productPrice(13100)

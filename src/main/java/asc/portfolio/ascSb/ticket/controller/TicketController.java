@@ -1,7 +1,5 @@
 package asc.portfolio.ascSb.ticket.controller;
 
-import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.user.domain.UserRoleType;
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.ticket.service.TicketService;
 import asc.portfolio.ascSb.ticket.dto.TicketForAdminResponseDto;
