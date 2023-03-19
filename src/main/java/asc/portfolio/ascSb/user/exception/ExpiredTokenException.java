@@ -6,13 +6,8 @@ public class ExpiredTokenException extends TokenException {
 
     private final TokenPayload payload;
 
-    public ExpiredTokenException(TokenPayload payload, String message) {
-        super(message);
-        this.payload = payload;
-    }
-
-    public ExpiredTokenException(TokenPayload payload, String message, Throwable cause) {
-        super(message, cause);
+    public ExpiredTokenException(TokenPayload payload, UserErrorData data) {
+        super(data);
         this.payload = payload;
     }
 

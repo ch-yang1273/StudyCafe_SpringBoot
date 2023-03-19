@@ -5,6 +5,7 @@ import asc.portfolio.ascSb.common.dto.TokenPayload;
 import asc.portfolio.ascSb.user.domain.TokenService;
 import asc.portfolio.ascSb.user.exception.ExpiredTokenException;
 import asc.portfolio.ascSb.user.exception.TokenException;
+import asc.portfolio.ascSb.user.exception.UserErrorData;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -90,17 +91,16 @@ public class JwtTokenService implements TokenService {
                     .getBody();
         } catch (ExpiredJwtException e) {
             log.debug("만료된 JWT 토큰입니다.");
-            throw new ExpiredTokenException(createTokenPayload(e.getClaims()), "만료된 JWT 토큰입니다.");
+            throw new ExpiredTokenException(createTokenPayload(e.getClaims()),UserErrorData.USER_EXPIRED_TOKEN);
         } catch (JwtException e) {
-            log.debug("올바르지 않은 JWT 토큰입니다.");
-            throw new TokenException("올바르지 않은 JWT 토큰입니다.");
+            throw new TokenException(UserErrorData.USER_WRONG_TOKEN);
         }
     }
 
     private String checkFormat(String token) {
         log.debug("token = {}", token);
         if ((token == null) || token.isBlank()) {
-            throw new TokenException("No token");
+            throw new TokenException(UserErrorData.USER_NO_TOKEN);
         }
 
         String[] tokenSplit = token.split(" ");
@@ -125,7 +125,7 @@ public class JwtTokenService implements TokenService {
     @Override
     public TokenPayload verifyAndGetPayload(String token, String compare) {
         if (!token.equals(compare)) {
-            throw new TokenException("일치하지 않는 토큰입니다.");
+            throw new TokenException(UserErrorData.USER_WRONG_TOKEN);
         }
         String baseToken = checkFormat(token);
         return createTokenPayload(validCheckAndGetBody(baseToken));

@@ -8,7 +8,6 @@ import asc.portfolio.ascSb.user.dto.UserQrAndNameResponseDto;
 import asc.portfolio.ascSb.user.dto.UserSignupDto;
 import asc.portfolio.ascSb.user.dto.UserTokenRequestDto;
 import asc.portfolio.ascSb.user.exception.AccessDeniedException;
-import asc.portfolio.ascSb.user.exception.TokenException;
 import asc.portfolio.ascSb.user.service.UserAuthService;
 import asc.portfolio.ascSb.user.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,11 +34,6 @@ public class UserController {
 
     private final UserAuthService userAuthService;
     private final UserService userService;
-
-    @ExceptionHandler(TokenException.class)
-    public ResponseEntity<String> tokenExHandle(TokenException ex) {
-        return new ResponseEntity<>("TokenException", HttpStatus.UNAUTHORIZED);
-    }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<String> accessDeniedExHandle(AccessDeniedException ex) {
