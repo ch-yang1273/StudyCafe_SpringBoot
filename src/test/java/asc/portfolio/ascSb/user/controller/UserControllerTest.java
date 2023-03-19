@@ -530,7 +530,7 @@ class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get(USER_INFO_URL)
                         .header(HttpHeaders.AUTHORIZATION, accessToken)
                         .param("userLoginId", admin.getLoginId()))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                 .andDo(MockMvcResultHandlers.print())
                 .andReturn();
     }

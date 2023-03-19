@@ -8,7 +8,10 @@ public enum UserErrorData implements ErrorData {
 
     USER_NO_TOKEN(401, "USER_4003", "토큰이 없습니다."),
     USER_WRONG_TOKEN(401, "USER_4004", "올바르지 않은 토큰입니다."),
-    USER_EXPIRED_TOKEN(401, "USER_4005", "만료된 토큰입니다.")
+    USER_EXPIRED_TOKEN(401, "USER_4005", "만료된 토큰입니다."),
+
+    USER_NEED_USER_ROLE(401, "USER_4006", "User Role이 필요합니다."),
+    USER_NEED_ADMIN_ROLE(401, "USER_4007", "Admin Role이 필요합니다.")
     ;
 
     private final int statusCode;
