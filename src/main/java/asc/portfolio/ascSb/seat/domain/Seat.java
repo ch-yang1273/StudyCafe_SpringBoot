@@ -25,8 +25,8 @@ public class Seat {
     private int seatNumber;
 
     // 좌석 상태
-    @Enumerated(EnumType.STRING)
-    private SeatStateType seatState;
+    @Column(name = "IS_RESERVED")
+    private boolean isReserved;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID", unique = true)
@@ -40,18 +40,18 @@ public class Seat {
     public Seat(int seatNumber, Cafe cafe) {
         this.cafe = cafe;
         this.seatNumber = seatNumber;
-        this.seatState = SeatStateType.UNRESERVED;
+        this.isReserved = false;
     }
 
     public void reserveSeat(User user, Ticket ticket) {
         this.user = user;
         this.ticket = ticket;
-        this.seatState = SeatStateType.RESERVED;
+        this.isReserved = true;
     }
 
     public void exitSeat() {
         this.user = null;
         this.ticket = null;
-        this.seatState = SeatStateType.UNRESERVED;
+        this.isReserved = false;
     }
 }

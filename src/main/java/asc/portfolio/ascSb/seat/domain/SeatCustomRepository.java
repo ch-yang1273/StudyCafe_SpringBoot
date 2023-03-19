@@ -1,23 +1,20 @@
 package asc.portfolio.ascSb.seat.domain;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
-import asc.portfolio.ascSb.seat.dto.SeatSelectResponseDto;
 
 import java.util.List;
 
 public interface SeatCustomRepository {
 
-    public int updateAllReservedSeatStateWithFixedTermTicket();
+    int updateAllReservedSeatStateWithFixedTermTicket();
 
-    public int updateAllReservedSeatStateWithPartTimeTicket();
+    int updateAllReservedSeatStateWithPartTimeTicket();
 
-    public int updateAllReservedSeatStateWithStartTime();
+    int updateAllReservedSeatStateWithStartTime();
 
-    public List<Seat> getAlmostFinishedSeatListWithFixedTermTicket(Long minute);
+    List<Seat> getAlmostFinishedSeatListWithFixedTermTicket(Long minute);
 
-    public List<Seat> getAlmostFinishedSeatListWithStartTime(Long minute);
-
-    List<SeatSelectResponseDto> findSeatNumberAndSeatStateList(String cafeName);
+    List<Seat> getAlmostFinishedSeatListWithStartTime(Long minute);
 
     Seat findByCafeAndSeatNumber(Cafe cafeObject, Integer seatNumber);
 

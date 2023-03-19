@@ -5,8 +5,7 @@ import asc.portfolio.ascSb.adminfcmtoken.domain.AdminFCMTokenRepository;
 import asc.portfolio.ascSb.common.infra.redis.RedisRepository;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.firebase.dto.fcmtoken.AdminFCMTokenRequestDto;
-import asc.portfolio.ascSb.user.domain.UserRepository;
-import asc.portfolio.ascSb.user.exception.UnknownUserException;
+import asc.portfolio.ascSb.user.domain.UserFinder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,7 @@ public class FCMTokenServiceImpl implements FCMTokenService {
 
     private final RedisRepository redisRepository;
 
-    private final UserRepository userRepository;
+    private final UserFinder userFinder;
 
     // 관리자가 FCM 토큰을 이미 가지고 있는지, 가지고 있으면 유효한 토큰인지 검사
     @Override
@@ -53,7 +52,7 @@ public class FCMTokenServiceImpl implements FCMTokenService {
     // FCM Token을 ADMIN_FCM_TOKEN 테이블에 저장 (Redis X) , 관리자 토큰은 RDBMS 에 별도 저장
     @Override
     public Long confirmAdminFCMToken (Long userId, String adminFCMToken) throws IllegalArgumentException {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userFinder.findById(userId);
 
         Boolean validation = isAdminHasToken(user.getId(), adminFCMToken);
 
@@ -81,7 +80,7 @@ public class FCMTokenServiceImpl implements FCMTokenService {
     // user 의 FCM 토큰을 Redis 에 저장
     @Override
     public Boolean confirmToken (Long userId, String userFCMToken) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UnknownUserException());
+        User user = userFinder.findById(userId);
 
         String userKeyType = user.getLoginId() + "_" + user.getRole() + "_FCM_TOKEN"; // "${userLoginId}_${userRole}_FCM_TOKEN"
         Long timeOutDay = 30L * 24L * 3600L; // 30일

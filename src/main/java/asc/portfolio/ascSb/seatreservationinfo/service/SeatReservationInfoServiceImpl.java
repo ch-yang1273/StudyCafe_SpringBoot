@@ -6,7 +6,7 @@ import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoReposit
 import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoStateType;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.seatreservationinfo.dto.SeatReservationInfoSelectResponseDto;
-import asc.portfolio.ascSb.user.domain.UserRepository;
+import asc.portfolio.ascSb.user.domain.UserFinder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,12 +22,11 @@ import java.time.format.DateTimeFormatter;
 public class SeatReservationInfoServiceImpl implements SeatReservationInfoService  {
 
     private final SeatReservationInfoRepository seatReservationInfoRepository;
-
-    private final UserRepository userRepository;
+    private final UserFinder userFinder;
 
     @Override
     public SeatReservationInfoSelectResponseDto showUserSeatReservationInfo(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userFinder.findById(userId);
         Cafe cafe = user.getCafe();
 
         try {
@@ -42,7 +41,7 @@ public class SeatReservationInfoServiceImpl implements SeatReservationInfoServic
 
     @Override
     public SeatReservationInfo validUserSeatReservationInfo(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userFinder.findById(userId);
         return seatReservationInfoRepository.findByUserLoginIdAndIsValidAndCafeName(
                 user.getLoginId(), SeatReservationInfoStateType.VALID, user.getCafe().getCafeName());
     }

@@ -1,12 +1,15 @@
 package asc.portfolio.ascSb.cafe.service;
 
 import asc.portfolio.ascSb.cafe.dto.CafeResponseDto;
+import asc.portfolio.ascSb.cafe.dto.SeatStatusDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface CafeService {
 
-  public List<CafeResponseDto> showAllCafeList();
+    Page<CafeResponseDto> getCafeList(Pageable pageable);
 
-  public String changeReservedUserCafe(Long userId, String cafeName);
+    List<SeatStatusDto> getAllSeatsByCafeId(Long cafeId);
 }

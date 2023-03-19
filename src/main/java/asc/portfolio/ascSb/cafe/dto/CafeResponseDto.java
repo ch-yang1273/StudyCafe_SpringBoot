@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CafeResponseDto {
 
-  private String cafeNames;
-  private String cafeArea;
+    private Long cafeId;
+    private String cafeNames;
+    private String cafeArea;
 }

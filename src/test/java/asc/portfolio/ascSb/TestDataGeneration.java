@@ -1,4 +1,4 @@
-package asc.portfolio.ascSb.domain;
+package asc.portfolio.ascSb;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeRepository;
@@ -17,7 +17,6 @@ import asc.portfolio.ascSb.user.domain.UserRepository;
 import asc.portfolio.ascSb.user.domain.UserRoleType;
 import asc.portfolio.ascSb.user.infra.MessageDigestPasswordEncoder;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,16 +73,6 @@ public class TestDataGeneration {
 
   String[] productLabel = {"FIXED-TERM1", "FIXED-TERM2", "FIXED-TERM3", "FIXED-TERM", "FIXED-TERM",
           "FIXED-TERM", "FIXED-TERM"};
-  
-  @BeforeEach
-  public void clearRepository() {
-    productRepository.deleteAllInBatch();
-    seatReservationInfoRepository.deleteAllInBatch();
-    seatRepository.deleteAllInBatch();
-    ticketRepository.deleteAllInBatch();
-    userRepository.deleteAllInBatch();
-    cafeRepository.deleteAllInBatch();
-  }
 
   private void generateCafeSeatData() {
 
@@ -91,8 +80,6 @@ public class TestDataGeneration {
       Cafe cafe = Cafe.builder()
               .cafeName(cafeName[i])
               .cafeArea(cafeArea[i])
-              .cafeState("OPEN")
-              .businessHour(24)
               .build();
 
       cafeRepository.save(cafe);
@@ -202,7 +189,7 @@ public class TestDataGeneration {
       Product product = Product.builder()
               .cafe(cafeRepository.findByCafeNameContains("서울지점"))
               .productNameType(ProductNameType.FOUR_WEEK_FIXED_TERM_TICKET)
-              .user(userRepository.findByNameContains(userName[2]))
+              .user(userRepository.findByNameContains(userName[2])) //todo : 삭제
               .productState(ProductStateType.SALE)
               .description("테스트 product")
               .productPrice(13100)

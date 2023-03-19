@@ -6,7 +6,7 @@ import asc.portfolio.ascSb.product.domain.Product;
 import asc.portfolio.ascSb.product.domain.ProductRepository;
 import asc.portfolio.ascSb.product.domain.ProductStateType;
 import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.user.domain.UserRepository;
+import asc.portfolio.ascSb.user.domain.UserFinder;
 import asc.portfolio.ascSb.bootpay.dto.BootPayOrderDto;
 import asc.portfolio.ascSb.product.dto.ProductDto;
 import asc.portfolio.ascSb.product.dto.ProductListResponseDto;
@@ -28,12 +28,11 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-
-    private final UserRepository userRepository;
+    private final UserFinder userFinder;
 
     @Override
     public List<ProductListResponseDto> adminSalesManagementOneUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userFinder.findById(userId);
         Cafe cafe = user.getCafe();
 
         return productRepository.findProductListByUserIdAndCafeName(userId, cafe.getCafeName()).stream()
@@ -52,8 +51,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void saveProduct(Long userId, BootPayOrderDto dto, Orders orders) {
-        User user = userRepository.findById(userId).orElseThrow();
-        Product productDto = ProductDto.builder()
+        User user = userFinder.findById(userId);
+        Product product = ProductDto.builder()
                 .cafe(user.getCafe())
                 .user(user)
                 .productState(ProductStateType.SALE)
@@ -62,6 +61,7 @@ public class ProductServiceImpl implements ProductService {
                 .productLabel(orders.getProductLabel())
                 .build()
                 .toEntity();
+        productRepository.save(product);
     }
 
     @Override
