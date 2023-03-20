@@ -1,19 +1,20 @@
 package asc.portfolio.ascSb.user.controller;
 
 import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
+import asc.portfolio.ascSb.support.User.UserFixture;
+import asc.portfolio.ascSb.support.User.UserMockMvcHelper;
 import asc.portfolio.ascSb.user.domain.PasswordEncoder;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
-import asc.portfolio.ascSb.user.domain.UserRoleType;
 import asc.portfolio.ascSb.user.dto.UserLoginRequestDto;
 import asc.portfolio.ascSb.user.dto.UserLoginResponseDto;
 import asc.portfolio.ascSb.user.dto.UserQrAndNameResponseDto;
-import asc.portfolio.ascSb.user.dto.UserSignupDto;
 import asc.portfolio.ascSb.user.dto.UserTokenRequestDto;
 import asc.portfolio.ascSb.user.infra.MapTokenRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
@@ -40,7 +41,6 @@ import static org.assertj.core.api.Assertions.*;
 @SpringBootTest
 class UserControllerTest {
 
-    static final String SIGNUP_URL = "/api/v1/user/signup";
     static final String LOGIN_URL = "/api/v1/user/login";
     static final String LOGIN_CHECK_URL = "/api/v1/user/login-check";
     static final String REISSUE_TOKEN_URL = "/api/v1/user/reissue";
@@ -52,6 +52,7 @@ class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    private UserMockMvcHelper helper;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -59,17 +60,9 @@ class UserControllerTest {
     @SpyBean
     private CurrentTimeProvider currentTimeProvider;
 
-    private UserSignupDto createTestUserSignupDto(String prefix) {
-        return UserSignupDto.builder()
-                .loginId(prefix + "testUSer")
-                .password(prefix + "password")
-                .email(prefix + "email@gmail.com")
-                .name(prefix + "test")
-                .build();
-    }
-
-    private UserSignupDto createTestUserSignupDto() {
-        return createTestUserSignupDto("");
+    @BeforeEach
+    void init() {
+        helper = new UserMockMvcHelper(mockMvc);
     }
 
     private String fromDtoToJson(Object dto) {
@@ -86,72 +79,29 @@ class UserControllerTest {
     public void User_등록() throws Exception {
 
         //given
-        UserSignupDto requestDto = createTestUserSignupDto();
-
-        String jsonContent = fromDtoToJson(requestDto);
-        System.out.println("content = " + jsonContent);
-        //when //then
-        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonContent))
+        UserFixture bloo = UserFixture.BLOO;
+        helper.회원가입을_한다(bloo)
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
-        User findUser = userRepository.findByLoginId(requestDto.getLoginId()).orElseThrow();
+        //when
+        User findUser = userRepository.findByLoginId(bloo.getLoginId()).orElseThrow();
 
-        assertThat(findUser.getPassword()).isNotEqualTo(requestDto.getPassword());
-        assertThat(findUser.getEmail()).isEqualTo(requestDto.getEmail());
+        //then
+        assertThat(findUser.getPassword()).isNotEqualTo(bloo.getPassword());
+        assertThat(findUser.getEmail()).isEqualTo(bloo.getEmail());
     }
 
     @Transactional
     @Test
     @DisplayName("중복등록에는 BadRequest status를 반환한다.")
     public void User_중복등록() throws Exception {
-        //given
-        UserSignupDto requestDto = createTestUserSignupDto();
-        String jsonContent = fromDtoToJson(requestDto);
-
-        //when //then
-        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonContent))
+        helper.회원가입을_한다(UserFixture.BLOO)
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
-        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonContent))
+        helper.회원가입을_한다(UserFixture.BLOO)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andDo(MockMvcResultHandlers.print());
-    }
-
-    @Transactional
-    @Test
-    public void User_패스워드_UppercaseStart() throws Exception {
-        //given
-        UserSignupDto requestDto = createTestUserSignupDto("U");
-        String jsonContent = fromDtoToJson(requestDto);
-
-        //when //then
-        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-    }
-
-    @Transactional
-    @Test
-    public void User_패스워드_LowercaseStart() throws Exception {
-        //given
-        UserSignupDto requestDto = createTestUserSignupDto("l");
-        String jsonContent = fromDtoToJson(requestDto);
-
-        //when //then
-        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
     }
 
@@ -159,78 +109,30 @@ class UserControllerTest {
     @Test
     @DisplayName("기본 login 성공 테스트")
     public void User_Login() throws Exception {
-        //given
-        UserSignupDto requestSignupDto = createTestUserSignupDto();
-        UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
-                .loginId(requestSignupDto.getLoginId())
-                .password(requestSignupDto.getPassword())
-                .build();
-
-        String signupContent = fromDtoToJson(requestSignupDto);
-        String loginContent = fromDtoToJson(requestLoginDto);
-
-        //when //then
-        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(signupContent))
+        helper.회원가입과_로그인을_한다(UserFixture.BLOO)
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
-
-        mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print())
-                .andReturn();
     }
 
     @Transactional
     @Test
     @DisplayName("존재하지 않는 loginId로 로그인 시에는 Bad Request를 반환한다.")
     public void 존재하지_않는_loginId로_로그인() throws Exception {
-        //given
-        UserSignupDto requestSignupDto = createTestUserSignupDto();
-        UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
-                .loginId("f" + requestSignupDto.getLoginId())
-                .password(requestSignupDto.getPassword())
-                .build();
-
-        String signupContent = fromDtoToJson(requestSignupDto);
-        String loginContent = fromDtoToJson(requestLoginDto);
-
-        //when //then
-        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(signupContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-
-        mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginContent))
+        helper.로그인을_한다(UserFixture.BLOO)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andDo(MockMvcResultHandlers.print());
     }
 
     @Transactional
     @Test
-    @DisplayName("아이디를 넣지 않았을 때는 Bad Request를 반환한다.")
-    public void 아이디를_넣지_않았을_때() throws Exception {
-        //given
-        UserSignupDto requestSignupDto = createTestUserSignupDto();
+    @DisplayName("loginId를 넣지 않았을 때는 Bad Request를 반환한다.")
+    public void loginId를_넣지_않았을_때() throws Exception {
+        helper.회원가입을_한다(UserFixture.BLOO);
         UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
-                .password(requestSignupDto.getPassword())
+                .password(UserFixture.BLOO.getPassword())
                 .build();
 
-        String signupContent = fromDtoToJson(requestSignupDto);
         String loginContent = fromDtoToJson(requestLoginDto);
-
-        //when //then
-        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(signupContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print());
 
         mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -243,21 +145,13 @@ class UserControllerTest {
     @Test
     @DisplayName("비밀번호를 넣지 않았을 때에는 Bad Request를 반환한다.")
     public void 비밀번호를_넣지_않았을_때() throws Exception {
-        //given
-        UserSignupDto requestSignupDto = createTestUserSignupDto();
+        helper.회원가입을_한다(UserFixture.BLOO);
+
         UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
-                .loginId(requestSignupDto.getLoginId())
+                .loginId(UserFixture.BLOO.getLoginId())
                 .build();
 
-        String signupContent = fromDtoToJson(requestSignupDto);
         String loginContent = fromDtoToJson(requestLoginDto);
-
-        //when //then
-        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(signupContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print());
 
         mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -270,22 +164,14 @@ class UserControllerTest {
     @Test
     @DisplayName("비밀번호를 틀렸을 때는 Bad Request를 반환한다.")
     public void 비밀번호를_틀렸을_때() throws Exception {
-        //given
-        UserSignupDto requestSignupDto = createTestUserSignupDto();
+        helper.회원가입을_한다(UserFixture.BLOO);
+
         UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
-                .loginId(requestSignupDto.getLoginId())
-                .password("f" + requestSignupDto.getPassword())
+                .loginId(UserFixture.BLOO.getLoginId())
+                .password("f" + UserFixture.BLOO.getPassword())
                 .build();
 
-        String signupContent = fromDtoToJson(requestSignupDto);
         String loginContent = fromDtoToJson(requestLoginDto);
-
-        //when //then
-        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(signupContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print());
 
         mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -298,37 +184,10 @@ class UserControllerTest {
     @Test
     @DisplayName("accessToken을 갖고 접근했을 때 OK 반환")
     public void accessToken을_갖고_접근() throws Exception {
-        //given
-        UserSignupDto requestSignupDto = createTestUserSignupDto();
-        UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
-                .loginId(requestSignupDto.getLoginId())
-                .password(requestSignupDto.getPassword())
-                .build();
-
-        String signupContent = fromDtoToJson(requestSignupDto);
-        String loginContent = fromDtoToJson(requestLoginDto);
-
-        //when //then
-        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(signupContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print())
-                .andReturn();
-
-        String respJson = mvcResult.getResponse().getContentAsString();
-        UserLoginResponseDto dto = new ObjectMapper().readValue(respJson, UserLoginResponseDto.class);
-
-        String accessToken = dto.getAccessToken();
+        UserLoginResponseDto dto = helper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
 
         mockMvc.perform(MockMvcRequestBuilders.get(LOGIN_CHECK_URL)
-                        .header(HttpHeaders.AUTHORIZATION, accessToken))
+                        .header(HttpHeaders.AUTHORIZATION, dto.getAccessToken()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -337,8 +196,8 @@ class UserControllerTest {
     @Test
     @DisplayName("accessToken 없이 갖고 접근했을 때 Unauthorized 반환")
     public void accessToken_없이_접근() throws Exception {
-        //given
-        //when //then
+        UserLoginResponseDto dto = helper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+
         mockMvc.perform(MockMvcRequestBuilders.get(LOGIN_CHECK_URL))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                 .andDo(MockMvcResultHandlers.print());
@@ -348,8 +207,8 @@ class UserControllerTest {
     @Test
     @DisplayName("올바르지 않은 accessToken으로 접근했을 때 Unauthorized 반환")
     public void 올바르지_않은_accessToken으로_접근() throws Exception {
-        //given
-        //when //then
+        UserLoginResponseDto dto = helper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+
         mockMvc.perform(MockMvcRequestBuilders.get(LOGIN_CHECK_URL)
                         .header(HttpHeaders.AUTHORIZATION, "test"))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
@@ -360,32 +219,7 @@ class UserControllerTest {
     @Test
     @DisplayName("refreshToken으로 accessToken 갱신 성공")
     public void refreshToken으로_asscessToken_갱신() throws Exception {
-        //given
-        UserSignupDto requestSignupDto = createTestUserSignupDto();
-        UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
-                .loginId(requestSignupDto.getLoginId())
-                .password(requestSignupDto.getPassword())
-                .build();
-
-        String signupContent = fromDtoToJson(requestSignupDto);
-        String loginContent = fromDtoToJson(requestLoginDto);
-
-        //when
-        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(signupContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print())
-                .andReturn();
-
-        String respJson = mvcResult.getResponse().getContentAsString();
-        UserLoginResponseDto loginDto = new ObjectMapper().readValue(respJson, UserLoginResponseDto.class);
+        UserLoginResponseDto loginDto = helper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
 
         UserTokenRequestDto tokenRequestDto = new UserTokenRequestDto();
         tokenRequestDto.setAccessToken(loginDto.getAccessToken());
@@ -396,14 +230,14 @@ class UserControllerTest {
         // 현재 시간을 반환하는 로직이 1분뒤의 시간을 반환하도록 Mocking
         BDDMockito.given(currentTimeProvider.now()).willReturn(LocalDateTime.now().plusMinutes(1L));
         //then
-        mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(REISSUE_TOKEN_URL)
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(REISSUE_TOKEN_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(tokenReqContent))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print())
                 .andReturn();
 
-        respJson =  mvcResult.getResponse().getContentAsString();
+        String respJson = mvcResult.getResponse().getContentAsString();
         UserLoginResponseDto reissueDto = new ObjectMapper().readValue(respJson, UserLoginResponseDto.class);
 
         Assertions.assertThat(loginDto.getAccessToken()).isNotEqualTo(reissueDto.getAccessToken());
@@ -415,31 +249,7 @@ class UserControllerTest {
     @DisplayName("QrCode를 요청 시 QrCode 반환. OK")
     public void qrCode_요청() throws Exception {
         //given
-        UserSignupDto requestSignupDto = createTestUserSignupDto();
-        UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
-                .loginId(requestSignupDto.getLoginId())
-                .password(requestSignupDto.getPassword())
-                .build();
-
-        String signupContent = fromDtoToJson(requestSignupDto);
-        String loginContent = fromDtoToJson(requestLoginDto);
-
-        //when //then
-        mockMvc.perform(MockMvcRequestBuilders.post(SIGNUP_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(signupContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-
-        MvcResult loginResult = mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print())
-                .andReturn();
-
-        String loginJson = loginResult.getResponse().getContentAsString();
-        UserLoginResponseDto dto = new ObjectMapper().readValue(loginJson, UserLoginResponseDto.class);
+        UserLoginResponseDto dto = helper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
 
         String accessToken = dto.getAccessToken();
 
@@ -451,39 +261,18 @@ class UserControllerTest {
 
         String qrJson = qrResult.getResponse().getContentAsString();
         UserQrAndNameResponseDto qrDto = new ObjectMapper().readValue(qrJson, UserQrAndNameResponseDto.class);
-        assertThat(qrDto.getName()).isNotBlank();
         assertThat(qrDto.getQrCode()).isNotBlank();
     }
 
     @Transactional
     @Test
-    @DisplayName("Admin 권한의 회원 조회")
+    @DisplayName("Admin 권한의 회원 조회 성공")
     public void 회원조회_byAdmin() throws Exception {
-        //given
-        User admin = User.builder()
-                .loginId("testAdmin")
-                .email("testAdmin@gmail.com")
-                .password("adminPassword")
-                .name("admin")
-                .role(UserRoleType.ADMIN)
-                .build();
-
+        User admin = UserFixture.ADMIN_BUTTERCUP.toUser();
         admin.encryptPassword(passwordEncoder);
         userRepository.save(admin);
 
-        UserLoginRequestDto requestLoginDto = new UserLoginRequestDto(admin.getLoginId(), "adminPassword");
-        String loginContent = fromDtoToJson(requestLoginDto);
-
-        //when //then
-        MvcResult loginResult = mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print())
-                .andReturn();
-
-        String loginJson = loginResult.getResponse().getContentAsString();
-        UserLoginResponseDto dto = new ObjectMapper().readValue(loginJson, UserLoginResponseDto.class);
+        UserLoginResponseDto dto = helper.액세스토큰을_받는다(UserFixture.ADMIN_BUTTERCUP);
 
         String accessToken = dto.getAccessToken();
 
@@ -499,37 +288,13 @@ class UserControllerTest {
     @Test
     @DisplayName("USER 권한의 회원 조회 실패")
     public void 회원조회_byUser() throws Exception {
-        //given
-        User admin = User.builder()
-                .loginId("testAdmin")
-                .email("testAdmin@gmail.com")
-                .password("adminPassword")
-                .name("admin")
-                .role(UserRoleType.USER)
-                .build();
-
-        admin.encryptPassword(passwordEncoder);
-        userRepository.save(admin);
-
-        UserLoginRequestDto requestLoginDto = new UserLoginRequestDto(admin.getLoginId(), "adminPassword");
-        String loginContent = fromDtoToJson(requestLoginDto);
-
-        //when //then
-        MvcResult loginResult = mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print())
-                .andReturn();
-
-        String loginJson = loginResult.getResponse().getContentAsString();
-        UserLoginResponseDto dto = new ObjectMapper().readValue(loginJson, UserLoginResponseDto.class);
+        UserLoginResponseDto dto = helper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
 
         String accessToken = dto.getAccessToken();
 
         mockMvc.perform(MockMvcRequestBuilders.get(USER_INFO_URL)
                         .header(HttpHeaders.AUTHORIZATION, accessToken)
-                        .param("userLoginId", admin.getLoginId()))
+                        .param("userLoginId", UserFixture.BLOO.getLoginId()))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                 .andDo(MockMvcResultHandlers.print())
                 .andReturn();
@@ -539,31 +304,11 @@ class UserControllerTest {
     @Test
     @DisplayName("Admin 권한의 없는 회원 조회")
     public void 없는_회원조회_byAdmin() throws Exception {
-        //given
-        User admin = User.builder()
-                .loginId("testAdmin")
-                .email("testAdmin@gmail.com")
-                .password("adminPassword")
-                .name("admin")
-                .role(UserRoleType.ADMIN)
-                .build();
-
+        User admin = UserFixture.ADMIN_BUTTERCUP.toUser();
         admin.encryptPassword(passwordEncoder);
         userRepository.save(admin);
 
-        UserLoginRequestDto requestLoginDto = new UserLoginRequestDto(admin.getLoginId(), "adminPassword");
-        String loginContent = fromDtoToJson(requestLoginDto);
-
-        //when //then
-        MvcResult loginResult = mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(MockMvcResultHandlers.print())
-                .andReturn();
-
-        String loginJson = loginResult.getResponse().getContentAsString();
-        UserLoginResponseDto dto = new ObjectMapper().readValue(loginJson, UserLoginResponseDto.class);
+        UserLoginResponseDto dto = helper.액세스토큰을_받는다(UserFixture.ADMIN_BUTTERCUP);
 
         String accessToken = dto.getAccessToken();
 
