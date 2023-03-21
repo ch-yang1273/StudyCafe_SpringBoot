@@ -1,5 +1,6 @@
 package asc.portfolio.ascSb.domain.ticket;
 
+import asc.portfolio.ascSb.cafe.domain.CafeFinder;
 import asc.portfolio.ascSb.config.querydslconfig.TestQueryDslConfig;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeRepository;
@@ -25,8 +26,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(TestQueryDslConfig.class)
+@Import({TestQueryDslConfig.class, CafeFinder.class})
 public class TicketRepositoryTest {
+    // todo CafeFinder를 repository 안에서 왜 요구하는지 모르겠네...
 
     @Autowired
     TicketRepository ticketRepository;

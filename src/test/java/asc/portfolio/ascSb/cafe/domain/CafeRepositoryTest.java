@@ -8,8 +8,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 @DataJpaTest
-@Import(TestQueryDslConfig.class)
+@Import({TestQueryDslConfig.class, CafeFinder.class})
 class CafeRepositoryTest {
+    //todo : CafeFinder.class는 왜 필요한지 모르겠네...
 
     private final CafeRepository cafeRepository;
 

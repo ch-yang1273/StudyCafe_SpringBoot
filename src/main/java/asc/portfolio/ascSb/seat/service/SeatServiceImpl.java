@@ -1,5 +1,6 @@
 package asc.portfolio.ascSb.seat.service;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
+import asc.portfolio.ascSb.cafe.domain.CafeFinder;
 import asc.portfolio.ascSb.common.infra.redis.RedisRepository;
 import asc.portfolio.ascSb.seat.domain.Seat;
 import asc.portfolio.ascSb.seat.domain.SeatRepository;
@@ -29,6 +30,7 @@ public class SeatServiceImpl implements SeatService {
 
     private final SeatRepository seatRepository;
     private final UserFinder userFinder;
+    private final CafeFinder cafeFinder;
     private final SeatReservationInfoRepository reservationInfoRepository;
     private final TicketRepository ticketRepository;
     private final RedisRepository redisRepository;
@@ -88,7 +90,8 @@ public class SeatServiceImpl implements SeatService {
                 Long timeInUse = info.endUsingSeat();
 
                 //Seat Exit
-                Seat findSeat = seatRepository.findByCafeNameAndSeatNumber(info.getCafeName(), info.getSeatNumber());
+                Cafe cafe = cafeFinder.findByCafeName(info.getCafeName());
+                Seat findSeat = seatRepository.findByCafeAndSeatNumber(cafe, info.getSeatNumber());
                 findSeat.exitSeat();
 
                 //Ticket Exit
@@ -119,7 +122,7 @@ public class SeatServiceImpl implements SeatService {
         Seat findSeat = seatRepository.findByCafeAndSeatNumber(cafe, seatNumber);
 
         //todo exitMySeat, exitSeatBySeatNumber로 구분해야겠다.
-        exitSeat(findSeat.getUser().getId());
+        exitSeat(findSeat.getUserId());
     }
 
     @Override
@@ -155,7 +158,7 @@ public class SeatServiceImpl implements SeatService {
         exitSeat(userId);
 
         //seat 에 User, ticket 을 할당
-        findSeat.reserveSeat(user, ticketOpt.get());
+        findSeat.reserveSeat(user.getId(), ticketOpt.get());
 
         //ReservationInfo 저장
         SeatReservationInfo reservationInfo = SeatReservationInfo.builder()
@@ -184,24 +187,22 @@ public class SeatServiceImpl implements SeatService {
     private void alertFcm(List<Seat> list) {
         // TODO
         /* List<Seat>에서 FCM을 보낼 유저들을 특정 후 FireBase서버를 경유해 10분 남았다고 알림을 요청 */
-        List<String> userName = list.stream()
-                .map(u -> u.getUser().getLoginId())
+        List<Long> userIds = list.stream()
+                .map(Seat::getUserId)
                 .collect(Collectors.toList());
 
-        if (!userName.isEmpty()) {
-            for (String userNames : userName) {
-                String token = redisRepository.getValue(userNames + "_" + "USER" + "_FCM_TOKEN");
-                try {
-                    firebaseCloudMessageService.sendMessageToSpecificUser(token,
-                            "알라딘 스터디카페",
-                            "좌석이 10분 남았습니다.");
-                } catch (IOException e) {
-                    log.info("FCM Message sending failed");
-                    e.printStackTrace();
-                }
+        for (Long id : userIds) {
+            User user = userFinder.findById(id);
+            // todo 필수 값이 아닌 userName으로 검색을하고 있다. loginId로 변경
+            String token = redisRepository.getValue(user.getName() + "_" + "USER" + "_FCM_TOKEN");
+            try {
+                firebaseCloudMessageService.sendMessageToSpecificUser(token,
+                        "알라딘 스터디카페",
+                        "좌석이 10분 남았습니다.");
+            } catch (IOException e) {
+                log.info("FCM Message sending failed");
+                e.printStackTrace();
             }
-        } else {
-            log.info("alertFcm user is not exist");
         }
     }
 
