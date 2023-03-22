@@ -97,7 +97,7 @@ public class TestDataGeneration {
 
         Seat seat = Seat.builder()
                 .seatNumber(i)
-                .cafe(cafe)
+                .cafeId(cafe.getId())
                 .build();
         seatRepository.save(seat);
       }

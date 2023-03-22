@@ -12,8 +12,4 @@ public interface UserAuthService {
     Long checkAccessToken(String token);
 
     UserLoginResponseDto reissueToken(String accessToken, String refreshToken);
-
-    void checkAdminRole(Long userId);
-
-    void checkUserRole(Long userId);
 }

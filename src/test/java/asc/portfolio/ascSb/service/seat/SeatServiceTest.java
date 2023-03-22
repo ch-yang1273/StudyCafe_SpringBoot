@@ -63,7 +63,7 @@ class SeatServiceTest {
         for(int i=0; i < 40; i ++) {
             Seat seat = Seat.builder()
                     .seatNumber(i)
-                    .cafe(cafe)
+                    .cafeId(cafe.getId())
                     .build();
             seatRepository.save(seat);
         }
@@ -140,7 +140,7 @@ class SeatServiceTest {
         for(int i=0; i < 40; i ++) {
             Seat seat = Seat.builder()
                     .seatNumber(i)
-                    .cafe(cafe)
+                    .cafeId(cafe.getId())
                     .build();
             seatRepository.save(seat);
         }

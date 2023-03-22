@@ -1,9 +1,7 @@
 package asc.portfolio.ascSb.cafe.service;
 
-import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeRepository;
 import asc.portfolio.ascSb.cafe.dto.SeatStatusDto;
-import asc.portfolio.ascSb.cafe.exception.CafeNotFoundException;
 import asc.portfolio.ascSb.seat.domain.SeatRepository;
 import asc.portfolio.ascSb.cafe.dto.CafeResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +37,7 @@ public class CafeServiceImpl implements CafeService {
     @Transactional(readOnly = true)
     @Override
     public List<SeatStatusDto> getAllSeatsByCafeId(Long cafeId) {
-        Cafe cafe = cafeRepository.findById(cafeId).orElseThrow(() -> new CafeNotFoundException());
-        return seatRepository.findByCafe(cafe).stream()
+        return seatRepository.findByCafeId(cafeId).stream()
                 .map(seat -> new SeatStatusDto(seat.getId(), seat.isReserved()))
                 .collect(Collectors.toList());
     }

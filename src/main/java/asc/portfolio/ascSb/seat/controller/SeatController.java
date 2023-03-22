@@ -5,7 +5,7 @@ import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.seatreservationinfo.service.SeatReservationInfoService;
 import asc.portfolio.ascSb.seat.dto.SeatResponseDto;
 import asc.portfolio.ascSb.seat.service.SeatService;
-import asc.portfolio.ascSb.user.service.UserAuthService;
+import asc.portfolio.ascSb.user.service.UserRoleCheckService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,9 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class SeatController {
 
     private final SeatService seatService;
-
-    private final UserAuthService userAuthService;
-
+    private final UserRoleCheckService userRoleCheckService;
     private final SeatReservationInfoService seatReservationInfoService;
 
     @ExceptionHandler(NullPointerException.class)
@@ -75,7 +73,7 @@ public class SeatController {
 
     @PostMapping("/exit-admin/{seatNumber}")
     public ResponseEntity<String> exitSeat(@LoginUser Long adminId, @PathVariable int seatNumber) {
-        userAuthService.checkAdminRole(adminId);
+        userRoleCheckService.isAdmin(adminId);
         seatService.exitSeatBySeatNumber(adminId, seatNumber);
         return new ResponseEntity<>("Success", HttpStatus.OK);
     }

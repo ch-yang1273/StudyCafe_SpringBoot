@@ -4,7 +4,7 @@ import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.ticket.service.TicketService;
 import asc.portfolio.ascSb.ticket.dto.TicketForAdminResponseDto;
 import asc.portfolio.ascSb.ticket.dto.TicketForUserResponseDto;
-import asc.portfolio.ascSb.user.service.UserAuthService;
+import asc.portfolio.ascSb.user.service.UserRoleCheckService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,8 +20,7 @@ import java.util.List;
 public class TicketController {
 
     private final TicketService ticketService;
-
-    private final UserAuthService userAuthService;
+    private final UserRoleCheckService userRoleCheckService;
 
     @GetMapping("/{cafeName}")
     public TicketForUserResponseDto userTicket(@LoginUser Long userId, @PathVariable String cafeName) {
@@ -32,7 +31,7 @@ public class TicketController {
     public ResponseEntity<List<TicketForUserResponseDto>> lookupUserTickets(@LoginUser Long adminId,
                                                                             @RequestParam("user") String targetUserLoginId) {
 
-        userAuthService.checkAdminRole(adminId);
+        userRoleCheckService.isAdmin(adminId);
         log.info("lookup tickets. user = {}", targetUserLoginId);
         List<TicketForUserResponseDto> ticketForUserResponseDtos = ticketService.lookupUserTickets(targetUserLoginId, adminId);
         return new ResponseEntity<>(ticketForUserResponseDtos, HttpStatus.OK);
@@ -40,7 +39,7 @@ public class TicketController {
 
     @GetMapping("/admin/lookup")
     public ResponseEntity<TicketForAdminResponseDto> adminLookUpUserValidTicket(@LoginUser Long adminId, @RequestParam String userLoginId) {
-        userAuthService.checkAdminRole(adminId);
+        userRoleCheckService.isAdmin(adminId);
         return new ResponseEntity<>(ticketService.adminLookUpUserValidTicket(userLoginId, adminId), HttpStatus.OK);
     }
 }

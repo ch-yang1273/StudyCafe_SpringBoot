@@ -1,5 +1,6 @@
 package asc.portfolio.ascSb.seat.domain;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
+import asc.portfolio.ascSb.cafe.domain.CafeFinder;
 import asc.portfolio.ascSb.cafe.domain.QCafe;
 import asc.portfolio.ascSb.seatreservationinfo.domain.QSeatReservationInfo;
 import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfo;
@@ -22,6 +23,8 @@ import java.util.List;
 public class SeatCustomRepositoryImpl implements SeatCustomRepository {
 
     private final JPAQueryFactory query;
+    // todo : 이게 여기 있으면 안된다. 빠르게 삭제 요망
+    private final CafeFinder cafeFinder;
 
     private final SeatReservationInfoRepository seatReservationInfoRepository;
 
@@ -61,7 +64,7 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
                 .fetch();
 
         for (Seat seatOne : seatList) {
-            Cafe cafe = seatOne.getCafe();
+            Cafe cafe = cafeFinder.findById(seatOne.getCafeId());
             SeatReservationInfo info = query
                     .selectFrom(QSeatReservationInfo.seatReservationInfo)
                     .where(QSeatReservationInfo.seatReservationInfo.isValid.eq(SeatReservationInfoStateType.VALID),
@@ -151,7 +154,8 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
     }
 
     private void exitSeatBySeatEntity(Seat seatOne, SeatReservationInfo seatRezInfoEntity) {
-        String cafeName = seatOne.getCafe().getCafeName();
+        Cafe cafe = cafeFinder.findById(seatOne.getCafeId());
+        String cafeName = cafe.getCafeName();
 
         if (seatRezInfoEntity == null) {
             seatRezInfoEntity = seatReservationInfoRepository.findValidSeatRezInfoByCafeNameAndSeatNumber(cafeName, seatOne.getSeatNumber());
@@ -168,10 +172,8 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
     @Override
     public Seat findByCafeAndSeatNumber(Cafe cafeObject, Integer seatNumber) {
         return query
-                .select(QSeat.seat)
-                .from(QSeat.seat)
-                .join(QSeat.seat.cafe, QCafe.cafe)
-                .where(QCafe.cafe.eq(cafeObject), QSeat.seat.seatNumber.eq(seatNumber))
+                .selectFrom(QSeat.seat)
+                .where(QSeat.seat.cafeId.eq(cafeObject.getId()), QSeat.seat.seatNumber.eq(seatNumber))
                 .fetchOne();
     }
 
@@ -180,7 +182,7 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
         return query
                 .select(QSeat.seat)
                 .from(QSeat.seat)
-                .join(QSeat.seat.cafe, QCafe.cafe)
+                .join(QSeat.seat).on(QCafe.cafe.id.eq(QSeat.seat.cafeId))
                 .where(QCafe.cafe.cafeName.eq(cafeName), QSeat.seat.seatNumber.eq(seatNumber))
                 .fetchOne();
     }
