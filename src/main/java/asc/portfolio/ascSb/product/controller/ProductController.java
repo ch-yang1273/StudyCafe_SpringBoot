@@ -7,7 +7,7 @@ import asc.portfolio.ascSb.order.service.OrderService;
 import asc.portfolio.ascSb.product.service.ProductService;
 import asc.portfolio.ascSb.ticket.service.TicketService;
 import asc.portfolio.ascSb.product.dto.ProductListResponseDto;
-import asc.portfolio.ascSb.user.service.UserAuthService;
+import asc.portfolio.ascSb.user.service.UserRoleCheckService;
 import kr.co.bootpay.model.request.Cancel;
 import kr.co.bootpay.model.response.ResDefault;
 import lombok.RequiredArgsConstructor;
@@ -26,16 +26,13 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-
-    private final UserAuthService userAuthService;
-
+    private final UserRoleCheckService userRoleCheckService;
     private final OrderService orderService;
-
     private final TicketService ticketService;
 
     @RequestMapping(value = "/admin/management", method = RequestMethod.GET)
     public ResponseEntity<List<ProductListResponseDto>> productInfoOneUser(@LoginUser Long userId, @RequestParam String userLoginId) {
-        userAuthService.checkAdminRole(userId);
+        userRoleCheckService.isAdmin(userId);
         return new ResponseEntity<>(productService.adminSalesManagementOneUser(userId), HttpStatus.OK);
     }
 
@@ -44,7 +41,7 @@ public class ProductController {
             @LoginUser Long userId,
             @PathVariable String cafeName,
             @RequestHeader(value = "dateString") String dateString) {
-        userAuthService.checkAdminRole(userId);
+        userRoleCheckService.isAdmin(userId);
         return new ResponseEntity<>(productService.adminSalesManagementWithStartDate(cafeName, dateString), HttpStatus.OK);
     }
 
@@ -52,7 +49,7 @@ public class ProductController {
     public ResponseEntity<String> cancelOneProduct(@LoginUser Long userId, @RequestParam("product-label") String productLabel) throws Exception {
 
         final String receiptId = orderService.findReceiptIdToProductLabel(productLabel.substring(11)).getReceiptOrderId();
-        userAuthService.checkAdminRole(userId);
+        userRoleCheckService.isAdmin(userId);
 
         String rest_application_id = "";
         String private_key = "";

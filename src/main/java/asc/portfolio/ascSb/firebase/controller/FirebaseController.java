@@ -4,7 +4,7 @@ import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.firebase.service.FirebaseCloudMessageService;
 import asc.portfolio.ascSb.firebase.service.fcmtoken.FCMTokenService;
 import asc.portfolio.ascSb.firebase.dto.FCMRequestDto;
-import asc.portfolio.ascSb.user.service.UserAuthService;
+import asc.portfolio.ascSb.user.service.UserRoleCheckService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,14 +20,12 @@ import java.io.IOException;
 public class FirebaseController {
 
     private final FCMTokenService fcmTokenService;
-
-    private final UserAuthService userAuthService;
-
+    private final UserRoleCheckService userRoleCheckService;
     private final FirebaseCloudMessageService firebaseCloudMessageService;
 
     @PostMapping("/cm-token/confirm")
     public ResponseEntity<?> checkFCMToken(@LoginUser Long userId, @RequestParam String fCMToken) {
-        userAuthService.checkUserRole(userId);
+        userRoleCheckService.isUser(userId);
         if (fcmTokenService.confirmToken(userId, fCMToken)) {
             return new ResponseEntity<>("OK", HttpStatus.OK);
         } else {
@@ -37,7 +35,7 @@ public class FirebaseController {
 
     @PostMapping("/cm-token/admin/confirm")
     public ResponseEntity<String> checkAdminFcmToken(@LoginUser Long adminId, @RequestParam String fCMToken) {
-        userAuthService.checkAdminRole(adminId);
+        userRoleCheckService.isAdmin(adminId);
 
         //todo : 반환 된 id 체크 없이 throw하는 방식으로 변경
         Long id = fcmTokenService.confirmAdminFCMToken(adminId, fCMToken);

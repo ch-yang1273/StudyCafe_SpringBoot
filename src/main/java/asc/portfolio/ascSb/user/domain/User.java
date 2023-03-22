@@ -90,6 +90,10 @@ public class User extends BaseTimeEntity {
         this.cafe = cafe;
     }
 
+    public void changeRole(UserRoleType role) {
+        this.role = role;
+    }
+
     public String createQrString() {
         int leftLimit = 48; // numeral '0'
         int rightLimit = 122; // letter 'z'

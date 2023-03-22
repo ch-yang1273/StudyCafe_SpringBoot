@@ -8,6 +8,7 @@ import asc.portfolio.ascSb.user.dto.UserQrAndNameResponseDto;
 import asc.portfolio.ascSb.user.dto.UserSignupDto;
 import asc.portfolio.ascSb.user.dto.UserTokenRequestDto;
 import asc.portfolio.ascSb.user.service.UserAuthService;
+import asc.portfolio.ascSb.user.service.UserRoleCheckService;
 import asc.portfolio.ascSb.user.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +33,7 @@ import java.util.Map;
 public class UserController {
 
     private final UserAuthService userAuthService;
+    private final UserRoleCheckService userRoleCheckService;
     private final UserService userService;
 
     private String validateSingUpDto(BindingResult bindingResult) {
@@ -89,7 +91,7 @@ public class UserController {
 
     @GetMapping("/admin/check")
     public ResponseEntity<UserProfileDto> getUserInfoByLoginId(@LoginUser Long adminId, @RequestParam String userLoginId) {
-        userAuthService.checkAdminRole(adminId);
+        userRoleCheckService.isAdmin(adminId);
         return new ResponseEntity<>(userService.getUserInfoByLoginId(userLoginId), HttpStatus.OK);
     }
 
@@ -102,7 +104,7 @@ public class UserController {
     @Parameter(name = "cafeId", example = "1")
     @PostMapping("/update/{cafeId}")
     public ResponseEntity<Void> updateUserCafe(@LoginUser Long userId, @PathVariable Long cafeId) {
-        userAuthService.checkUserRole(userId);
+        userRoleCheckService.isUser(userId);
         userService.updateUserCafe(userId, cafeId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
