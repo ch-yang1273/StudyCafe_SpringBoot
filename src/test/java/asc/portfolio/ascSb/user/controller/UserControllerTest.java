@@ -45,7 +45,7 @@ class UserControllerTest {
     static final String LOGIN_CHECK_URL = "/api/v1/user/login-check";
     static final String REISSUE_TOKEN_URL = "/api/v1/user/reissue";
     static final String QR_REQ_URL = "/api/v1/user/qr-name";
-    static final String USER_INFO_URL = "/api/v1/user//admin/check";
+    static final String USER_INFO_URL = "/api/v1/user/admin/check";
 
     @Autowired
     private UserRepository userRepository;
@@ -218,7 +218,7 @@ class UserControllerTest {
     @Transactional
     @Test
     @DisplayName("refreshToken으로 accessToken 갱신 성공")
-    public void refreshToken으로_asscessToken_갱신() throws Exception {
+    public void refreshToken으로_accessToken_갱신() throws Exception {
         UserLoginResponseDto loginDto = helper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
 
         UserTokenRequestDto tokenRequestDto = new UserTokenRequestDto();
@@ -243,6 +243,26 @@ class UserControllerTest {
         Assertions.assertThat(loginDto.getAccessToken()).isNotEqualTo(reissueDto.getAccessToken());
         Assertions.assertThat(loginDto.getRefreshToken()).isEqualTo(reissueDto.getRefreshToken());
     }
+
+    @Transactional
+    @Test
+    @DisplayName("올바르지 않은 refreshToken으로 accessToken 갱신 실패")
+    public void refreshToken으로_accessToken_갱신실패() throws Exception {
+        UserLoginResponseDto loginDto = helper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        UserTokenRequestDto tokenRequestDto = new UserTokenRequestDto();
+        tokenRequestDto.setAccessToken(loginDto.getAccessToken());
+        tokenRequestDto.setRefreshToken("Fail");
+
+        String tokenReqContent = fromDtoToJson(tokenRequestDto);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(REISSUE_TOKEN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(tokenReqContent))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+    }
+
 
     @Transactional
     @Test
