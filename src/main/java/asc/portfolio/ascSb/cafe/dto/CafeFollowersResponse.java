@@ -4,12 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@AllArgsConstructor
 @NoArgsConstructor
-public class CafeResponseDto {
+@AllArgsConstructor
+@Getter
+public class CafeFollowersResponse {
 
-    private Long cafeId;
-    private String cafeNames;
-    private String cafeArea;
+    Long cafeId;
+    Long count;
 }

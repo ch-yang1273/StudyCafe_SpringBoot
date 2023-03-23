@@ -1,7 +1,9 @@
 package asc.portfolio.ascSb.support.cafe;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
+import lombok.Getter;
 
+@Getter
 public enum CafeFixture {
 
     CAFE_A("CafeA", "AreaA"),

@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class SeatStatusDto {
+public class SeatStatusResponse {
 
     private Long id;
     private boolean isReserved;

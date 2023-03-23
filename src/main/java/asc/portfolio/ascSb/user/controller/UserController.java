@@ -71,12 +71,6 @@ public class UserController {
         return new ResponseEntity<>(loginRespDto, HttpStatus.OK);
     }
 
-    @GetMapping("/login-check") //Test
-    public ResponseEntity<Void> loginCheck(@LoginUser Long userId) {
-        log.debug("login user = {}", userId);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
     @PostMapping("/reissue")
     public ResponseEntity<UserLoginResponseDto> reissueToken(@RequestBody @Valid UserTokenRequestDto tokenRequestDto) {
         return new ResponseEntity<>(
@@ -84,8 +78,13 @@ public class UserController {
                 HttpStatus.OK);
     }
 
-    @GetMapping("/qr-name")
-    public ResponseEntity<UserQrAndNameResponseDto> userQrAndNameInfo(@LoginUser Long userId) {
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileDto> getMyProfile(@LoginUser Long userId) {
+        return ResponseEntity.ok().body(userService.getProfileById(userId));
+    }
+
+    @GetMapping("/qr")
+    public ResponseEntity<UserQrAndNameResponseDto> getQrCode(@LoginUser Long userId) {
         return new ResponseEntity<>(userService.userQrAndName(userId), HttpStatus.OK);
     }
 
