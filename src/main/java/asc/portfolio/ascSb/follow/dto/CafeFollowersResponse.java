@@ -1,4 +1,4 @@
-package asc.portfolio.ascSb.cafe.dto;
+package asc.portfolio.ascSb.follow.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

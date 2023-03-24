@@ -2,6 +2,7 @@ package asc.portfolio.ascSb.seat.service;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeFinder;
 import asc.portfolio.ascSb.common.infra.redis.RedisRepository;
+import asc.portfolio.ascSb.follow.domain.FollowFinder;
 import asc.portfolio.ascSb.seat.domain.Seat;
 import asc.portfolio.ascSb.seat.domain.SeatRepository;
 import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfo;
@@ -31,6 +32,7 @@ public class SeatServiceImpl implements SeatService {
     private final SeatRepository seatRepository;
     private final UserFinder userFinder;
     private final CafeFinder cafeFinder;
+    private final FollowFinder followFinder; // todo 삭제
     private final SeatReservationInfoRepository reservationInfoRepository;
     private final TicketRepository ticketRepository;
     private final RedisRepository redisRepository;
@@ -119,7 +121,7 @@ public class SeatServiceImpl implements SeatService {
     public Boolean reserveSeat(Long userId, Integer seatNumber, Long startTime) {
         // todo : user가 follow한 정보를 예약 할 것이 아니고, seatId 나 cafe 정보와 seat 정보를 받아서 예약해야 한다.
         User user = userFinder.findById(userId);
-        Cafe cafe = cafeFinder.findFollowedCafe(userId);
+        Cafe cafe = followFinder.findFollowedCafe(userId);
 
         if (cafe == null) {
             log.error("선택 된 카페가 없는 유저 입니다.");

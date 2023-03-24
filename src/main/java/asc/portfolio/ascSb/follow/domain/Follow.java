@@ -1,4 +1,4 @@
-package asc.portfolio.ascSb.cafe.domain;
+package asc.portfolio.ascSb.follow.domain;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,17 +12,17 @@ import javax.persistence.Table;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "FOLLOWING")
-public class Following {
+@Table(name = "FOLLOW")
+public class Follow {
 
     @Id
-    @Column(name = "FOLLOWING_ID")
+    @Column(name = "FOLLOWER_ID")
     private Long followerId; // user
 
     @Column(name = "CAFE_ID")
     private Long cafeId;
 
-    public Following(Long followerId, Long cafeId) {
+    public Follow(Long followerId, Long cafeId) {
         this.followerId = followerId;
         this.cafeId = cafeId;
     }

@@ -2,8 +2,8 @@ package asc.portfolio.ascSb.ticket.service;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeFinder;
-import asc.portfolio.ascSb.cafe.domain.Following;
-import asc.portfolio.ascSb.cafe.domain.FollowingRepository;
+import asc.portfolio.ascSb.follow.domain.Follow;
+import asc.portfolio.ascSb.follow.domain.FollowingRepository;
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.product.domain.ProductRepository;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
@@ -61,8 +61,8 @@ public class TicketServiceImpl implements TicketService, TicketCustomService {
         User user = userFinder.findById(userId);
 
         // todo 수정 필요. 카페는 Product나 orders가 갖고 있어야 했고, 이 엔티티들에서 가져와야 했다.
-        Following following = followingRepository.findById(userId).orElseThrow();
-        Cafe cafe = cafeFinder.findById(following.getCafeId());
+        Follow follow = followingRepository.findById(userId).orElseThrow();
+        Cafe cafe = cafeFinder.findById(follow.getCafeId());
 
         Optional<TicketForUserResponseDto> findUserValidTicket =
                 ticketRepository.findAvailableTicketInfoByIdAndCafeName(user.getId(), cafe.getCafeName());

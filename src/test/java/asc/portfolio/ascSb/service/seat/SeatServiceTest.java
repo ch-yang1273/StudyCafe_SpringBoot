@@ -2,7 +2,7 @@ package asc.portfolio.ascSb.service.seat;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeRepository;
-import asc.portfolio.ascSb.cafe.service.FollowingService;
+import asc.portfolio.ascSb.follow.service.FollowService;
 import asc.portfolio.ascSb.seat.domain.Seat;
 import asc.portfolio.ascSb.seat.domain.SeatRepository;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
@@ -45,7 +45,7 @@ class SeatServiceTest {
     CafeRepository cafeRepository;
 
     @Autowired
-    FollowingService followingService;
+    FollowService followService;
 
     //Service
     @Autowired
@@ -81,7 +81,7 @@ class SeatServiceTest {
                 .role(UserRoleType.USER)
                 .build();
 
-        followingService.follow(user.getId(), cafe.getId());
+        followService.follow(user.getId(), cafe.getId());
         userRepository.save(user);
 
         LocalDateTime date = LocalDateTime.now();

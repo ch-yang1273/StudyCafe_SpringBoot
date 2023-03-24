@@ -2,6 +2,7 @@ package asc.portfolio.ascSb.product.service;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeFinder;
+import asc.portfolio.ascSb.follow.domain.FollowFinder;
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.product.domain.Product;
 import asc.portfolio.ascSb.product.domain.ProductRepository;
@@ -30,6 +31,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final UserFinder userFinder;
+    private final FollowFinder followFinder; //todo : 삭제
     private final CafeFinder cafeFinder;
 
     @Override
@@ -56,7 +58,7 @@ public class ProductServiceImpl implements ProductService {
     public void saveProduct(Long userId, BootPayOrderDto dto, Orders orders) {
         // todo : 여기 cafe도 user로부터 나올 것이 아니라 주문에서 나와야한다. 수정 필요!
         User user = userFinder.findById(userId);
-        Cafe cafe = cafeFinder.findFollowedCafe(userId);
+        Cafe cafe = followFinder.findFollowedCafe(userId);
 
         Product product = ProductDto.builder()
                 .cafe(cafe)

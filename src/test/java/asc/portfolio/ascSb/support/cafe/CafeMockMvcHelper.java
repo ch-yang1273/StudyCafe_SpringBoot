@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 public class CafeMockMvcHelper {
 
     private final MockMvc mockMvc;
-
     private final ObjectMapper mapper = new ObjectMapper();
 
     private final String BASE_URL = "/api/v1/cafe";
@@ -29,9 +28,6 @@ public class CafeMockMvcHelper {
     private final String OPEN = "/open";
     private final String CLOSE = "/close";
     private final String SEATS = "/seats";
-    private final String FOLLOW = "/follow";
-    private final String UNFOLLOW = "/unfollow";
-    private final String FOLLOWERS = "/followers";
 
     private String getUrl(Long cafeId, String suffix) {
         //BASE_URL/{cafeId}/suffix
@@ -86,30 +82,6 @@ public class CafeMockMvcHelper {
         String url = getUrl(cafeId, CLOSE);
 
         return mockMvc.perform(MockMvcRequestBuilders.post(url)
-                .header(HttpHeaders.AUTHORIZATION, accessToken)
-                .contentType(MediaType.APPLICATION_JSON));
-    }
-
-    public ResultActions 카페를_Follow한다(Long cafeId, String accessToken) throws Exception {
-        String url = getUrl(cafeId, FOLLOW);
-
-        return mockMvc.perform(MockMvcRequestBuilders.post(url)
-                .header(HttpHeaders.AUTHORIZATION, accessToken)
-                .contentType(MediaType.APPLICATION_JSON));
-    }
-
-    public ResultActions 카페를_Unfollow한다(Long cafeId, String accessToken) throws Exception {
-        String url = getUrl(cafeId, UNFOLLOW);
-
-        return mockMvc.perform(MockMvcRequestBuilders.post(url)
-                .header(HttpHeaders.AUTHORIZATION, accessToken)
-                .contentType(MediaType.APPLICATION_JSON));
-    }
-
-    public ResultActions 카페_Follower_정보를_받는다(Long cafeId, String accessToken) throws Exception {
-        String url = getUrl(cafeId, FOLLOWERS);
-
-        return mockMvc.perform(MockMvcRequestBuilders.get(url)
                 .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .contentType(MediaType.APPLICATION_JSON));
     }

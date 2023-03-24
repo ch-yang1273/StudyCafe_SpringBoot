@@ -1,7 +1,7 @@
 package asc.portfolio.ascSb.seatreservationinfo.service;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
-import asc.portfolio.ascSb.cafe.domain.CafeFinder;
+import asc.portfolio.ascSb.follow.domain.FollowFinder;
 import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfo;
 import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoRepository;
 import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoStateType;
@@ -24,12 +24,13 @@ public class SeatReservationInfoServiceImpl implements SeatReservationInfoServic
 
     private final SeatReservationInfoRepository seatReservationInfoRepository;
     private final UserFinder userFinder;
-    private final CafeFinder cafeFinder;
+    private final FollowFinder followFinder;
 
     @Override
     public SeatReservationInfoSelectResponseDto showUserSeatReservationInfo(Long userId) {
         User user = userFinder.findById(userId);
-        Cafe cafe = cafeFinder.findFollowedCafe(userId);
+        //todo : 삭제. cafe는 Seat에서 나와야지 Follow에서 나오면 안된다.
+        Cafe cafe = followFinder.findFollowedCafe(userId);
 
         try {
             SeatReservationInfoSelectResponseDto dto = seatReservationInfoRepository.findSeatInfoByUserIdAndCafeName(user.getLoginId(), cafe.getCafeName());
@@ -44,7 +45,8 @@ public class SeatReservationInfoServiceImpl implements SeatReservationInfoServic
     @Override
     public SeatReservationInfo validUserSeatReservationInfo(Long userId) {
         User user = userFinder.findById(userId);
-        Cafe cafe = cafeFinder.findFollowedCafe(userId);
+        //todo : 삭제. cafe는 Seat에서 나와야지 Follow에서 나오면 안된다.
+        Cafe cafe = followFinder.findFollowedCafe(userId);
         return seatReservationInfoRepository.findByUserLoginIdAndIsValidAndCafeName(
                 user.getLoginId(), SeatReservationInfoStateType.VALID, cafe.getCafeName());
     }
