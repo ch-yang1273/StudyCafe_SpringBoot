@@ -12,7 +12,6 @@ import asc.portfolio.ascSb.user.service.UserRoleCheckService;
 import asc.portfolio.ascSb.user.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -97,14 +96,6 @@ public class UserController {
     @GetMapping("/admin/check/user-id")
     public ResponseEntity<Void> checkUserInfoByLoginId(@RequestParam String userLoginId) {
         userService.getUserInfoByLoginId(userLoginId);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @Parameter(name = "cafeId", example = "1")
-    @PostMapping("/update/{cafeId}")
-    public ResponseEntity<Void> updateUserCafe(@LoginUser Long userId, @PathVariable Long cafeId) {
-        userRoleCheckService.isUser(userId);
-        userService.updateUserCafe(userId, cafeId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

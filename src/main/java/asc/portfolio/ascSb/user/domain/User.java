@@ -1,10 +1,8 @@
 package asc.portfolio.ascSb.user.domain;
 
 import asc.portfolio.ascSb.common.domain.BaseTimeEntity;
-import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.user.exception.UserErrorData;
 import asc.portfolio.ascSb.user.exception.UserException;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,12 +12,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
@@ -35,13 +30,6 @@ public class User extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_ID")
     private Long id;
-
-    // todo : User는 Cafe 관계 없이 예약 가능해야겠다. 괜히 복잡하게 만든다.
-    // 추후 좌석 예약 기능 정리 하고 삭제
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
-    @JoinColumn(name = "CAFE_ID")
-    private Cafe cafe;
 
     @Size(min = 8, max = 16)
     @Column(name = "LOGIN_ID", unique = true, nullable = false)
@@ -84,10 +72,6 @@ public class User extends BaseTimeEntity {
         if (!this.password.equals(encrypt)) {
             throw new UserException(UserErrorData.USER_WRONG_PASSWORD);
         }
-    }
-
-    public void changeCafe(Cafe cafe) {
-        this.cafe = cafe;
     }
 
     public void changeRole(UserRoleType role) {

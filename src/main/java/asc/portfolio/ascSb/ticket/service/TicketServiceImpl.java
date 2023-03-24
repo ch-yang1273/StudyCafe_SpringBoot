@@ -1,6 +1,9 @@
 package asc.portfolio.ascSb.ticket.service;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
+import asc.portfolio.ascSb.cafe.domain.CafeFinder;
+import asc.portfolio.ascSb.cafe.domain.Following;
+import asc.portfolio.ascSb.cafe.domain.FollowingRepository;
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.product.domain.ProductRepository;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
@@ -30,34 +33,39 @@ import java.util.Optional;
 public class TicketServiceImpl implements TicketService, TicketCustomService {
 
     private final TicketRepository ticketRepository;
-
     private final UserFinder userFinder;
-
+    private final CafeFinder cafeFinder;
+    private final FollowingRepository followingRepository; // todo : 삭제
     private final ProductRepository productRepository;
 
     @Override
     public TicketForUserResponseDto userValidTicket(Long id, String cafeName) {
         LocalDateTime dateTime = LocalDateTime.now();
-            Optional<TicketForUserResponseDto> optionalDto = ticketRepository.findAvailableTicketInfoByIdAndCafeName(id, cafeName);
-            if(optionalDto.isPresent()) {
-                TicketForUserResponseDto dto = optionalDto.get();
+        Optional<TicketForUserResponseDto> optionalDto = ticketRepository.findAvailableTicketInfoByIdAndCafeName(id, cafeName);
+        if(optionalDto.isPresent()) {
+            TicketForUserResponseDto dto = optionalDto.get();
 
-                if(dto.getFixedTermTicket() != null) {
-                    long termData = Duration.between(dateTime, dto.getFixedTermTicket()).toMinutes();
-                    dto.setPeriod(termData);
-                }
-                return dto;
-            } else {
-                log.info("보유중인 티켓이 존재하지 않습니다.");
-                return null;
+            if(dto.getFixedTermTicket() != null) {
+                long termData = Duration.between(dateTime, dto.getFixedTermTicket()).toMinutes();
+                dto.setPeriod(termData);
             }
+            return dto;
+        } else {
+            log.info("보유중인 티켓이 존재하지 않습니다.");
+            return null;
         }
+    }
 
     @Override
     public Long saveProductToTicket(Long userId, BootPayOrderDto bootPayOrderDto, Orders orders) {
         User user = userFinder.findById(userId);
+
+        // todo 수정 필요. 카페는 Product나 orders가 갖고 있어야 했고, 이 엔티티들에서 가져와야 했다.
+        Following following = followingRepository.findById(userId).orElseThrow();
+        Cafe cafe = cafeFinder.findById(following.getCafeId());
+
         Optional<TicketForUserResponseDto> findUserValidTicket =
-                ticketRepository.findAvailableTicketInfoByIdAndCafeName(user.getId(), user.getCafe().getCafeName());
+                ticketRepository.findAvailableTicketInfoByIdAndCafeName(user.getId(), cafe.getCafeName());
 
         if (findUserValidTicket.isPresent()) {
             log.info("이미 사용중인 티켓이 존재합니다"); // 사용중인 티켓에 시간(기간)추가
@@ -80,9 +88,10 @@ public class TicketServiceImpl implements TicketService, TicketCustomService {
             log.info("사용 중인 티켓 변경");
             return saveData.getId();
         }
+
         TicketRequestDto ticketDto = TicketRequestDto.builder()
                 .user(user)
-                .cafe(user.getCafe())
+                .cafe(cafe)
                 .isValidTicket(TicketStateType.VALID)
                 .ticketPrice(bootPayOrderDto.getData().getPrice())
                 .productLabel(orders.getProductLabel())
@@ -100,15 +109,14 @@ public class TicketServiceImpl implements TicketService, TicketCustomService {
 
     @Override
     public List<TicketForUserResponseDto> lookupUserTickets(String targetUserLoginId, Long adminId) {
-        User admin = userFinder.findById(adminId);
-        return ticketRepository.findAllTicketInfoByLoginIdAndCafe(targetUserLoginId, admin.getCafe());
+        Cafe cafe = cafeFinder.findByAdminId(adminId);
+        return ticketRepository.findAllTicketInfoByLoginIdAndCafe(targetUserLoginId, cafe);
     }
 
     @Override
     public TicketForAdminResponseDto adminLookUpUserValidTicket(String userLoginId, Long adminId) throws NullPointerException {
-        User admin = userFinder.findById(adminId);
         User user = userFinder.findByLoginId(userLoginId);
-        Cafe adminCafe = admin.getCafe();
+        Cafe adminCafe = cafeFinder.findByAdminId(adminId);
 
         Long userId = user.getId();
         Ticket ticket = ticketRepository.findValidTicketInfoForAdminByUserIdAndCafeName(userId, adminCafe.getCafeName());

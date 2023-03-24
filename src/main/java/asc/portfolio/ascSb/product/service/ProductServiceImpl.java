@@ -1,6 +1,7 @@
 package asc.portfolio.ascSb.product.service;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
+import asc.portfolio.ascSb.cafe.domain.CafeFinder;
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.product.domain.Product;
 import asc.portfolio.ascSb.product.domain.ProductRepository;
@@ -29,13 +30,15 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final UserFinder userFinder;
+    private final CafeFinder cafeFinder;
 
     @Override
-    public List<ProductListResponseDto> adminSalesManagementOneUser(Long userId) {
-        User user = userFinder.findById(userId);
-        Cafe cafe = user.getCafe();
+    public List<ProductListResponseDto> adminSalesManagementOneUser(Long adminId, String userLoginId) {
+        User user = userFinder.findByLoginId(userLoginId);
+        Cafe cafe = cafeFinder.findByAdminId(adminId);
 
-        return productRepository.findProductListByUserIdAndCafeName(userId, cafe.getCafeName()).stream()
+        List<Product> list = productRepository.findProductListByUserIdAndCafeName(user.getId(), cafe.getCafeName());
+        return list.stream()
                 .map(ProductListResponseDto::new)
                 .collect(Collectors.toList());
     }
@@ -51,9 +54,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void saveProduct(Long userId, BootPayOrderDto dto, Orders orders) {
+        // todo : 여기 cafe도 user로부터 나올 것이 아니라 주문에서 나와야한다. 수정 필요!
         User user = userFinder.findById(userId);
+        Cafe cafe = cafeFinder.findFollowedCafe(userId);
+
         Product product = ProductDto.builder()
-                .cafe(user.getCafe())
+                .cafe(cafe)
                 .user(user)
                 .productState(ProductStateType.SALE)
                 .productNameType(orders.getOrderProductName())

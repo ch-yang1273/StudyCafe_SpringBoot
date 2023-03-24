@@ -2,6 +2,7 @@ package asc.portfolio.ascSb.service.seat;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeRepository;
+import asc.portfolio.ascSb.cafe.service.FollowingService;
 import asc.portfolio.ascSb.seat.domain.Seat;
 import asc.portfolio.ascSb.seat.domain.SeatRepository;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
@@ -11,7 +12,6 @@ import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
 import asc.portfolio.ascSb.user.domain.UserRoleType;
 import asc.portfolio.ascSb.seat.service.SeatService;
-import asc.portfolio.ascSb.seat.dto.SeatResponseDto;
 import asc.portfolio.ascSb.seat.dto.SeatSelectResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Disabled;
@@ -43,6 +43,9 @@ class SeatServiceTest {
 
     @Autowired
     CafeRepository cafeRepository;
+
+    @Autowired
+    FollowingService followingService;
 
     //Service
     @Autowired
@@ -78,7 +81,7 @@ class SeatServiceTest {
                 .role(UserRoleType.USER)
                 .build();
 
-        user.changeCafe(cafe);
+        followingService.follow(user.getId(), cafe.getId());
         userRepository.save(user);
 
         LocalDateTime date = LocalDateTime.now();
@@ -125,60 +128,5 @@ class SeatServiceTest {
 
         assertThat(countA).isEqualTo(1);
         assertThat(countB).isEqualTo(0);
-    }
-
-    @DisplayName("하나의 Seat 상태 조회")
-    @Test
-    public void showSeatStateOne() {
-        //given
-        Cafe cafe = Cafe.builder()
-                .cafeName("testCafe")
-                .build();
-
-        cafeRepository.save(cafe);
-
-        for(int i=0; i < 40; i ++) {
-            Seat seat = Seat.builder()
-                    .seatNumber(i)
-                    .cafeId(cafe.getId())
-                    .build();
-            seatRepository.save(seat);
-        }
-
-        String userString = "TestUser";
-
-        User user = User.builder()
-                .loginId(userString + "_login")
-                .password(userString + "_password")
-                .email(userString + "@gmail.com")
-                .name(userString)
-                .role(UserRoleType.USER)
-                .build();
-
-        user.changeCafe(cafe);
-        userRepository.save(user);
-
-        LocalDateTime date = LocalDateTime.now();
-        Ticket ticket = Ticket.builder()
-                .cafe(cafe)
-                .user(user)
-                .isValidTicket(TicketStateType.VALID)
-                .ticketPrice(3000)
-                .fixedTermTicket(date.plusHours(1))
-                .partTimeTicket(null)
-                .remainingTime(null)
-                .build();
-        ticketRepository.save(ticket);
-
-        Boolean isReserved = seatService.reserveSeat(user.getId(), 5, 10L);
-        //log.info("isReserved={}", isReserved);
-
-        //when
-        SeatResponseDto reservedSeat = seatService.showSeatStateOne(user.getId(), 5);
-        SeatResponseDto unreservedSeat = seatService.showSeatStateOne(user.getId(), 3);
-
-        //then
-        assertThat(reservedSeat.isReserved()).isTrue();
-        assertThat(unreservedSeat.isReserved()).isFalse();
     }
 }

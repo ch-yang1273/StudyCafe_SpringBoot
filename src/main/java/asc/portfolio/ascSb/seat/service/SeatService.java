@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public interface SeatService {
 
-    SeatResponseDto showSeatStateOne(Long userId, Integer seatNumber);
+    SeatResponseDto getMySeatStatus(Long userId);
 
     Boolean exitSeat(Long userId);
 

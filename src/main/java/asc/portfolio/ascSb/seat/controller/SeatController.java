@@ -34,13 +34,9 @@ public class SeatController {
         return new ResponseEntity<>("IllegalArgument Exception", HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("/one")
-    public ResponseEntity<SeatResponseDto> seatStateOne(Long userId) {
-
-        // 유저가 사용중인 seatNumber
-        int seatNumber = seatReservationInfoService.validUserSeatReservationInfo(userId).getSeatNumber();
-
-        return new ResponseEntity<>(seatService.showSeatStateOne(userId, seatNumber), HttpStatus.OK);
+    @GetMapping("/my-seat")
+    public ResponseEntity<SeatResponseDto> seatStateOne(@LoginUser Long userId) {
+        return new ResponseEntity<>(seatService.getMySeatStatus(userId), HttpStatus.OK);
     }
 
     @PostMapping("/reservation/")

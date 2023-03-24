@@ -37,33 +37,24 @@ public class SeatServiceImpl implements SeatService {
     private final FirebaseCloudMessageService firebaseCloudMessageService;
 
     @Override
-    public SeatResponseDto showSeatStateOne(Long userId, Integer seatNumber) {
-        User user = userFinder.findById(userId);
-        Cafe cafe = user.getCafe();
-
-        if ((cafe.getCafeName() == null) || (seatNumber == null)) {
-            log.info("NullPointer Ex : cafeName, seatNumber");
-            throw new NullPointerException("NullPointer Ex : cafeName, seatNumber");
-        }
-
-        Seat seat = seatRepository.findByCafeAndSeatNumber(cafe, seatNumber);
-        if (!seat.isReserved()) {
-            return SeatResponseDto.createUnReservedSeatDto(seatNumber);
-        }
+    public SeatResponseDto getMySeatStatus(Long userId) {
+        Seat seat = seatRepository.findByUserId(userId).orElseThrow();
+        Cafe cafe = cafeFinder.findById(seat.getCafeId());
 
         Ticket ticket = seat.getTicket();
-        SeatReservationInfo rezInfo = reservationInfoRepository.findValidSeatRezInfoByCafeNameAndSeatNumber(cafe.getCafeName(),
-                seat.getSeatNumber());
+        SeatReservationInfo rezInfo = reservationInfoRepository
+                .findValidSeatRezInfoByCafeNameAndSeatNumber(cafe.getCafeName(), seat.getSeatNumber());
 
+        // todo : 정보들을 Seat에서 가져와야겠다.
         if (ticket.isValidFixedTermTicket()) {
             return SeatResponseDto.setFixedTermSeat(
-                    seatNumber,
+                    seat.getSeatNumber(),
                     rezInfo.getStartTime(),
                     rezInfo.updateTimeInUse(),
                     ticket.getFixedTermTicket());
         } else if (ticket.isValidPartTimeTicket()) {
             return SeatResponseDto.setPartTimeSeat(
-                    seatNumber,
+                    seat.getSeatNumber(),
                     rezInfo.getStartTime(),
                     rezInfo.updateTimeInUse(),
                     ticket.getPartTimeTicket(),
@@ -117,8 +108,7 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public void exitSeatBySeatNumber(Long adminId, int seatNumber) {
-        User admin = userFinder.findById(adminId);
-        Cafe cafe = admin.getCafe();
+        Cafe cafe = cafeFinder.findByAdminId(adminId);
         Seat findSeat = seatRepository.findByCafeAndSeatNumber(cafe, seatNumber);
 
         //todo exitMySeat, exitSeatBySeatNumber로 구분해야겠다.
@@ -127,8 +117,10 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public Boolean reserveSeat(Long userId, Integer seatNumber, Long startTime) {
+        // todo : user가 follow한 정보를 예약 할 것이 아니고, seatId 나 cafe 정보와 seat 정보를 받아서 예약해야 한다.
         User user = userFinder.findById(userId);
-        Cafe cafe = user.getCafe();
+        Cafe cafe = cafeFinder.findFollowedCafe(userId);
+
         if (cafe == null) {
             log.error("선택 된 카페가 없는 유저 입니다.");
             return false;

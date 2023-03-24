@@ -2,6 +2,7 @@ package asc.portfolio.ascSb;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeRepository;
+import asc.portfolio.ascSb.cafe.service.FollowingService;
 import asc.portfolio.ascSb.product.domain.ProductNameType;
 import asc.portfolio.ascSb.product.domain.Product;
 import asc.portfolio.ascSb.product.domain.ProductRepository;
@@ -54,6 +55,9 @@ public class TestDataGeneration {
 
   @Autowired
   ProductRepository productRepository;
+
+  @Autowired
+  FollowingService followingService;
 
   @Autowired
   MessageDigestPasswordEncoder messageDigestPasswordEncoder;
@@ -115,8 +119,10 @@ public class TestDataGeneration {
               .name(userString)
               .role(UserRoleType.USER)
               .build();
-      user.changeCafe(cafeRepository.findByCafeName("서울지점").orElse(null));
-      userRepository.save(user);
+      User savedUser = userRepository.save(user);
+
+      Cafe cafe = cafeRepository.findByCafeName("서울지점").orElseThrow();
+      followingService.follow(savedUser.getId(), cafe.getId());
     }
 
     //User Data 추가
@@ -130,8 +136,11 @@ public class TestDataGeneration {
               .name(userString)
               .role(UserRoleType.USER)
               .build();
-      user.changeCafe(cafeRepository.findByCafeName(cafeName[i%cafeName.length]).orElse(null));
-      userRepository.save(user);
+
+      User savedUser = userRepository.save(user);
+
+      Cafe cafe = cafeRepository.findByCafeName(cafeName[i % cafeName.length]).orElseThrow();
+      followingService.follow(savedUser.getId(), cafe.getId());
     }
   }
 
@@ -147,8 +156,10 @@ public class TestDataGeneration {
             .role(UserRoleType.ADMIN)
             .build();
 
-    user.changeCafe(cafeRepository.findByCafeName("서울지점").orElse(null));
-    userRepository.save(user);
+    User savedUser = userRepository.save(user);
+
+    Cafe cafe = cafeRepository.findByCafeName("서울지점").orElseThrow();
+    followingService.follow(savedUser.getId(), cafe.getId());
   }
 
   private void generateTicketData() {

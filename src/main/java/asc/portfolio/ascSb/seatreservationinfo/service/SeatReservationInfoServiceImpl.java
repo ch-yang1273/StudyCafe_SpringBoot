@@ -1,6 +1,7 @@
 package asc.portfolio.ascSb.seatreservationinfo.service;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
+import asc.portfolio.ascSb.cafe.domain.CafeFinder;
 import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfo;
 import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoRepository;
 import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoStateType;
@@ -23,11 +24,12 @@ public class SeatReservationInfoServiceImpl implements SeatReservationInfoServic
 
     private final SeatReservationInfoRepository seatReservationInfoRepository;
     private final UserFinder userFinder;
+    private final CafeFinder cafeFinder;
 
     @Override
     public SeatReservationInfoSelectResponseDto showUserSeatReservationInfo(Long userId) {
         User user = userFinder.findById(userId);
-        Cafe cafe = user.getCafe();
+        Cafe cafe = cafeFinder.findFollowedCafe(userId);
 
         try {
             SeatReservationInfoSelectResponseDto dto = seatReservationInfoRepository.findSeatInfoByUserIdAndCafeName(user.getLoginId(), cafe.getCafeName());
@@ -42,7 +44,8 @@ public class SeatReservationInfoServiceImpl implements SeatReservationInfoServic
     @Override
     public SeatReservationInfo validUserSeatReservationInfo(Long userId) {
         User user = userFinder.findById(userId);
+        Cafe cafe = cafeFinder.findFollowedCafe(userId);
         return seatReservationInfoRepository.findByUserLoginIdAndIsValidAndCafeName(
-                user.getLoginId(), SeatReservationInfoStateType.VALID, user.getCafe().getCafeName());
+                user.getLoginId(), SeatReservationInfoStateType.VALID, cafe.getCafeName());
     }
 }
