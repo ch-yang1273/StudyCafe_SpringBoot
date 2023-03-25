@@ -14,7 +14,7 @@ public class SeatResponseDto {
     private boolean isReserved;
 
     //Form reservation
-    private Long startTime;
+    private LocalDateTime startTime;
     private Long timeInUse;
 
     //From Ticket
@@ -23,7 +23,7 @@ public class SeatResponseDto {
     private Long remainingTime;
 
     @Builder
-    private SeatResponseDto(Integer seatNumber, boolean isReserved, Long startTime, Long timeInUse, LocalDateTime fixedTermTicket, Long partTimeTicket, Long remainingTime) {
+    private SeatResponseDto(Integer seatNumber, boolean isReserved, LocalDateTime startTime, Long timeInUse, LocalDateTime fixedTermTicket, Long partTimeTicket, Long remainingTime) {
         this.seatNumber = seatNumber;
         this.isReserved = isReserved;
         this.startTime = startTime;
@@ -42,7 +42,7 @@ public class SeatResponseDto {
     }
 
     //정적 팩토리 메서드
-    public static SeatResponseDto setFixedTermSeat(Integer seatNumber, Long startTime, Long timeInUse, LocalDateTime fixedTermTicket) {
+    public static SeatResponseDto setFixedTermSeat(Integer seatNumber, LocalDateTime startTime, Long timeInUse, LocalDateTime fixedTermTicket) {
         return SeatResponseDto.builder()
                 .seatNumber(seatNumber)
                 .isReserved(true)
@@ -53,7 +53,7 @@ public class SeatResponseDto {
     }
 
     //정적 팩토리 메서드
-    public static SeatResponseDto setPartTimeSeat(Integer seatNumber, Long startTime, Long timeInUse, Long partTimeTicket, Long remainingTime) {
+    public static SeatResponseDto setPartTimeSeat(Integer seatNumber, LocalDateTime startTime, Long timeInUse, Long partTimeTicket, Long remainingTime) {
         return SeatResponseDto.builder()
                 .seatNumber(seatNumber)
                 .isReserved(true)

@@ -33,7 +33,7 @@ public class ReservationServiceImpl implements ReservationService {
         Cafe cafe = followFinder.findFollowedCafe(userId);
 
         try {
-            ReservationResponse dto = reservationRepository.findReservationByUserIdAndCafeName(user.getLoginId(), cafe.getCafeName());
+            ReservationResponse dto = reservationRepository.findReservationByUserIdAndCafeName(user.getId(), cafe.getId());
             dto.setPeriod(dto.getCreateDate().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm")));
             return dto;
         } catch (Exception exception) {
@@ -47,7 +47,7 @@ public class ReservationServiceImpl implements ReservationService {
         User user = userFinder.findById(userId);
         //todo : 삭제. cafe는 Seat에서 나와야지 Follow에서 나오면 안된다.
         Cafe cafe = followFinder.findFollowedCafe(userId);
-        return reservationRepository.findByUserLoginIdAndIsValidAndCafeName(
-                user.getLoginId(), ReservationStatus.VALID, cafe.getCafeName());
+        return reservationRepository.findByUserIdAndStatusAndCafeId(
+                user.getId(), ReservationStatus.IN_USE, cafe.getId());
     }
 }

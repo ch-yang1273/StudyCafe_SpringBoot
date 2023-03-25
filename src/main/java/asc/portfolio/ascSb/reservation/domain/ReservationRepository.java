@@ -5,6 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long>, ReservationCustomRepository {
 
-    Reservation findByUserLoginIdAndIsValidAndCafeName(String userLoginId, ReservationStatus isValid, String cafeName);
-
+    Reservation findByUserIdAndStatusAndCafeId(Long userId, ReservationStatus isValid, Long cafeId); //todo 삭제 요망
 }

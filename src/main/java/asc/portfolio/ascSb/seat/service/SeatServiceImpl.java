@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,20 +46,22 @@ public class SeatServiceImpl implements SeatService {
 
         Ticket ticket = seat.getTicket();
         Reservation reservation = reservationRepository
-                .findValidReservationByCafeNameAndSeatNumber(cafe.getCafeName(), seat.getSeatNumber());
+                .findValidReservationByCafeNameAndSeatNumber(cafe.getId(), seat.getId());
 
-        // todo : 정보들을 Seat에서 가져와야겠다.
+
+        // todo : 정보들을 Seat에서 가져와야겠다. 시간
+        LocalDateTime now = LocalDateTime.now();
         if (ticket.isValidFixedTermTicket()) {
             return SeatResponseDto.setFixedTermSeat(
                     seat.getSeatNumber(),
                     reservation.getStartTime(),
-                    reservation.updateTimeInUse(),
+                    reservation.getUsageMinute(now),
                     ticket.getFixedTermTicket());
         } else if (ticket.isValidPartTimeTicket()) {
             return SeatResponseDto.setPartTimeSeat(
                     seat.getSeatNumber(),
                     reservation.getStartTime(),
-                    reservation.updateTimeInUse(),
+                    reservation.getUsageMinute(now),
                     ticket.getPartTimeTicket(),
                     ticket.getRemainingTime());
         } else {
@@ -72,19 +75,19 @@ public class SeatServiceImpl implements SeatService {
         User user = userFinder.findById(userId);
 
         //reservation 수정
-        List<Reservation> reservation = reservationRepository.findValidReservationByLoginId(user.getLoginId());
-        if (reservation != null) {
-            if (reservation.size() > 1) {
+        List<Reservation> reservationList = reservationRepository.findValidReservationByLoginId(user.getId());
+        if (reservationList != null) {
+            if (reservationList.size() > 1) {
                 log.error("Valid reservation is Over One");
             }
 
-            for (Reservation info : reservation) {
+            for (Reservation rez : reservationList) {
                 //Reservation Info Exit
-                Long timeInUse = info.endUsingSeat();
+                rez.endUsingSeat(LocalDateTime.now());
 
                 //Seat Exit
-                Cafe cafe = cafeFinder.findByCafeName(info.getCafeName());
-                Seat findSeat = seatRepository.findByCafeAndSeatNumber(cafe, info.getSeatNumber());
+                Cafe cafe = cafeFinder.findById(rez.getCafeId());
+                Seat findSeat = seatRepository.findById(rez.getSeatId()).orElseThrow();
                 findSeat.exitSeat();
 
                 //Ticket Exit
@@ -94,7 +97,8 @@ public class SeatServiceImpl implements SeatService {
                 } else if (ticket.isFixedTermTicket()) {
                     ticket.exitUsingTicket(null);
                 } else {
-                    ticket.exitUsingTicket(timeInUse); // 사용한 시간 startTime or timeInUse
+                    //todo ticket은 남은 시간만 업데이트 합시다.
+//                    ticket.exitUsingTicket(timeInUse); // 사용한 시간 startTime or timeInUse
                 }
 
             }
@@ -160,7 +164,7 @@ public class SeatServiceImpl implements SeatService {
                 .cafe(cafe)
                 .seat(findSeat)
                 .ticket(ticketOpt.get())
-                .startTime(startTime)
+                .startTime(LocalDateTime.now())
                 .build();
         reservationRepository.save(reservation);
 

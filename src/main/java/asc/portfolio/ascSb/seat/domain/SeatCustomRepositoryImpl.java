@@ -24,10 +24,10 @@ import java.util.List;
 public class SeatCustomRepositoryImpl implements SeatCustomRepository {
 
     private final JPAQueryFactory query;
+    private final ReservationRepository reservationRepository;
+
     // todo : 이게 여기 있으면 안된다. 빠르게 삭제 요망
     private final CafeFinder cafeFinder;
-
-    private final ReservationRepository reservationRepository;
 
     @Override
     public int updateAllReservedSeatStateWithFixedTermTicket() {
@@ -64,29 +64,29 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
                         QTicket.ticket.productLabel.contains("PART-TIME"))
                 .fetch();
 
-        for (Seat seatOne : seatList) {
-            Cafe cafe = cafeFinder.findById(seatOne.getCafeId());
-            Reservation info = query
+        for (Seat seat : seatList) {
+            Cafe cafe = cafeFinder.findById(seat.getCafeId());
+            Reservation rez = query
                     .selectFrom(QReservation.reservation)
-                    .where(QReservation.reservation.isValid.eq(ReservationStatus.VALID),
-                            QReservation.reservation.cafeName.eq(cafe.getCafeName()),
-                            QReservation.reservation.seatNumber.eq(seatOne.getSeatNumber()))
+                    .where(QReservation.reservation.status.eq(ReservationStatus.IN_USE),
+                            QReservation.reservation.cafeId.eq(cafe.getId()),
+                            QReservation.reservation.seatId.eq(seat.getId()))
                     .fetchOne();
 
-            if (info == null) {
-                log.error("예약된 Seat에 유효한 reservation 없습니다. seat = {}, {}", cafe.getCafeName(), seatOne.getSeatNumber());
+            if (rez == null) {
+                log.error("예약된 Seat에 유효한 reservation 없습니다. seat = {}, {}", cafe.getCafeName(), seat.getSeatNumber());
                 return 0;
             }
 
-            Ticket ticketOne = info.getTicket();
-            Long remainTime = ticketOne.getRemainingTime();
-            Long timeInUse = info.updateTimeInUse();
-
-            if (timeInUse >= remainTime) {
-                count++;
-                log.debug("Exited by PartTimeTicket update");
-                exitSeatBySeatEntity(seatOne, info);
-            }
+//            Ticket ticketOne = rez.getTicket();
+//            Long remainTime = ticketOne.getRemainingTime();
+//            Long timeInUse = rez.updateTimeInUse();
+//
+//            if (timeInUse >= remainTime) {
+//                count++;
+//                log.debug("Exited by PartTimeTicket update");
+//                exitSeatBySeatEntity(seat, rez);
+//            }
         }
 
         return count;
@@ -97,15 +97,16 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
         int count = 0;
         List<Reservation> reservationList = query
                 .selectFrom(QReservation.reservation)
-                .where(QReservation.reservation.isValid.eq(ReservationStatus.VALID),
+                .where(QReservation.reservation.status.eq(ReservationStatus.IN_USE),
                         QReservation.reservation.endTime.before(LocalDateTime.now()))
                 .fetch();
 
-        for (Reservation info : reservationList) {
+        for (Reservation rez : reservationList) {
             count++;
-            log.debug("Exited by StartTime update, endTime={}", info.getEndTime());
-            Seat findSeat = findByCafeNameAndSeatNumber(info.getCafeName(), info.getSeatNumber());
-            exitSeatBySeatEntity(findSeat, info);
+            log.debug("Exited by StartTime update, endTime={}", rez.getEndTime());
+            // todo : update 로직 수정
+//            Seat findSeat = seatRepository.findById(rez.getSeatId()).orElseThrow();
+//            exitSeatBySeatEntity(findSeat, rez);
         }
 
         return count;
@@ -139,35 +140,37 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
 
         List<Reservation> reservationList = query
                 .selectFrom(QReservation.reservation)
-                .where(QReservation.reservation.isValid.eq(ReservationStatus.VALID),
+                .where(QReservation.reservation.status.eq(ReservationStatus.IN_USE),
                         QReservation.reservation.endTime.after(timeAfter),
                         QReservation.reservation.endTime.before(timeBefore))
                 .fetch();
 
 
         List<Seat> seatList = new ArrayList<>();
-        for (Reservation info : reservationList) {
-            Seat findSeat = findByCafeNameAndSeatNumber(info.getCafeName(), info.getSeatNumber());
-            seatList.add(findSeat);
+        for (Reservation rez : reservationList) {
+            // todo : update 로직 수정
+//            Seat findSeat = seatRepository.findById(rez.getSeatId()).orElseThrow();
+//            seatList.add(findSeat);
         }
 
         return seatList;
     }
 
-    private void exitSeatBySeatEntity(Seat seatOne, Reservation reservation) {
-        Cafe cafe = cafeFinder.findById(seatOne.getCafeId());
+    private void exitSeatBySeatEntity(Seat seat, Reservation reservation) {
+        Cafe cafe = cafeFinder.findById(seat.getCafeId());
         String cafeName = cafe.getCafeName();
 
         if (reservation == null) {
-            reservation = reservationRepository.findValidReservationByCafeNameAndSeatNumber(cafeName, seatOne.getSeatNumber());
+            reservation = reservationRepository.findValidReservationByCafeNameAndSeatNumber(cafe.getId(), seat.getId());
         }
 
-        Ticket ticketOne = seatOne.getTicket();
+        Ticket ticketOne = seat.getTicket();
 
-        log.debug("Seat 사용 종료. cafeName={}, seatNumber={}", cafeName, seatOne.getSeatNumber());
-        ticketOne.exitUsingTicket(reservation.updateTimeInUse());
-        seatOne.exitSeat();
-        reservation.endUsingSeat();
+        log.debug("Seat 사용 종료. cafeName={}, seatNumber={}", cafeName, seat.getSeatNumber());
+        //todo : 막음
+//        ticketOne.exitUsingTicket(reservation.updateTimeInUse());
+        seat.exitSeat();
+        reservation.endUsingSeat(LocalDateTime.now());
     }
 
     @Override

@@ -1,4 +1,5 @@
 package asc.portfolio.ascSb.reservation.domain;
+
 import asc.portfolio.ascSb.common.domain.BaseTimeEntity;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.seat.domain.Seat;
@@ -21,58 +22,52 @@ public class Reservation extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "RESERVATION_ID", nullable = false)
-    private Long id; // 사용구분을 위한 table 입니다 ex) 몇시,몇분에 어느좌석에 어떤 user가 몇시간을 사용했다~
+    @Column(name = "RESERVATION_ID")
+    private Long id;
+
+    @Column(name = "USER_ID")
+    private Long userId;
+
+    @Column(name = "CAFE_ID")
+    private Long cafeId;
+
+    @Column(name = "SEAT_ID")
+    private Long seatId;
+
+    @Column(name = "TICKET_ID")
+    private Long ticketId;
+
+    @Column(name = "START_TIME")
+    private LocalDateTime startTime;
+
+    @Column(name = "END_TIME")
+    private LocalDateTime endTime; // 좌석 종료 된 시간
 
     @Enumerated(EnumType.STRING)
-    private ReservationStatus isValid;
-
-    //Entity User
-    @Column(name = "USER_ID")
-    private String userLoginId;
-    //Entity Cafe
-    @Column(name = "C_NAME")
-    private String cafeName;
-    //Entity Cafe + Seat
-    @Column(name = "S_N")
-    private Integer seatNumber;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "T_ID") // 어떤 ticket을
-    private Ticket ticket;
-
-    @Column(name = "S_T")
-    private Long startTime;
-
-    @Column(name = "END_T")
-    private LocalDateTime endTime; // 좌석 종료 예정 시간. (now + startTime)
-
-    private Long timeInUse; // 실제 사용한 시간, 분단위
+    private ReservationStatus status;
 
     @Builder
-    public Reservation(User user, Cafe cafe, Seat seat, Ticket ticket, Long startTime, Long timeInUse) {
-        this.userLoginId = user.getLoginId();
-        this.cafeName = cafe.getCafeName();
-        this.seatNumber = seat.getSeatNumber();
-        this.ticket = ticket;
+    public Reservation(User user, Cafe cafe, Seat seat, Ticket ticket, LocalDateTime startTime) {
+        this.userId = user.getId();
+        this.cafeId = cafe.getId();
+        this.seatId = seat.getId();
+        this.ticketId = ticket.getId();
         this.startTime = startTime;
-        this.timeInUse = timeInUse;
-        //자동 값 입력
-        this.endTime = LocalDateTime.now().plusMinutes(startTime);
-        this.isValid = ReservationStatus.VALID;
+
+        this.status = ReservationStatus.IN_USE;
     }
 
-    private void getTimeInUse() {
+    public void endUsingSeat(LocalDateTime endTime) {
+        this.status = ReservationStatus.END_OF_USE;
+        this.endTime = endTime;
     }
 
-    public Long updateTimeInUse() {
-        this.timeInUse = Duration.between(getCreateDate(), LocalDateTime.now()).toMinutes();
-        return timeInUse;
-    }
-
-    public Long endUsingSeat() {
-        this.isValid = ReservationStatus.INVALID;
-        this.timeInUse = Duration.between(getCreateDate(), LocalDateTime.now()).toMinutes();
-        return timeInUse;
+    public Long getUsageMinute(LocalDateTime now) {
+        long minute = Duration.between(this.startTime, now).toMinutes();
+        if (minute < 0) {
+            //todo : Exception 수정
+            throw new RuntimeException("음수 시간");
+        }
+        return minute;
     }
 }

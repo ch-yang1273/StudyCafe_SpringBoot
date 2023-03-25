@@ -8,5 +8,4 @@ public interface ReservationService {
     ReservationResponse getReservation(Long userId);
 
     Reservation getValidReservation(Long userId);
-
 }

@@ -1,6 +1,6 @@
 package asc.portfolio.ascSb.reservation.domain;
 
 public enum ReservationStatus {
-    VALID,
-    INVALID
+    IN_USE,
+    END_OF_USE
 }

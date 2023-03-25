@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface ReservationCustomRepository {
 
-  public List<Reservation> findValidReservationByLoginId(String loginId);
+    public List<Reservation> findValidReservationByLoginId(Long userId);
 
-  ReservationResponse findReservationByUserIdAndCafeName(String loginId, String cafeName);
+    ReservationResponse findReservationByUserIdAndCafeName(Long userId, Long cafeId);
 
-  public Reservation findValidReservationByCafeNameAndSeatNumber(String cafeName, Integer seatNumber);
+    public Reservation findValidReservationByCafeNameAndSeatNumber(Long cafeId, Long seatId);
 }

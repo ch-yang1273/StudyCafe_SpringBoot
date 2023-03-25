@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class ReservationController {
 
     private final ReservationService reservationService;
+
     @GetMapping("/")
     public ResponseEntity<ReservationResponse> getReservation(@LoginUser Long userId) {
         return new ResponseEntity<>(reservationService.getReservation(userId), HttpStatus.OK);

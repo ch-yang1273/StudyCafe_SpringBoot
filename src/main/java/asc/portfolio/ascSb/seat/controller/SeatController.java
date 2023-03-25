@@ -1,6 +1,5 @@
 package asc.portfolio.ascSb.seat.controller;
 
-import asc.portfolio.ascSb.reservation.domain.Reservation;
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.reservation.service.ReservationService;
 import asc.portfolio.ascSb.seat.dto.SeatResponseDto;
@@ -39,16 +38,11 @@ public class SeatController {
         return new ResponseEntity<>(seatService.getMySeatStatus(userId), HttpStatus.OK);
     }
 
-    @PostMapping("/reservation/")
-    public ResponseEntity<String> reserveSeat(@LoginUser Long userId, @RequestParam("seat") Integer seatNumber,
-                                              @RequestParam("time") Long startTime) {
-        Long checkTime = startTime;
-
-        // 프론트에서 보내는 startTime이 0이면 => 자리 교체 요청 => 사용중인 좌석을 찾아서 그 값을 startTime에 대입
-        if(startTime == 0) {
-             Reservation reservation = reservationService.getValidReservation(userId);
-             checkTime = reservation.getStartTime() - reservation.updateTimeInUse();
-        }
+    @PostMapping("/reservation")
+    public ResponseEntity<String> reserveSeat(@LoginUser Long userId, @RequestParam("seat") Integer seatNumber) {
+        //todo startTime 안받음, RequestParam이 아니라 Dto 받는 것으로 수정
+        // 사용 중인 좌석이 있으면 Error
+        Long checkTime = 1L;
 
         Boolean isSuccess = seatService.reserveSeat(userId, seatNumber, checkTime);
         if (!isSuccess) {
