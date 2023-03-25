@@ -1,8 +1,8 @@
 package asc.portfolio.ascSb.seat.controller;
 
-import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfo;
+import asc.portfolio.ascSb.reservation.domain.Reservation;
 import asc.portfolio.ascSb.common.auth.LoginUser;
-import asc.portfolio.ascSb.seatreservationinfo.service.SeatReservationInfoService;
+import asc.portfolio.ascSb.reservation.service.ReservationService;
 import asc.portfolio.ascSb.seat.dto.SeatResponseDto;
 import asc.portfolio.ascSb.seat.service.SeatService;
 import asc.portfolio.ascSb.user.service.UserRoleCheckService;
@@ -20,7 +20,7 @@ public class SeatController {
 
     private final SeatService seatService;
     private final UserRoleCheckService userRoleCheckService;
-    private final SeatReservationInfoService seatReservationInfoService;
+    private final ReservationService reservationService;
 
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<String> nullPointExHandle(NullPointerException ex) {
@@ -46,8 +46,8 @@ public class SeatController {
 
         // 프론트에서 보내는 startTime이 0이면 => 자리 교체 요청 => 사용중인 좌석을 찾아서 그 값을 startTime에 대입
         if(startTime == 0) {
-             SeatReservationInfo validSeatRezInfo = seatReservationInfoService.validUserSeatReservationInfo(userId);
-             checkTime = validSeatRezInfo.getStartTime() - validSeatRezInfo.updateTimeInUse();
+             Reservation reservation = reservationService.getValidReservation(userId);
+             checkTime = reservation.getStartTime() - reservation.updateTimeInUse();
         }
 
         Boolean isSuccess = seatService.reserveSeat(userId, seatNumber, checkTime);

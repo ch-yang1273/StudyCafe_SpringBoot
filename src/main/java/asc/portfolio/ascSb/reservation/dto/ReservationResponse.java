@@ -1,4 +1,4 @@
-package asc.portfolio.ascSb.seatreservationinfo.dto;
+package asc.portfolio.ascSb.reservation.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
-public class SeatReservationInfoSelectResponseDto {
+public class ReservationResponse {
     private Integer seatNumber;
     private Long startTime;
     private Long timeInUse;

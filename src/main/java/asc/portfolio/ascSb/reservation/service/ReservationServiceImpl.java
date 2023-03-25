@@ -1,12 +1,12 @@
-package asc.portfolio.ascSb.seatreservationinfo.service;
+package asc.portfolio.ascSb.reservation.service;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.follow.domain.FollowFinder;
-import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfo;
-import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoRepository;
-import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoStateType;
+import asc.portfolio.ascSb.reservation.domain.Reservation;
+import asc.portfolio.ascSb.reservation.domain.ReservationRepository;
+import asc.portfolio.ascSb.reservation.domain.ReservationStatus;
 import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.seatreservationinfo.dto.SeatReservationInfoSelectResponseDto;
+import asc.portfolio.ascSb.reservation.dto.ReservationResponse;
 import asc.portfolio.ascSb.user.domain.UserFinder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,34 +20,34 @@ import java.time.format.DateTimeFormatter;
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
-public class SeatReservationInfoServiceImpl implements SeatReservationInfoService  {
+public class ReservationServiceImpl implements ReservationService {
 
-    private final SeatReservationInfoRepository seatReservationInfoRepository;
+    private final ReservationRepository reservationRepository;
     private final UserFinder userFinder;
     private final FollowFinder followFinder;
 
     @Override
-    public SeatReservationInfoSelectResponseDto showUserSeatReservationInfo(Long userId) {
+    public ReservationResponse getReservation(Long userId) {
         User user = userFinder.findById(userId);
         //todo : 삭제. cafe는 Seat에서 나와야지 Follow에서 나오면 안된다.
         Cafe cafe = followFinder.findFollowedCafe(userId);
 
         try {
-            SeatReservationInfoSelectResponseDto dto = seatReservationInfoRepository.findSeatInfoByUserIdAndCafeName(user.getLoginId(), cafe.getCafeName());
+            ReservationResponse dto = reservationRepository.findReservationByUserIdAndCafeName(user.getLoginId(), cafe.getCafeName());
             dto.setPeriod(dto.getCreateDate().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm")));
             return dto;
         } catch (Exception exception) {
-            log.debug("존재하지 않는 SeatReservationInfo 입니다.");
+            log.debug("존재하지 않는 reservation 입니다.");
         }
         return null;
     }
 
     @Override
-    public SeatReservationInfo validUserSeatReservationInfo(Long userId) {
+    public Reservation getValidReservation(Long userId) {
         User user = userFinder.findById(userId);
         //todo : 삭제. cafe는 Seat에서 나와야지 Follow에서 나오면 안된다.
         Cafe cafe = followFinder.findFollowedCafe(userId);
-        return seatReservationInfoRepository.findByUserLoginIdAndIsValidAndCafeName(
-                user.getLoginId(), SeatReservationInfoStateType.VALID, cafe.getCafeName());
+        return reservationRepository.findByUserLoginIdAndIsValidAndCafeName(
+                user.getLoginId(), ReservationStatus.VALID, cafe.getCafeName());
     }
 }

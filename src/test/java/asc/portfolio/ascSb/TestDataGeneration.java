@@ -10,7 +10,7 @@ import asc.portfolio.ascSb.product.domain.ProductStateType;
 import asc.portfolio.ascSb.seat.domain.Seat;
 import asc.portfolio.ascSb.seat.domain.SeatRepository;
 import asc.portfolio.ascSb.ticket.domain.TicketRepository;
-import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoRepository;
+import asc.portfolio.ascSb.reservation.domain.ReservationRepository;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
 import asc.portfolio.ascSb.ticket.domain.TicketStateType;
 import asc.portfolio.ascSb.user.domain.User;
@@ -48,7 +48,7 @@ public class TestDataGeneration {
   UserRepository userRepository;
 
   @Autowired
-  SeatReservationInfoRepository seatReservationInfoRepository;
+  ReservationRepository reservationRepository;
 
   @Autowired
   TicketRepository ticketRepository;

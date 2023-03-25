@@ -1,11 +1,12 @@
 package asc.portfolio.ascSb.seat.domain;
+
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeFinder;
 import asc.portfolio.ascSb.cafe.domain.QCafe;
-import asc.portfolio.ascSb.seatreservationinfo.domain.QSeatReservationInfo;
-import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfo;
-import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoRepository;
-import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoStateType;
+import asc.portfolio.ascSb.reservation.domain.QReservation;
+import asc.portfolio.ascSb.reservation.domain.Reservation;
+import asc.portfolio.ascSb.reservation.domain.ReservationRepository;
+import asc.portfolio.ascSb.reservation.domain.ReservationStatus;
 import asc.portfolio.ascSb.ticket.domain.QTicket;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -26,7 +27,7 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
     // todo : 이게 여기 있으면 안된다. 빠르게 삭제 요망
     private final CafeFinder cafeFinder;
 
-    private final SeatReservationInfoRepository seatReservationInfoRepository;
+    private final ReservationRepository reservationRepository;
 
     @Override
     public int updateAllReservedSeatStateWithFixedTermTicket() {
@@ -41,7 +42,7 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
                         QTicket.ticket.fixedTermTicket.before(LocalDateTime.now()))
                 .fetch();
 
-        // 만료된 Fixed-Term Ticket 에 따른 Seat, seatReservationInfo 종료 처리
+        // 만료된 Fixed-Term Ticket 에 따른 Seat, reservation 종료 처리
         for (Seat seatOne : seatList) {
             count++;
             log.debug("Exited by FixedTermTicket update");
@@ -65,15 +66,15 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
 
         for (Seat seatOne : seatList) {
             Cafe cafe = cafeFinder.findById(seatOne.getCafeId());
-            SeatReservationInfo info = query
-                    .selectFrom(QSeatReservationInfo.seatReservationInfo)
-                    .where(QSeatReservationInfo.seatReservationInfo.isValid.eq(SeatReservationInfoStateType.VALID),
-                            QSeatReservationInfo.seatReservationInfo.cafeName.eq(cafe.getCafeName()),
-                            QSeatReservationInfo.seatReservationInfo.seatNumber.eq(seatOne.getSeatNumber()))
+            Reservation info = query
+                    .selectFrom(QReservation.reservation)
+                    .where(QReservation.reservation.isValid.eq(ReservationStatus.VALID),
+                            QReservation.reservation.cafeName.eq(cafe.getCafeName()),
+                            QReservation.reservation.seatNumber.eq(seatOne.getSeatNumber()))
                     .fetchOne();
 
             if (info == null) {
-                log.error("예약된 Seat에 유효한 SeatReservationInfo가 없습니다. seat = {}, {}", cafe.getCafeName(), seatOne.getSeatNumber());
+                log.error("예약된 Seat에 유효한 reservation 없습니다. seat = {}, {}", cafe.getCafeName(), seatOne.getSeatNumber());
                 return 0;
             }
 
@@ -92,15 +93,15 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
     }
 
     @Override
-    public int updateAllReservedSeatStateWithStartTime() {
+    public int updateAllReservedStatusWithStartTime() {
         int count = 0;
-        List<SeatReservationInfo> seatRezInfoList = query
-                .selectFrom(QSeatReservationInfo.seatReservationInfo)
-                .where(QSeatReservationInfo.seatReservationInfo.isValid.eq(SeatReservationInfoStateType.VALID),
-                        QSeatReservationInfo.seatReservationInfo.endTime.before(LocalDateTime.now()))
+        List<Reservation> reservationList = query
+                .selectFrom(QReservation.reservation)
+                .where(QReservation.reservation.isValid.eq(ReservationStatus.VALID),
+                        QReservation.reservation.endTime.before(LocalDateTime.now()))
                 .fetch();
 
-        for (SeatReservationInfo info : seatRezInfoList) {
+        for (Reservation info : reservationList) {
             count++;
             log.debug("Exited by StartTime update, endTime={}", info.getEndTime());
             Seat findSeat = findByCafeNameAndSeatNumber(info.getCafeName(), info.getSeatNumber());
@@ -136,16 +137,16 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
         LocalDateTime timeAfter = timeNow.plusMinutes(minute);
         LocalDateTime timeBefore = timeNow.plusMinutes(minute + 1);
 
-        List<SeatReservationInfo> seatRezInfoList = query
-                .selectFrom(QSeatReservationInfo.seatReservationInfo)
-                .where(QSeatReservationInfo.seatReservationInfo.isValid.eq(SeatReservationInfoStateType.VALID),
-                        QSeatReservationInfo.seatReservationInfo.endTime.after(timeAfter),
-                        QSeatReservationInfo.seatReservationInfo.endTime.before(timeBefore))
+        List<Reservation> reservationList = query
+                .selectFrom(QReservation.reservation)
+                .where(QReservation.reservation.isValid.eq(ReservationStatus.VALID),
+                        QReservation.reservation.endTime.after(timeAfter),
+                        QReservation.reservation.endTime.before(timeBefore))
                 .fetch();
 
 
         List<Seat> seatList = new ArrayList<>();
-        for (SeatReservationInfo info : seatRezInfoList) {
+        for (Reservation info : reservationList) {
             Seat findSeat = findByCafeNameAndSeatNumber(info.getCafeName(), info.getSeatNumber());
             seatList.add(findSeat);
         }
@@ -153,20 +154,20 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
         return seatList;
     }
 
-    private void exitSeatBySeatEntity(Seat seatOne, SeatReservationInfo seatRezInfoEntity) {
+    private void exitSeatBySeatEntity(Seat seatOne, Reservation reservation) {
         Cafe cafe = cafeFinder.findById(seatOne.getCafeId());
         String cafeName = cafe.getCafeName();
 
-        if (seatRezInfoEntity == null) {
-            seatRezInfoEntity = seatReservationInfoRepository.findValidSeatRezInfoByCafeNameAndSeatNumber(cafeName, seatOne.getSeatNumber());
+        if (reservation == null) {
+            reservation = reservationRepository.findValidReservationByCafeNameAndSeatNumber(cafeName, seatOne.getSeatNumber());
         }
 
         Ticket ticketOne = seatOne.getTicket();
 
         log.debug("Seat 사용 종료. cafeName={}, seatNumber={}", cafeName, seatOne.getSeatNumber());
-        ticketOne.exitUsingTicket(seatRezInfoEntity.updateTimeInUse());
+        ticketOne.exitUsingTicket(reservation.updateTimeInUse());
         seatOne.exitSeat();
-        seatRezInfoEntity.endUsingSeat();
+        reservation.endUsingSeat();
     }
 
     @Override

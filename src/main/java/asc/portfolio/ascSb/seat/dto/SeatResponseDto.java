@@ -13,7 +13,7 @@ public class SeatResponseDto {
     private Integer seatNumber;
     private boolean isReserved;
 
-    //Form SeatReservationInfo
+    //Form reservation
     private Long startTime;
     private Long timeInUse;
 

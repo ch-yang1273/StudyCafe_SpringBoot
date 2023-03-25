@@ -3,10 +3,10 @@ import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeFinder;
 import asc.portfolio.ascSb.common.infra.redis.RedisRepository;
 import asc.portfolio.ascSb.follow.domain.FollowFinder;
+import asc.portfolio.ascSb.reservation.domain.Reservation;
 import asc.portfolio.ascSb.seat.domain.Seat;
 import asc.portfolio.ascSb.seat.domain.SeatRepository;
-import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfo;
-import asc.portfolio.ascSb.seatreservationinfo.domain.SeatReservationInfoRepository;
+import asc.portfolio.ascSb.reservation.domain.ReservationRepository;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
 import asc.portfolio.ascSb.ticket.domain.TicketRepository;
 import asc.portfolio.ascSb.user.domain.User;
@@ -33,7 +33,7 @@ public class SeatServiceImpl implements SeatService {
     private final UserFinder userFinder;
     private final CafeFinder cafeFinder;
     private final FollowFinder followFinder; // todo 삭제
-    private final SeatReservationInfoRepository reservationInfoRepository;
+    private final ReservationRepository reservationRepository;
     private final TicketRepository ticketRepository;
     private final RedisRepository redisRepository;
     private final FirebaseCloudMessageService firebaseCloudMessageService;
@@ -44,21 +44,21 @@ public class SeatServiceImpl implements SeatService {
         Cafe cafe = cafeFinder.findById(seat.getCafeId());
 
         Ticket ticket = seat.getTicket();
-        SeatReservationInfo rezInfo = reservationInfoRepository
-                .findValidSeatRezInfoByCafeNameAndSeatNumber(cafe.getCafeName(), seat.getSeatNumber());
+        Reservation reservation = reservationRepository
+                .findValidReservationByCafeNameAndSeatNumber(cafe.getCafeName(), seat.getSeatNumber());
 
         // todo : 정보들을 Seat에서 가져와야겠다.
         if (ticket.isValidFixedTermTicket()) {
             return SeatResponseDto.setFixedTermSeat(
                     seat.getSeatNumber(),
-                    rezInfo.getStartTime(),
-                    rezInfo.updateTimeInUse(),
+                    reservation.getStartTime(),
+                    reservation.updateTimeInUse(),
                     ticket.getFixedTermTicket());
         } else if (ticket.isValidPartTimeTicket()) {
             return SeatResponseDto.setPartTimeSeat(
                     seat.getSeatNumber(),
-                    rezInfo.getStartTime(),
-                    rezInfo.updateTimeInUse(),
+                    reservation.getStartTime(),
+                    reservation.updateTimeInUse(),
                     ticket.getPartTimeTicket(),
                     ticket.getRemainingTime());
         } else {
@@ -71,14 +71,14 @@ public class SeatServiceImpl implements SeatService {
     public Boolean exitSeat(Long userId) {
         User user = userFinder.findById(userId);
 
-        //ReservationInfo 수정
-        List<SeatReservationInfo> userRezInfo = reservationInfoRepository.findValidSeatRezInfoByLoginId(user.getLoginId());
-        if (userRezInfo != null) {
-            if (userRezInfo.size() > 1) {
-                log.error("Valid SeatReservationInfo is Over One");
+        //reservation 수정
+        List<Reservation> reservation = reservationRepository.findValidReservationByLoginId(user.getLoginId());
+        if (reservation != null) {
+            if (reservation.size() > 1) {
+                log.error("Valid reservation is Over One");
             }
 
-            for (SeatReservationInfo info : userRezInfo) {
+            for (Reservation info : reservation) {
                 //Reservation Info Exit
                 Long timeInUse = info.endUsingSeat();
 
@@ -101,7 +101,7 @@ public class SeatServiceImpl implements SeatService {
         }
 
         // seat Table 의 User_ID Unique 를 유지하기 위해, 먼저 DB에 반영
-        reservationInfoRepository.flush();
+        reservationRepository.flush();
         seatRepository.flush();
         ticketRepository.flush();
 
@@ -154,15 +154,15 @@ public class SeatServiceImpl implements SeatService {
         //seat 에 User, ticket 을 할당
         findSeat.reserveSeat(user.getId(), ticketOpt.get());
 
-        //ReservationInfo 저장
-        SeatReservationInfo reservationInfo = SeatReservationInfo.builder()
+        //reservation 저장
+        Reservation reservation = Reservation.builder()
                 .user(user)
                 .cafe(cafe)
                 .seat(findSeat)
                 .ticket(ticketOpt.get())
                 .startTime(startTime)
                 .build();
-        reservationInfoRepository.save(reservationInfo);
+        reservationRepository.save(reservation);
 
         log.info("좌석 예약 성공");
         return true;
@@ -173,7 +173,7 @@ public class SeatServiceImpl implements SeatService {
         int count = 0;
         count += seatRepository.updateAllReservedSeatStateWithFixedTermTicket();
         count += seatRepository.updateAllReservedSeatStateWithPartTimeTicket();
-        count += seatRepository.updateAllReservedSeatStateWithStartTime();
+        count += seatRepository.updateAllReservedStatusWithStartTime();
 
         return count;
     }

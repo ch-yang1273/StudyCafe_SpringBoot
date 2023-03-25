@@ -1,4 +1,4 @@
-package asc.portfolio.ascSb.seatreservationinfo.domain;
+package asc.portfolio.ascSb.reservation.domain;
 import asc.portfolio.ascSb.common.domain.BaseTimeEntity;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.seat.domain.Seat;
@@ -16,16 +16,16 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "SEAT_REZ_INFO")
-public class SeatReservationInfo extends BaseTimeEntity {
+@Table(name = "RESERVATION")
+public class Reservation extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "S_ID", nullable = false)
+    @Column(name = "RESERVATION_ID", nullable = false)
     private Long id; // 사용구분을 위한 table 입니다 ex) 몇시,몇분에 어느좌석에 어떤 user가 몇시간을 사용했다~
 
     @Enumerated(EnumType.STRING)
-    private SeatReservationInfoStateType isValid;
+    private ReservationStatus isValid;
 
     //Entity User
     @Column(name = "USER_ID")
@@ -50,7 +50,7 @@ public class SeatReservationInfo extends BaseTimeEntity {
     private Long timeInUse; // 실제 사용한 시간, 분단위
 
     @Builder
-    public SeatReservationInfo(User user, Cafe cafe, Seat seat, Ticket ticket, Long startTime, Long timeInUse) {
+    public Reservation(User user, Cafe cafe, Seat seat, Ticket ticket, Long startTime, Long timeInUse) {
         this.userLoginId = user.getLoginId();
         this.cafeName = cafe.getCafeName();
         this.seatNumber = seat.getSeatNumber();
@@ -59,7 +59,7 @@ public class SeatReservationInfo extends BaseTimeEntity {
         this.timeInUse = timeInUse;
         //자동 값 입력
         this.endTime = LocalDateTime.now().plusMinutes(startTime);
-        this.isValid = SeatReservationInfoStateType.VALID;
+        this.isValid = ReservationStatus.VALID;
     }
 
     private void getTimeInUse() {
@@ -71,7 +71,7 @@ public class SeatReservationInfo extends BaseTimeEntity {
     }
 
     public Long endUsingSeat() {
-        this.isValid = SeatReservationInfoStateType.INVALID;
+        this.isValid = ReservationStatus.INVALID;
         this.timeInUse = Duration.between(getCreateDate(), LocalDateTime.now()).toMinutes();
         return timeInUse;
     }

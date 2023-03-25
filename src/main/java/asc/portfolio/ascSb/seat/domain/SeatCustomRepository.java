@@ -10,7 +10,7 @@ public interface SeatCustomRepository {
 
     int updateAllReservedSeatStateWithPartTimeTicket();
 
-    int updateAllReservedSeatStateWithStartTime();
+    int updateAllReservedStatusWithStartTime();
 
     List<Seat> getAlmostFinishedSeatListWithFixedTermTicket(Long minute);
 
