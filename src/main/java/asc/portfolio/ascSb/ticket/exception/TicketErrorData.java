@@ -1,20 +1,16 @@
-package asc.portfolio.ascSb.cafe.exception;
+package asc.portfolio.ascSb.ticket.exception;
 
 import asc.portfolio.ascSb.common.exception.exception.ErrorData;
 
-public enum CafeErrorData implements ErrorData {
-    CAFE_NOT_FOUND(400, "CAFE_4001", "존재하지 않는 카페입니다."),
-    UNMATCHED_ADMIN(401, "CAFE_4002", "이 카페의 관리자가 아닙니다."),
-
-    CAFE_NEED_ADMIN_ROLE(401, "CAFE_4003", "Admin Role이 필요합니다."),
-    CAFE_NEED_AUTH(401, "CAFE_4004", "권한이 없습니다.")
+public enum TicketErrorData implements ErrorData {
+    TICKET_NOT_FOUND(400, "SEAT_4001", "존재하지 않는 좌석입니다.")
     ;
 
     private final int statusCode;
     private final String errorCode;
     private final String message;
 
-    CafeErrorData(int statusCode, String errorCode, String message) {
+    TicketErrorData(int statusCode, String errorCode, String message) {
         this.statusCode = statusCode;
         this.errorCode = errorCode;
         this.message = message;

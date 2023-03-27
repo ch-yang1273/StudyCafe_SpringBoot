@@ -1,10 +1,10 @@
 package asc.portfolio.ascSb.seat.domain;
 
-import asc.portfolio.ascSb.cafe.domain.Cafe;
-
 import java.util.List;
+import java.util.Optional;
 
 public interface SeatCustomRepository {
+    Optional<Seat> findOptionalByUserId(Long userId);
 
     int updateAllReservedSeatStateWithFixedTermTicket();
 
@@ -15,8 +15,4 @@ public interface SeatCustomRepository {
     List<Seat> getAlmostFinishedSeatListWithFixedTermTicket(Long minute);
 
     List<Seat> getAlmostFinishedSeatListWithStartTime(Long minute);
-
-    Seat findByCafeAndSeatNumber(Cafe cafeObject, Integer seatNumber);
-
-    Seat findByCafeNameAndSeatNumber(String cafeName, int seatNumber);
 }

@@ -40,9 +40,6 @@ public class Cafe {
     }
 
     private static void authCheck(User authUser) {
-        System.out.println(authUser.getRole());
-        System.out.println(authUser.getName());
-        System.out.println(authUser.getLoginId());
         if (authUser.getRole() != UserRoleType.ADMIN) {
             throw new CafeException(CafeErrorData.CAFE_NEED_ADMIN_ROLE);
         }
@@ -76,6 +73,12 @@ public class Cafe {
             this.isOpen = false;
         } else {
             throw new CafeException(CafeErrorData.UNMATCHED_ADMIN);
+        }
+    }
+
+    public void isAdminOrElseThrow(Long adminId) {
+        if (!this.adminId.equals(adminId)) {
+            throw new CafeException(CafeErrorData.CAFE_NEED_AUTH);
         }
     }
 }

@@ -1,10 +1,7 @@
 package asc.portfolio.ascSb.reservation.domain;
 
 import asc.portfolio.ascSb.common.domain.BaseTimeEntity;
-import asc.portfolio.ascSb.cafe.domain.Cafe;
-import asc.portfolio.ascSb.seat.domain.Seat;
-import asc.portfolio.ascSb.ticket.domain.Ticket;
-import asc.portfolio.ascSb.user.domain.User;
+import asc.portfolio.ascSb.seat.domain.UsageData;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,22 +41,27 @@ public class Reservation extends BaseTimeEntity {
     private LocalDateTime endTime; // 좌석 종료 된 시간
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS")
     private ReservationStatus status;
 
     @Builder
-    public Reservation(User user, Cafe cafe, Seat seat, Ticket ticket, LocalDateTime startTime) {
-        this.userId = user.getId();
-        this.cafeId = cafe.getId();
-        this.seatId = seat.getId();
-        this.ticketId = ticket.getId();
-        this.startTime = startTime;
+    public Reservation(Long userId, Long cafeId, Long seatId, Long ticketId, LocalDateTime startTime) {
+        this.userId = userId;
+        this.cafeId = cafeId;
+        this.seatId = seatId;
+        this.ticketId = ticketId;
 
+        this.startTime = startTime;
         this.status = ReservationStatus.IN_USE;
     }
 
-    public void endUsingSeat(LocalDateTime endTime) {
+    public UsageData toUsageData() {
+        return new UsageData(this.userId, this.ticketId, this.startTime);
+    }
+
+    public void release(LocalDateTime now) {
         this.status = ReservationStatus.END_OF_USE;
-        this.endTime = endTime;
+        this.endTime = now;
     }
 
     public Long getUsageMinute(LocalDateTime now) {

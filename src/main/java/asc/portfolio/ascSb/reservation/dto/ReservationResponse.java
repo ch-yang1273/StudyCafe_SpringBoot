@@ -1,22 +1,38 @@
 package asc.portfolio.ascSb.reservation.dto;
 
-import lombok.AllArgsConstructor;
+import asc.portfolio.ascSb.reservation.domain.Reservation;
+import asc.portfolio.ascSb.reservation.domain.ReservationStatus;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
-@Setter
 public class ReservationResponse {
-    private Integer seatNumber;
-    private Long startTime;
-    private Long timeInUse;
+    private Long Id;
+    private Long seatId;
+    private ReservationStatus status;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
-    private LocalDateTime createDate;
+    public static ReservationResponse of(Reservation reservation) {
+        return ReservationResponse.builder()
+                .id(reservation.getId())
+                .seatId(reservation.getSeatId())
+                .status(reservation.getStatus())
+                .startTime(reservation.getStartTime())
+                .endTime(reservation.getEndTime())
+                .build();
+    }
 
-    private String period;
+    @Builder
+    public ReservationResponse(Long id, Long seatId, ReservationStatus status, LocalDateTime startTime, LocalDateTime endTime) {
+        Id = id;
+        this.seatId = seatId;
+        this.status = status;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
 }

@@ -1,18 +1,17 @@
 package asc.portfolio.ascSb.seat.domain;
-import asc.portfolio.ascSb.ticket.domain.Ticket;
+import asc.portfolio.ascSb.seat.exception.SeatErrorData;
+import asc.portfolio.ascSb.seat.exception.SeatException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Getter
@@ -36,14 +35,8 @@ public class Seat {
     @Column(name = "IS_RESERVED")
     private boolean isReserved;
 
-    // 좌석 예약자
-    @Column(name = "USER_ID", unique = true)
-    private Long userId;
-
-    // todo : 추후 Id 참조로 변경
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "T_ID")
-    private Ticket ticket;
+    @Embedded
+    private UsageData usageData;
 
     @Builder
     public Seat(Long cafeId, int seatNumber) {
@@ -52,15 +45,21 @@ public class Seat {
         this.isReserved = false;
     }
 
-    public void reserveSeat(Long userId, Ticket ticket) {
-        this.userId = userId;
-        this.ticket = ticket;
+    public void reserveSeat(UsageData usageData) {
         this.isReserved = true;
+        this.usageData = usageData;
     }
 
     public void exitSeat() {
-        this.userId = null;
-        this.ticket = null;
         this.isReserved = false;
+        this.usageData = null;
+    }
+
+    public boolean isBelongTo(Long cafeId) {
+        return this.cafeId.equals(cafeId);
+    }
+
+    public void isBelongToOrElseThrow(Long cafeId) {
+        throw new SeatException(SeatErrorData.NOT_MATCHED_SEAT_CAFE);
     }
 }
