@@ -1,11 +1,14 @@
 package asc.portfolio.ascSb.common.domain;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
 public interface CurrentTimeProvider {
 
-    public LocalDateTime now();
+    LocalDateTime localDateTimeNow();
 
-    public Date toDate(LocalDateTime localDateTime);
+    LocalDate localDateNow();
+
+    Date dateNow();
 }

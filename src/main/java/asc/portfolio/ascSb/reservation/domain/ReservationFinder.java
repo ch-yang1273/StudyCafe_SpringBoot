@@ -22,11 +22,6 @@ public class ReservationFinder {
         return reservationRepository.findListByUserIdAndStatus(userId, status);
     }
 
-    public Reservation findByUserIdAndStatus(Long userId, ReservationStatus isValid) {
-        return reservationRepository.findByUserIdAndStatus(userId, isValid).orElseThrow(
-                () -> new ReservationException(ReservationErrorData.RESERVATION_NOT_FOUND));
-    }
-
     public List<Reservation> findListBySeatIdAndStatus(Long seatId, ReservationStatus status) {
         return reservationRepository.findListBySeatIdAndStatus(seatId, status);
     }

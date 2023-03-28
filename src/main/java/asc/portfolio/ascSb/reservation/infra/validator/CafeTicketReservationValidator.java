@@ -5,7 +5,7 @@ import asc.portfolio.ascSb.common.exception.dto.InvalidResponse;
 import asc.portfolio.ascSb.reservation.domain.ReservationValidator;
 import asc.portfolio.ascSb.reservation.dto.ValidationTarget;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
-import asc.portfolio.ascSb.ticket.domain.TicketStateType;
+import asc.portfolio.ascSb.ticket.domain.TicketStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -19,11 +19,11 @@ public class CafeTicketReservationValidator implements ReservationValidator {
         Ticket ticket = request.getTicket();
         Cafe cafe = request.getCafe();
 
-        if (ticket.getIsValidTicket() == TicketStateType.INVALID) {
+        if (ticket.getStatus() == TicketStatus.END_OF_USE) {
             return Collections.singletonList(new InvalidResponse(request.getField(), "사용 할 수 없는 티켓입니다."));
         }
 
-        if (!ticket.getCafe().equals(cafe)) {
+        if (!ticket.getCafeId().equals(cafe.getId())) {
             return Collections.singletonList(new InvalidResponse(request.getField(), "이 카페에서 사용 불가능한 티켓입니다."));
         }
 

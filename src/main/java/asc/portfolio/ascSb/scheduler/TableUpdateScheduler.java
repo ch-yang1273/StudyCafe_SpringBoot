@@ -1,7 +1,5 @@
 package asc.portfolio.ascSb.scheduler;
 
-import asc.portfolio.ascSb.ticket.domain.Ticket;
-import asc.portfolio.ascSb.expiredticket.service.ExpiredTicketService;
 import asc.portfolio.ascSb.seat.service.SeatService;
 import asc.portfolio.ascSb.ticket.service.TicketService;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +9,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.List;
 
 @Slf4j
 @Component
@@ -21,7 +18,6 @@ public class TableUpdateScheduler {
 
     private final SeatService seatService;
     private final TicketService ticketService;
-    private final ExpiredTicketService expiredTicketService;
 
     @Scheduled(fixedDelay = 1000 * 60)
     public void updateSeatAndTicketState() {
@@ -40,21 +36,5 @@ public class TableUpdateScheduler {
         public void alertFCMAlmostFinishedSeat() throws IOException {
         log.debug("alert almost finished seat");
         seatService.alertAlmostFinishedSeat();
-    }
-
-    @Scheduled(cron = "30 50 23 * * *") // 30일 간격 은행 점검 시간인 23시 50분 마다 갱신
-    public void moveToExpiredTicket() {
-        // ticket 테이블 전체에서 invalid 상태의 티켓을 뽑아온다
-        List<Ticket> invalidTicketList = ticketService.allInvalidTicketInfo();
-        log.debug("Find all invalid ticket list");
-        // invalid 상태의 티켓들을 EXPIRED_TICKET 테이블에 옮긴다
-        boolean isSuccessTransfer = expiredTicketService.transferInvalidTicket(invalidTicketList);
-        log.debug("Move invalid ticket list to expired table");
-
-        // invalid 상태의 티켓들을 테이블에서 제거
-        if(isSuccessTransfer) {
-            ticketService.deleteInvalidTicket(invalidTicketList);
-            // log.debug("Size of deleted invalid ticket = {}", invalidTicketList.size());
-        }
     }
 }

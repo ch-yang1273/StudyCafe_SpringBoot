@@ -59,7 +59,7 @@ public class JwtTokenService implements TokenService {
 
     @Override
     public String createAccessToken(TokenPayload payload) {
-        Date now = currentTimeProvider.toDate(currentTimeProvider.now());
+        Date now = currentTimeProvider.dateNow();
         Date expireDate = new Date(now.getTime() + expireTime);
 
         return Jwts.builder()
@@ -72,7 +72,7 @@ public class JwtTokenService implements TokenService {
 
     @Override
     public String createRefreshToken() {
-        Date now = currentTimeProvider.toDate(currentTimeProvider.now());
+        Date now = currentTimeProvider.dateNow();
         Date expireDate = new Date(now.getTime() + refreshTime);
 
         return Jwts.builder()

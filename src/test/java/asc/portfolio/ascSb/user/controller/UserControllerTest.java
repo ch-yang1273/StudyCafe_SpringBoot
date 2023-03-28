@@ -208,7 +208,7 @@ class UserControllerTest {
         String tokenReqContent = fromDtoToJson(tokenRequestDto);
 
         // 현재 시간을 반환하는 로직이 1분뒤의 시간을 반환하도록 Mocking
-        BDDMockito.given(currentTimeProvider.now()).willReturn(LocalDateTime.now().plusMinutes(1L));
+        BDDMockito.given(currentTimeProvider.localDateTimeNow()).willReturn(LocalDateTime.now().plusMinutes(1L));
         //then
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(REISSUE_TOKEN_URL)
                         .contentType(MediaType.APPLICATION_JSON)

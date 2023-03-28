@@ -35,7 +35,7 @@ public class OrderDto {
                 .orderStateType(orderStateType)
                 .userId(userId)
                 .productLabel(productLabel)
-                .orderProductName(orderProduct)
+                .orderProductNameType(orderProduct)
                 .orderPrice(orderPrice)
                 .receiptOrderId(receiptOrderId)
                 .build();

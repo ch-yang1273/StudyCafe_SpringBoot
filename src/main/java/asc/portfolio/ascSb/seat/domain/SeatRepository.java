@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface SeatRepository extends JpaRepository<Seat, Long>, SeatCustomRepository {
 
-  List<Seat> findByCafeId(Long cafeId);
+  List<Seat> findAllByCafeId(Long cafeId);
 }

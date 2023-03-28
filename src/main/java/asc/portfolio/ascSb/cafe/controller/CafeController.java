@@ -1,7 +1,6 @@
 package asc.portfolio.ascSb.cafe.controller;
 
 import asc.portfolio.ascSb.cafe.dto.CafeRegistrationRequest;
-import asc.portfolio.ascSb.cafe.dto.SeatStatusResponse;
 import asc.portfolio.ascSb.cafe.service.CafeService;
 import asc.portfolio.ascSb.cafe.dto.CafeResponse;
 import asc.portfolio.ascSb.common.auth.LoginUser;
@@ -9,12 +8,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -52,10 +49,5 @@ public class CafeController {
     public ResponseEntity<Void> closeCafe(@LoginUser Long adminId, @PathVariable Long cafeId) {
         cafeService.closeCafe(adminId, cafeId);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/{cafeId}/seats")
-    public ResponseEntity<List<SeatStatusResponse>> getAllSeatsByCafeId(@PathVariable Long cafeId) {
-        return new ResponseEntity<>(cafeService.getAllSeatsByCafeId(cafeId), HttpStatus.OK);
     }
 }

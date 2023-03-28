@@ -4,9 +4,17 @@ import asc.portfolio.ascSb.cafe.exception.CafeErrorData;
 import asc.portfolio.ascSb.cafe.exception.CafeException;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRoleType;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

@@ -6,7 +6,6 @@ import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
 import asc.portfolio.ascSb.reservation.domain.Reservation;
 import asc.portfolio.ascSb.reservation.domain.ReservationFinder;
 import asc.portfolio.ascSb.reservation.domain.ReservationManager;
-import asc.portfolio.ascSb.reservation.domain.ReservationRepository;
 import asc.portfolio.ascSb.reservation.domain.ReservationStatus;
 import asc.portfolio.ascSb.reservation.domain.ReservationValidation;
 import asc.portfolio.ascSb.reservation.dto.CreateReservationRequest;
@@ -25,7 +24,6 @@ import java.util.List;
 @Slf4j
 public class ReservationServiceImpl implements ReservationService {
 
-    private final ReservationRepository reservationRepository;
     private final ReservationValidation reservationValidation;
     private final ReservationManager reservationManager;
 
@@ -50,7 +48,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Transactional
     @Override
     public void createReservation(Long userId, CreateReservationRequest dto) {
-        Reservation reservation = dto.toEntity(userId, currentTimeProvider.now());
+        Reservation reservation = dto.toEntity(userId, currentTimeProvider.localDateTimeNow());
         reservationValidation.validate(reservation);
 
         reservationManager.reserve(reservation);
@@ -59,8 +57,10 @@ public class ReservationServiceImpl implements ReservationService {
     @Transactional
     @Override
     public void releaseReservation(Long userId) {
-        Reservation reservation = reservationFinder.findByUserIdAndStatus(userId, ReservationStatus.IN_USE);
-        reservationManager.release(reservation);
+        List<Reservation> list = reservationFinder.findListByUserIdAndStatus(userId, ReservationStatus.IN_USE);
+        for (Reservation rez : list) {
+            reservationManager.release(rez);
+        }
     }
 
     @Transactional

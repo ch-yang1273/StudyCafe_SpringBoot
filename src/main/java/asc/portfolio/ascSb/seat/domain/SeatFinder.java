@@ -5,6 +5,7 @@ import asc.portfolio.ascSb.seat.exception.SeatException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -27,5 +28,9 @@ public class SeatFinder {
 
     public boolean hasReservedSeat(Long userId) {
         return findOptionalByUserId(userId).isPresent();
+    }
+
+    public List<Seat> findAllByCafeId(Long cafeId) {
+        return seatRepository.findAllByCafeId(cafeId);
     }
 }

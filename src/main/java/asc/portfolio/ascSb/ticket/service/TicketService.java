@@ -1,32 +1,23 @@
 package asc.portfolio.ascSb.ticket.service;
 
 import asc.portfolio.ascSb.order.domain.Orders;
-import asc.portfolio.ascSb.ticket.domain.Ticket;
 import asc.portfolio.ascSb.bootpay.dto.BootPayOrderDto;
-import asc.portfolio.ascSb.ticket.dto.TicketForAdminResponseDto;
-import asc.portfolio.ascSb.ticket.dto.TicketForUserResponseDto;
+import asc.portfolio.ascSb.ticket.dto.TicketForAdminResponse;
+import asc.portfolio.ascSb.ticket.dto.TicketStatusResponse;
 
 import java.util.List;
 
 public interface TicketService {
 
-    TicketForUserResponseDto userValidTicket(Long id, String cafeName);
+    TicketStatusResponse userValidTicket(Long userId, String cafeName);
 
-    Long saveProductToTicket(Long userId, BootPayOrderDto bootPayOrderDto, Orders orders);
+    void saveProductToTicket(Long userId, BootPayOrderDto bootPayOrderDto, Orders orders);
 
-    public List<TicketForUserResponseDto> lookupUserTickets(String targetUserLoginId, Long adminId);
-//
-//    Long saveTicket(TicketRequestDto dto, Long id);
+    List<TicketStatusResponse> lookupUserTickets(String targetUserLoginId, Long adminId);
 
-    TicketForAdminResponseDto adminLookUpUserValidTicket(String userLoginID, Long adminId);
+    TicketForAdminResponse adminLookUpUserValidTicket(String userLoginID, Long adminId);
 
     void setInvalidTicket(String productLabel);
 
-    public Long updateAllValidTicketState();
-
-    List<Ticket> allInvalidTicketInfo();
-
-    void deleteInvalidTicket(List<Ticket> tickets);
-
-
+    Long updateAllValidTicketState();
 }

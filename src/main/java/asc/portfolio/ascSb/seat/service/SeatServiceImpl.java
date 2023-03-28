@@ -39,7 +39,17 @@ public class SeatServiceImpl implements SeatService {
         Seat seat = seatFinder.findByUserId(userId);
         Cafe cafe = cafeFinder.findById(seat.getCafeId());
 
-        return new SeatStatusResponse(cafe, seat, currentTimeProvider.now());
+        return new SeatStatusResponse(cafe, seat, currentTimeProvider.localDateTimeNow());
+    }
+
+    @Override
+    public List<SeatStatusResponse> getAllSeatsByCafeId(Long cafeId) {
+        Cafe cafe = cafeFinder.findById(cafeId);
+
+        return seatFinder.findAllByCafeId(cafeId)
+                .stream()
+                .map(seat -> new SeatStatusResponse(cafe, seat, currentTimeProvider.localDateTimeNow()))
+                .collect(Collectors.toList());
     }
 
     @Override

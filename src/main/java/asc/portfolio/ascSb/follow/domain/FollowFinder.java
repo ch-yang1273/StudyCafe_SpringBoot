@@ -19,7 +19,7 @@ public class FollowFinder {
         return cafeFinder.findById(follow.getCafeId());
     }
 
-    public Long getFollowers(Long cafeId) {
+    public Long getFollowersCount(Long cafeId) {
         return followingRepository.countByCafeId(cafeId);
     }
 }

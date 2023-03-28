@@ -26,7 +26,7 @@ public class FollowService {
 
     @Transactional(readOnly = true)
     public CafeFollowersResponse getFollowers(Long cafeId) {
-        Long count = followFinder.getFollowers(cafeId);
+        Long count = followFinder.getFollowersCount(cafeId);
         return new CafeFollowersResponse(cafeId, count);
     }
 }
