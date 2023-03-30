@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class UserProfileDto {
+public class UserProfile {
     private final Long id;
     private final String loginId;
     private final String email;
@@ -15,7 +15,7 @@ public class UserProfileDto {
     private final String name;
     private final LocalDateTime createDate;
 
-    public UserProfileDto(User user) {
+    public UserProfile(User user) {
         this.id = user.getId();
         this.loginId = user.getLoginId();
         this.email = user.getEmail();

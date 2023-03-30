@@ -7,14 +7,14 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class UserLoginResponseDto {
+public class UserLoginResponse {
 
     UserRoleType roleType;
     String accessToken;
     String refreshToken;
 
     @Builder
-    public UserLoginResponseDto(UserRoleType roleType, String accessToken, String refreshToken) {
+    public UserLoginResponse(UserRoleType roleType, String accessToken, String refreshToken) {
         this.roleType = roleType;
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;

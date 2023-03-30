@@ -13,7 +13,7 @@ import javax.validation.constraints.NotBlank;
 
 @Data
 @NoArgsConstructor
-public class UserSignupDto {
+public class UserSignupRequest {
 
     @Schema(description = "아이디", example = "testUserId")
     @NotBlank(message = "로그인 아이디는 필수 입력 값입니다.")
@@ -34,7 +34,7 @@ public class UserSignupDto {
     private String name;
 
     @Builder
-    public UserSignupDto(String loginId, String password, String email, String name) {
+    public UserSignupRequest(String loginId, String password, String email, String name) {
         this.loginId = loginId;
         this.password = password;
         this.email = email;

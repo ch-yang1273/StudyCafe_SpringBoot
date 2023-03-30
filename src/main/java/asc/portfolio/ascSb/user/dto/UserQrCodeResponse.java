@@ -3,16 +3,16 @@ package asc.portfolio.ascSb.user.dto;
 import lombok.Getter;
 
 @Getter
-public class UserQrAndNameResponseDto {
+public class UserQrCodeResponse {
 
     private String name;
     private String qrCode;
 
     // for ObjectMapper
-    private UserQrAndNameResponseDto() {
+    private UserQrCodeResponse() {
     }
 
-    public UserQrAndNameResponseDto(String name, String qrCode) {
+    public UserQrCodeResponse(String name, String qrCode) {
         this.name = name;
         this.qrCode = qrCode;
     }

@@ -1,12 +1,12 @@
 package asc.portfolio.ascSb.user.controller;
 
 import asc.portfolio.ascSb.common.auth.LoginUser;
-import asc.portfolio.ascSb.user.dto.UserLoginRequestDto;
-import asc.portfolio.ascSb.user.dto.UserLoginResponseDto;
-import asc.portfolio.ascSb.user.dto.UserProfileDto;
-import asc.portfolio.ascSb.user.dto.UserQrAndNameResponseDto;
-import asc.portfolio.ascSb.user.dto.UserSignupDto;
-import asc.portfolio.ascSb.user.dto.UserTokenRequestDto;
+import asc.portfolio.ascSb.user.dto.UserLoginRequest;
+import asc.portfolio.ascSb.user.dto.UserLoginResponse;
+import asc.portfolio.ascSb.user.dto.UserProfile;
+import asc.portfolio.ascSb.user.dto.UserQrCodeResponse;
+import asc.portfolio.ascSb.user.dto.UserSignupRequest;
+import asc.portfolio.ascSb.user.dto.UserReissueRequest;
 import asc.portfolio.ascSb.user.service.UserAuthService;
 import asc.portfolio.ascSb.user.service.UserRoleCheckService;
 import asc.portfolio.ascSb.user.service.UserService;
@@ -50,7 +50,7 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> singUp(@RequestBody @Valid UserSignupDto signUpDto, BindingResult bindingResult) {
+    public ResponseEntity<String> singUp(@RequestBody @Valid UserSignupRequest signUpDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(validateSingUpDto(bindingResult), HttpStatus.BAD_REQUEST);
         }
@@ -65,30 +65,30 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserLoginResponseDto> login(@RequestBody @Valid UserLoginRequestDto loginDto) {
-        UserLoginResponseDto loginRespDto = userAuthService.checkPassword(loginDto.getLoginId(), loginDto.getPassword());
+    public ResponseEntity<UserLoginResponse> login(@RequestBody @Valid UserLoginRequest loginDto) {
+        UserLoginResponse loginRespDto = userAuthService.checkPassword(loginDto.getLoginId(), loginDto.getPassword());
         return new ResponseEntity<>(loginRespDto, HttpStatus.OK);
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<UserLoginResponseDto> reissueToken(@RequestBody @Valid UserTokenRequestDto tokenRequestDto) {
+    public ResponseEntity<UserLoginResponse> reissueToken(@RequestBody @Valid UserReissueRequest tokenRequestDto) {
         return new ResponseEntity<>(
                 userAuthService.reissueToken(tokenRequestDto.getAccessToken(), tokenRequestDto.getRefreshToken()),
                 HttpStatus.OK);
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<UserProfileDto> getMyProfile(@LoginUser Long userId) {
+    public ResponseEntity<UserProfile> getMyProfile(@LoginUser Long userId) {
         return ResponseEntity.ok().body(userService.getProfileById(userId));
     }
 
     @GetMapping("/qr")
-    public ResponseEntity<UserQrAndNameResponseDto> getQrCode(@LoginUser Long userId) {
+    public ResponseEntity<UserQrCodeResponse> getQrCode(@LoginUser Long userId) {
         return new ResponseEntity<>(userService.userQrAndName(userId), HttpStatus.OK);
     }
 
     @GetMapping("/admin/check")
-    public ResponseEntity<UserProfileDto> getUserInfoByLoginId(@LoginUser Long adminId, @RequestParam String userLoginId) {
+    public ResponseEntity<UserProfile> getUserInfoByLoginId(@LoginUser Long adminId, @RequestParam String userLoginId) {
         userRoleCheckService.isAdmin(adminId);
         return new ResponseEntity<>(userService.getUserInfoByLoginId(userLoginId), HttpStatus.OK);
     }

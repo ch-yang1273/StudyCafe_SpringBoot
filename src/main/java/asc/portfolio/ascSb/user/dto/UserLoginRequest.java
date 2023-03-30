@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank;
 
 @Data
 @NoArgsConstructor
-public class UserLoginRequestDto {
+public class UserLoginRequest {
 
     @Schema(description = "아이디", example = "tUser_A_login")
     @NotBlank
@@ -23,7 +23,7 @@ public class UserLoginRequestDto {
     private String password;
 
     @Builder
-    public UserLoginRequestDto(String loginId, String password) {
+    public UserLoginRequest(String loginId, String password) {
         this.loginId = loginId;
         this.password = password;
     }

@@ -7,8 +7,8 @@ import asc.portfolio.ascSb.user.domain.TokenService;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserFinder;
 import asc.portfolio.ascSb.user.domain.UserRepository;
-import asc.portfolio.ascSb.user.dto.UserLoginResponseDto;
-import asc.portfolio.ascSb.user.dto.UserSignupDto;
+import asc.portfolio.ascSb.user.dto.UserLoginResponse;
+import asc.portfolio.ascSb.user.dto.UserSignupRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,18 +25,18 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Transactional
     @Override
-    public void signUp(UserSignupDto signUpDto) {
+    public void signUp(UserSignupRequest signUpDto) {
         User newUser = signUpDto.toEntity();
         newUser.encryptPassword(passwordEncoder);
 
         userRepository.save(newUser);
     }
 
-    private UserLoginResponseDto createTokenResponse(User user) {
+    private UserLoginResponse createTokenResponse(User user) {
         String accessToken = tokenService.createAccessToken(new TokenPayload(user.getId()));
         String refreshToken = tokenService.createRefreshToken();
 
-        return UserLoginResponseDto.builder()
+        return UserLoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .roleType(user.getRole())
@@ -45,11 +45,11 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Transactional
     @Override
-    public UserLoginResponseDto checkPassword(String loginId, String password) {
+    public UserLoginResponse checkPassword(String loginId, String password) {
         User targetUser = userFinder.findByLoginId(loginId);
         targetUser.checkPassword(passwordEncoder, loginId, password);
 
-        UserLoginResponseDto result = createTokenResponse(targetUser);
+        UserLoginResponse result = createTokenResponse(targetUser);
 
         tokenRepository.saveToken(targetUser.getId().toString(), result.getRefreshToken(), tokenService.getRefreshTime());
         return result;
@@ -64,7 +64,7 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Transactional(readOnly = true)
     @Override
-    public UserLoginResponseDto reissueToken(String accessToken, String refreshToken) {
+    public UserLoginResponse reissueToken(String accessToken, String refreshToken) {
         // AccessToken 에서 Payload 추출 - 만료 검증 없이
         TokenPayload payload = tokenService.noVerifyAndGetPayload(accessToken);
         Long userId = payload.getUserId();
@@ -73,6 +73,6 @@ public class UserAuthServiceImpl implements UserAuthService {
 
         // AccessToken 과 RefreshToken 재발급, refreshToken 저장
         User findUser = userFinder.findById(userId);
-        return new UserLoginResponseDto(findUser.getRole(), tokenService.createAccessToken(payload), refreshToken);
+        return new UserLoginResponse(findUser.getRole(), tokenService.createAccessToken(payload), refreshToken);
     }
 }

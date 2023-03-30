@@ -6,7 +6,7 @@ import asc.portfolio.ascSb.support.User.UserMockMvcHelper;
 import asc.portfolio.ascSb.support.User.UserRepositoryHelper;
 import asc.portfolio.ascSb.support.cafe.CafeFixture;
 import asc.portfolio.ascSb.support.cafe.CafeMockMvcHelper;
-import asc.portfolio.ascSb.user.dto.UserLoginResponseDto;
+import asc.portfolio.ascSb.user.dto.UserLoginResponse;
 import asc.portfolio.ascSb.user.infra.MapTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -46,7 +46,7 @@ class CafeControllerTest {
     @Test
     @DisplayName("admin 계정으로 카페 등록")
     public void 카페를_등록한다() throws Exception {
-        UserLoginResponseDto dto = userMockMvcHelper.액세스토큰을_받는다(UserFixture.ADMIN_BLOSSOM);
+        UserLoginResponse dto = userMockMvcHelper.액세스토큰을_받는다(UserFixture.ADMIN_BLOSSOM);
         cafeMockMvcHelper.카페를_등록한다(CafeFixture.CAFE_A, dto.getAccessToken())
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
@@ -54,7 +54,7 @@ class CafeControllerTest {
     @Test
     @DisplayName("user 계정으로 카페 등록 실패")
     public void 카페를_등록한다_byUser() throws Exception {
-        UserLoginResponseDto dto = userMockMvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        UserLoginResponse dto = userMockMvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
         cafeMockMvcHelper.카페를_등록한다(CafeFixture.CAFE_A, dto.getAccessToken())
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
@@ -62,7 +62,7 @@ class CafeControllerTest {
     @Test
     @DisplayName("등록한 카페를 조회한다")
     public void 카페를_조회한다() throws Exception {
-        UserLoginResponseDto dto = userMockMvcHelper.액세스토큰을_받는다(UserFixture.ADMIN_BLOSSOM);
+        UserLoginResponse dto = userMockMvcHelper.액세스토큰을_받는다(UserFixture.ADMIN_BLOSSOM);
         cafeMockMvcHelper.카페를_등록한다(CafeFixture.CAFE_A, dto.getAccessToken());
         cafeMockMvcHelper.카페를_조회한다(dto.getAccessToken())
                 .andExpect(MockMvcResultMatchers.status().isOk());
@@ -71,7 +71,7 @@ class CafeControllerTest {
     @Test
     @DisplayName("등록한 카페를 Open 한다")
     public void 카페를_Open한다() throws Exception {
-        UserLoginResponseDto blossom = userMockMvcHelper.액세스토큰을_받는다(UserFixture.ADMIN_BLOSSOM);
+        UserLoginResponse blossom = userMockMvcHelper.액세스토큰을_받는다(UserFixture.ADMIN_BLOSSOM);
         CafeResponse info = cafeMockMvcHelper.카페를_등록후_조회정보를_받는다(CafeFixture.CAFE_A, blossom.getAccessToken());
 
         cafeMockMvcHelper.카페를_Open한다(info.getCafeId(), blossom.getAccessToken())
@@ -81,7 +81,7 @@ class CafeControllerTest {
     @Test
     @DisplayName("등록한 카페를 Close 한다")
     public void 카페를_Close한다() throws Exception {
-        UserLoginResponseDto blossom = userMockMvcHelper.액세스토큰을_받는다(UserFixture.ADMIN_BLOSSOM);
+        UserLoginResponse blossom = userMockMvcHelper.액세스토큰을_받는다(UserFixture.ADMIN_BLOSSOM);
         CafeResponse info = cafeMockMvcHelper.카페를_등록후_조회정보를_받는다(CafeFixture.CAFE_A, blossom.getAccessToken());
 
         cafeMockMvcHelper.카페를_Close한다(info.getCafeId(), blossom.getAccessToken())
