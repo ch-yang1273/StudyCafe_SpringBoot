@@ -39,7 +39,8 @@ public class Seat {
     private UsageData usageData;
 
     @Builder
-    public Seat(Long cafeId, int seatNumber) {
+    public Seat(Long id, Long cafeId, int seatNumber) {
+        this.id = id;
         this.cafeId = cafeId;
         this.seatNumber = seatNumber;
         this.isReserved = false;

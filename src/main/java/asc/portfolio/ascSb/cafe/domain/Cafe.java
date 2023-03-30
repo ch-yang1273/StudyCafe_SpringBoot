@@ -40,7 +40,8 @@ public class Cafe {
     private boolean isOpen;
 
     @Builder
-    public Cafe(Long adminId, String cafeName, String cafeArea) {
+    public Cafe(Long id, Long adminId, String cafeName, String cafeArea) {
+        this.id = id;
         this.adminId = adminId;
         this.cafeName = cafeName;
         this.cafeArea = cafeArea;

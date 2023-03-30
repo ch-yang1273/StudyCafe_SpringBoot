@@ -51,7 +51,8 @@ public class Reservation extends BaseTimeEntity {
     private ReservationStatus status;
 
     @Builder
-    public Reservation(Long userId, Long cafeId, Long seatId, Long ticketId, LocalDateTime startTime) {
+    public Reservation(Long id, Long userId, Long cafeId, Long seatId, Long ticketId, LocalDateTime startTime) {
+        this.id = id;
         this.userId = userId;
         this.cafeId = cafeId;
         this.seatId = seatId;

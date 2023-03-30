@@ -73,18 +73,6 @@ public class Ticket extends BaseTimeEntity {
         this.productLabel = productLabel;
     }
 
-    public Ticket(Long cafeId, Long userId, TicketStatus status, Integer price, LocalDate expiryDate,
-                  Long totalDuration, Long remainMinute, String productLabel) {
-        this.cafeId = cafeId;
-        this.userId = userId;
-        this.status = status;
-        this.price = price;
-        this.expiryDate = expiryDate;
-        this.totalDuration = totalDuration;
-        this.remainMinute = remainMinute;
-        this.productLabel = productLabel;
-    }
-
     public void changeTicketStateToInvalid() {
         status = TicketStatus.END_OF_USE;
     }
