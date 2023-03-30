@@ -76,20 +76,6 @@ public class TestDataGeneration {
     String[] productLabel = {"FIXED-TERM1", "FIXED-TERM2", "FIXED-TERM3", "FIXED-TERM", "FIXED-TERM",
             "FIXED-TERM", "FIXED-TERM"};
 
-    private void generateCafeSeatData() {
-
-        for (int i = 0; i < cafeName.length; i++) {
-            Cafe cafe = Cafe.builder()
-                    .cafeName(cafeName[i])
-                    .cafeArea(cafeArea[i])
-                    .build();
-
-            cafeRepository.save(cafe);
-        }
-
-        generateSeatData();
-    }
-
     private void generateSeatData() {
         List<Cafe> cafeList = cafeRepository.findAll();
 
@@ -222,7 +208,6 @@ public class TestDataGeneration {
         Assertions.assertThat(seatRepository.count()).isEqualTo(0);
         Assertions.assertThat(userRepository.count()).isEqualTo(0);
 
-        generateCafeSeatData();
         generateUserData();
         generateAdminUserData();
         generateTicketData();

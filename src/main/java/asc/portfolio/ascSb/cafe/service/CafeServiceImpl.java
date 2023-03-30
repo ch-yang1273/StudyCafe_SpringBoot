@@ -41,7 +41,7 @@ public class CafeServiceImpl implements CafeService {
     @Override
     public void registerCafe(Long adminId, CafeRegistrationRequest dto) {
         User admin = userFinder.findById(adminId);
-        Cafe newCafe = Cafe.createCafeWithAuth(admin, dto.getName(), dto.getArea());
+        Cafe newCafe = Cafe.constructCafeWithAuth(admin, dto.getName(), dto.getArea());
         cafeRepository.save(newCafe);
     }
 

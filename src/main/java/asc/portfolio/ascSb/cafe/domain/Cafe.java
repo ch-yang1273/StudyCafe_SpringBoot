@@ -54,7 +54,7 @@ public class Cafe {
         }
     }
 
-    public static Cafe createCafeWithAuth(User authUser, String cafeName, String cafeArea) {
+    public static Cafe constructCafeWithAuth(User authUser, String cafeName, String cafeArea) {
         authCheck(authUser);
         return Cafe.builder()
                 .adminId(authUser.getId())
