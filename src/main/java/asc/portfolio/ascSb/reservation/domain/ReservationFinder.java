@@ -5,8 +5,6 @@ import asc.portfolio.ascSb.reservation.exception.ReservationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @Component
 public class ReservationFinder {
@@ -18,11 +16,14 @@ public class ReservationFinder {
                 () -> new ReservationException(ReservationErrorData.RESERVATION_NOT_FOUND));
     }
 
-    public List<Reservation> findListByUserIdAndStatus(Long userId, ReservationStatus status) {
-        return reservationRepository.findListByUserIdAndStatus(userId, status);
+    public Reservation findByUserIdAndInUseStatus(Long userId) {
+        return reservationRepository.findByUserIdAndInUseStatus(userId).orElseThrow(
+                () -> new ReservationException(ReservationErrorData.RESERVATION_NOT_FOUND));
     }
 
-    public List<Reservation> findListBySeatIdAndStatus(Long seatId, ReservationStatus status) {
-        return reservationRepository.findListBySeatIdAndStatus(seatId, status);
+    public Reservation findBySeatIdAndInUseStatus(Long seatId) {
+        return reservationRepository.findListBySeatIdAndInUseStatus(seatId).orElseThrow(
+                () -> new ReservationException(ReservationErrorData.RESERVATION_NOT_FOUND));
     }
+
 }

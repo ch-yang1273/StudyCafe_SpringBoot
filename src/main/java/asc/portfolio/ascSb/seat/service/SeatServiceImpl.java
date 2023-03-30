@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class SeatServiceImpl implements SeatService {
 
@@ -34,6 +33,7 @@ public class SeatServiceImpl implements SeatService {
     private final RedisRepository redisRepository;
     private final FirebaseCloudMessageService firebaseCloudMessageService;
 
+    @Transactional(readOnly = true)
     @Override
     public SeatStatusResponse getSeatStatus(Long userId) {
         Seat seat = seatFinder.findByUserId(userId);
@@ -42,6 +42,7 @@ public class SeatServiceImpl implements SeatService {
         return new SeatStatusResponse(cafe, seat, currentTimeProvider.localDateTimeNow());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<SeatStatusResponse> getAllSeatsByCafeId(Long cafeId) {
         Cafe cafe = cafeFinder.findById(cafeId);
@@ -52,6 +53,7 @@ public class SeatServiceImpl implements SeatService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public int updateAllReservedSeatState() {
         int count = 0;
@@ -99,6 +101,8 @@ public class SeatServiceImpl implements SeatService {
     }
 
     //1분 초과로 스케쥴 잡아야 중복 alert 없음
+    @Transactional
+    @Override
     public void alertAlmostFinishedSeat() {
         this.checkAlmostFinishedSeatWithFixedTermTicket();
         this.checkAlmostFinishedSeatWithStartTime();

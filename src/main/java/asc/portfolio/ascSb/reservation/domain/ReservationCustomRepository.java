@@ -1,10 +1,10 @@
 package asc.portfolio.ascSb.reservation.domain;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface ReservationCustomRepository {
 
-    List<Reservation> findListByUserIdAndStatus(Long userId, ReservationStatus status);
-    
-    List<Reservation> findListBySeatIdAndStatus(Long seatId, ReservationStatus status);
+    Optional<Reservation> findByUserIdAndInUseStatus(Long userId);
+
+    Optional<Reservation> findListBySeatIdAndInUseStatus(Long seatId);
 }

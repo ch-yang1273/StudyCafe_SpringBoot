@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -16,20 +16,20 @@ public class ReservationCustomRepositoryImpl implements ReservationCustomReposit
     private final JPAQueryFactory query;
 
     @Override
-    public List<Reservation> findListByUserIdAndStatus(Long userId, ReservationStatus status) {
-        return query
+    public Optional<Reservation> findByUserIdAndInUseStatus(Long userId) {
+        return Optional.ofNullable(query
                 .selectFrom(QReservation.reservation)
                 .where(QReservation.reservation.userId.eq(userId),
-                        QReservation.reservation.status.eq(status))
-                .fetch();
+                        QReservation.reservation.status.eq(ReservationStatus.IN_USE))
+                .fetchOne());
     }
 
     @Override
-    public List<Reservation> findListBySeatIdAndStatus(Long seatId, ReservationStatus status) {
-        return query
+    public Optional<Reservation> findListBySeatIdAndInUseStatus(Long seatId) {
+        return Optional.ofNullable(query
                 .selectFrom(QReservation.reservation)
                 .where(QReservation.reservation.seatId.eq(seatId),
-                QReservation.reservation.status.eq(status))
-                .fetch();
+                        QReservation.reservation.status.eq(ReservationStatus.IN_USE))
+                .fetchOne());
     }
 }

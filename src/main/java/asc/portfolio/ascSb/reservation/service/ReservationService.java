@@ -11,5 +11,5 @@ public interface ReservationService {
 
     void releaseReservation(Long userId);
 
-    void releaseReservationByAdmin(Long adminId, Long cafeId, Long seatId);
+    void releaseReservationByAdmin(Long adminId, Long seatId);
 }

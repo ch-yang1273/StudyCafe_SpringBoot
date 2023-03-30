@@ -83,10 +83,4 @@ public class Cafe {
             throw new CafeException(CafeErrorData.UNMATCHED_ADMIN);
         }
     }
-
-    public void isAdminOrElseThrow(Long adminId) {
-        if (!this.adminId.equals(adminId)) {
-            throw new CafeException(CafeErrorData.CAFE_NEED_AUTH);
-        }
-    }
 }

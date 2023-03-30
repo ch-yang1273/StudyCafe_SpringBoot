@@ -6,6 +6,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class ReleaseReservationRequest {
-    Long cafeId;
     Long seatId;
 }

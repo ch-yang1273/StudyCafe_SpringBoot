@@ -1,7 +1,6 @@
 package asc.portfolio.ascSb.seat.service;
 import asc.portfolio.ascSb.seat.dto.SeatStatusResponse;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface SeatService {
@@ -12,5 +11,5 @@ public interface SeatService {
 
     int updateAllReservedSeatState();
 
-    void alertAlmostFinishedSeat() throws IOException;
+    void alertAlmostFinishedSeat();
 }

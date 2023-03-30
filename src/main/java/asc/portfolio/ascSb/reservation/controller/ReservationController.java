@@ -44,7 +44,7 @@ public class ReservationController {
     public ResponseEntity<Void> releaseReservationByAdmin(
             @LoginUser Long adminId,
             @RequestBody ReleaseReservationRequest dto) {
-        reservationService.releaseReservationByAdmin(adminId, dto.getCafeId(), dto.getSeatId());
+        reservationService.releaseReservationByAdmin(adminId, dto.getSeatId());
         return ResponseEntity.ok().build();
     }
 }

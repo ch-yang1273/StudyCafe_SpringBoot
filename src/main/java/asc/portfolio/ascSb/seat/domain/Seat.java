@@ -50,7 +50,7 @@ public class Seat {
         this.usageData = usageData;
     }
 
-    public void exitSeat() {
+    public void exit() {
         this.isReserved = false;
         this.usageData = null;
     }
