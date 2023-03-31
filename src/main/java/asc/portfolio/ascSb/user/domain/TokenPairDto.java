@@ -1,20 +1,19 @@
-package asc.portfolio.ascSb.user.dto;
+package asc.portfolio.ascSb.user.domain;
 
-import asc.portfolio.ascSb.user.domain.UserRoleType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class UserLoginResponse {
+public class TokenPairDto {
 
     UserRoleType roleType;
     String accessToken;
     String refreshToken;
 
     @Builder
-    public UserLoginResponse(UserRoleType roleType, String accessToken, String refreshToken) {
+    public TokenPairDto(UserRoleType roleType, String accessToken, String refreshToken) {
         this.roleType = roleType;
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;

@@ -2,18 +2,18 @@ package asc.portfolio.ascSb.user.domain;
 
 import asc.portfolio.ascSb.common.dto.TokenPayload;
 
-public interface TokenService {
-    long getExpireTime();
+import java.util.Date;
 
+public interface TokenService {
     long getRefreshTime();
 
-    String createAccessToken(TokenPayload payload);
+    TokenPairDto createTokenPair(String loginId, String password, Date now);
 
-    String createRefreshToken();
+    String createAccessToken(TokenPayload payload, Date date);
 
-    TokenPayload verifyAndGetPayload(String token);
+    String createRefreshToken(Date now);
 
-    TokenPayload verifyAndGetPayload(String token, String compare);
+    TokenPayload verifyAccessToken(String token);
 
-    TokenPayload noVerifyAndGetPayload(String token);
+    TokenPayload verifyRefreshToken(String accessToken, String refreshToken);
 }

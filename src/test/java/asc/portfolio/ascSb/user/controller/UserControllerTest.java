@@ -6,7 +6,7 @@ import asc.portfolio.ascSb.support.User.UserMockMvcHelper;
 import asc.portfolio.ascSb.support.User.UserRepositoryHelper;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.dto.UserLoginRequest;
-import asc.portfolio.ascSb.user.dto.UserLoginResponse;
+import asc.portfolio.ascSb.user.domain.TokenPairDto;
 import asc.portfolio.ascSb.user.dto.UserQrCodeResponse;
 import asc.portfolio.ascSb.user.dto.UserReissueRequest;
 import asc.portfolio.ascSb.user.infra.MapTokenRepository;
@@ -170,7 +170,7 @@ class UserControllerTest {
     @Test
     @DisplayName("accessToken을 갖고 접근했을 때 OK 반환")
     public void accessToken을_갖고_접근() throws Exception {
-        UserLoginResponse dto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        TokenPairDto dto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
         mvcHelper.내_Profile을_조회한다(dto.getAccessToken())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
@@ -179,7 +179,7 @@ class UserControllerTest {
     @Test
     @DisplayName("accessToken 없이 갖고 접근했을 때 Unauthorized 반환")
     public void accessToken_없이_접근() throws Exception {
-        UserLoginResponse dto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        TokenPairDto dto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
 
         mockMvc.perform(MockMvcRequestBuilders.get(PROFILE_URL)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -190,7 +190,7 @@ class UserControllerTest {
     @Test
     @DisplayName("올바르지 않은 accessToken으로 접근했을 때 Unauthorized 반환")
     public void 올바르지_않은_accessToken으로_접근() throws Exception {
-        UserLoginResponse dto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        TokenPairDto dto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
         mvcHelper.내_Profile을_조회한다("failTest")
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                 .andDo(MockMvcResultHandlers.print());
@@ -199,7 +199,7 @@ class UserControllerTest {
     @Test
     @DisplayName("refreshToken으로 accessToken 갱신 성공")
     public void refreshToken으로_accessToken_갱신() throws Exception {
-        UserLoginResponse loginDto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        TokenPairDto loginDto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
 
         UserReissueRequest tokenRequestDto = new UserReissueRequest();
         tokenRequestDto.setAccessToken(loginDto.getAccessToken());
@@ -218,7 +218,7 @@ class UserControllerTest {
                 .andReturn();
 
         String respJson = mvcResult.getResponse().getContentAsString();
-        UserLoginResponse reissueDto = new ObjectMapper().readValue(respJson, UserLoginResponse.class);
+        TokenPairDto reissueDto = new ObjectMapper().readValue(respJson, TokenPairDto.class);
 
         Assertions.assertThat(loginDto.getAccessToken()).isNotEqualTo(reissueDto.getAccessToken());
         Assertions.assertThat(loginDto.getRefreshToken()).isEqualTo(reissueDto.getRefreshToken());
@@ -227,7 +227,7 @@ class UserControllerTest {
     @Test
     @DisplayName("올바르지 않은 refreshToken으로 accessToken 갱신 실패")
     public void refreshToken으로_accessToken_갱신실패() throws Exception {
-        UserLoginResponse loginDto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        TokenPairDto loginDto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
         UserReissueRequest tokenRequestDto = new UserReissueRequest();
         tokenRequestDto.setAccessToken(loginDto.getAccessToken());
         tokenRequestDto.setRefreshToken("Fail");
@@ -247,7 +247,7 @@ class UserControllerTest {
     @DisplayName("QrCode를 요청 시 QrCode 반환. OK")
     public void qrCode_요청() throws Exception {
         //given
-        UserLoginResponse dto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        TokenPairDto dto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
 
         String accessToken = dto.getAccessToken();
 
@@ -267,7 +267,7 @@ class UserControllerTest {
     public void 회원조회_byAdmin() throws Exception {
         UserFixture adminFixture = UserFixture.ADMIN_BUTTERCUP;
         repositoryHelper.유저를_등록한다(adminFixture);
-        UserLoginResponse dto = mvcHelper.액세스토큰을_받는다(adminFixture);
+        TokenPairDto dto = mvcHelper.액세스토큰을_받는다(adminFixture);
 
         String accessToken = dto.getAccessToken();
 
@@ -282,7 +282,7 @@ class UserControllerTest {
     @Test
     @DisplayName("USER 권한의 회원 조회 실패")
     public void 회원조회_byUser() throws Exception {
-        UserLoginResponse dto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        TokenPairDto dto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
 
         String accessToken = dto.getAccessToken();
 
@@ -298,7 +298,7 @@ class UserControllerTest {
     @DisplayName("Admin 권한의 없는 회원 조회")
     public void 없는_회원조회_byAdmin() throws Exception {
         repositoryHelper.유저를_등록한다(UserFixture.ADMIN_BLOSSOM);
-        UserLoginResponse dto = mvcHelper.액세스토큰을_받는다(UserFixture.ADMIN_BLOSSOM);
+        TokenPairDto dto = mvcHelper.액세스토큰을_받는다(UserFixture.ADMIN_BLOSSOM);
 
         String accessToken = dto.getAccessToken();
 

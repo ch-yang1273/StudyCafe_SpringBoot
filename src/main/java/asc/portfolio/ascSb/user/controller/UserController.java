@@ -2,7 +2,7 @@ package asc.portfolio.ascSb.user.controller;
 
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.user.dto.UserLoginRequest;
-import asc.portfolio.ascSb.user.dto.UserLoginResponse;
+import asc.portfolio.ascSb.user.domain.TokenPairDto;
 import asc.portfolio.ascSb.user.dto.UserProfile;
 import asc.portfolio.ascSb.user.dto.UserQrCodeResponse;
 import asc.portfolio.ascSb.user.dto.UserSignupRequest;
@@ -49,6 +49,7 @@ public class UserController {
         }
     }
 
+    //bindingResult 관련도 에러 메시지 통합할 수 있겠다. 발생되는 에러 유형만 확인해서 Advice 만듭시다.
     @PostMapping("/signup")
     public ResponseEntity<String> singUp(@RequestBody @Valid UserSignupRequest signUpDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -61,20 +62,21 @@ public class UserController {
             return new ResponseEntity<>("Unique violation", HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<>("OK", HttpStatus.OK);
+        return ResponseEntity.ok().body("OK");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserLoginResponse> login(@RequestBody @Valid UserLoginRequest loginDto) {
-        UserLoginResponse loginRespDto = userAuthService.checkPassword(loginDto.getLoginId(), loginDto.getPassword());
-        return new ResponseEntity<>(loginRespDto, HttpStatus.OK);
+    public ResponseEntity<TokenPairDto> login(@RequestBody @Valid UserLoginRequest loginDto) {
+        TokenPairDto loginRespDto = userAuthService.checkPassword(loginDto.getLoginId(), loginDto.getPassword());
+        return ResponseEntity.ok().body(loginRespDto);
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<UserLoginResponse> reissueToken(@RequestBody @Valid UserReissueRequest tokenRequestDto) {
-        return new ResponseEntity<>(
-                userAuthService.reissueToken(tokenRequestDto.getAccessToken(), tokenRequestDto.getRefreshToken()),
-                HttpStatus.OK);
+    public ResponseEntity<TokenPairDto> reissueToken(@RequestBody @Valid UserReissueRequest tokenRequestDto) {
+        return ResponseEntity.ok()
+                .body(userAuthService.reissueToken(
+                        tokenRequestDto.getAccessToken(),
+                        tokenRequestDto.getRefreshToken()));
     }
 
     @GetMapping("/profile")
@@ -84,18 +86,18 @@ public class UserController {
 
     @GetMapping("/qr")
     public ResponseEntity<UserQrCodeResponse> getQrCode(@LoginUser Long userId) {
-        return new ResponseEntity<>(userService.userQrAndName(userId), HttpStatus.OK);
+        return ResponseEntity.ok().body(userService.userQrAndName(userId));
     }
 
     @GetMapping("/admin/check")
     public ResponseEntity<UserProfile> getUserInfoByLoginId(@LoginUser Long adminId, @RequestParam String userLoginId) {
         userRoleCheckService.isAdmin(adminId);
-        return new ResponseEntity<>(userService.getUserInfoByLoginId(userLoginId), HttpStatus.OK);
+        return ResponseEntity.ok().body(userService.getUserInfoByLoginId(userLoginId));
     }
 
     @GetMapping("/admin/check/user-id")
     public ResponseEntity<Void> checkUserInfoByLoginId(@RequestParam String userLoginId) {
         userService.getUserInfoByLoginId(userLoginId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 }

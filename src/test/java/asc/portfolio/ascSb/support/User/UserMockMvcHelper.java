@@ -1,7 +1,7 @@
 package asc.portfolio.ascSb.support.User;
 
 import asc.portfolio.ascSb.user.dto.UserLoginRequest;
-import asc.portfolio.ascSb.user.dto.UserLoginResponse;
+import asc.portfolio.ascSb.user.domain.TokenPairDto;
 import asc.portfolio.ascSb.user.dto.UserProfile;
 import asc.portfolio.ascSb.user.dto.UserSignupRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -64,15 +64,15 @@ public class UserMockMvcHelper {
         return 로그인을_한다(fixture);
     }
 
-    public UserLoginResponse 액세스토큰을_받는다(UserFixture fixture) throws Exception {
+    public TokenPairDto 액세스토큰을_받는다(UserFixture fixture) throws Exception {
         String contentAsString = 로그인을_한다(fixture)
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        return mapper.readValue(contentAsString, UserLoginResponse.class);
+        return mapper.readValue(contentAsString, TokenPairDto.class);
     }
 
-    public UserLoginResponse 회원가입_후_액세스토큰을_받는다(UserFixture fixture) throws Exception {
+    public TokenPairDto 회원가입_후_액세스토큰을_받는다(UserFixture fixture) throws Exception {
         회원가입을_한다(fixture);
         return 액세스토큰을_받는다(fixture);
     }
@@ -85,7 +85,7 @@ public class UserMockMvcHelper {
     }
 
     public ResultActions 내_Profile을_조회한다(UserFixture fixture) throws Exception {
-        UserLoginResponse dto = 액세스토큰을_받는다(fixture);
+        TokenPairDto dto = 액세스토큰을_받는다(fixture);
         String accessToken = dto.getAccessToken();
 
         return 내_Profile을_조회한다(accessToken);
