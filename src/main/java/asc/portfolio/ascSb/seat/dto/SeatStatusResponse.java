@@ -2,14 +2,13 @@ package asc.portfolio.ascSb.seat.dto;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.seat.domain.Seat;
-import asc.portfolio.ascSb.seat.domain.UsageData;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Data
 @NoArgsConstructor
+@Getter
 public class SeatStatusResponse {
 
     private String cafeName;
@@ -21,6 +20,7 @@ public class SeatStatusResponse {
     private Long userId;
     private Long ticketId;
     private LocalDateTime startTime;
+    private LocalDateTime endTime;
     private Long duration;
 
     public SeatStatusResponse(Cafe cafe, Seat seat, LocalDateTime now) {
@@ -30,10 +30,10 @@ public class SeatStatusResponse {
         this.seatId = seat.getId();
 
         this.isReserved = seat.isReserved();
-        UsageData usageData = seat.getUsageData();
-        this.userId = usageData.getUserId();
-        this.ticketId = usageData.getTicketId();
-        this.startTime = usageData.getStartTime();
-        this.duration = usageData.getUsageDuration(now);
+        this.userId = seat.getUserId();
+        this.ticketId = seat.getTicketId();
+        this.startTime = seat.getStartTime();
+        this.endTime = seat.getEndTime();
+        this.duration = seat.getUsageDuration(now);
     }
 }

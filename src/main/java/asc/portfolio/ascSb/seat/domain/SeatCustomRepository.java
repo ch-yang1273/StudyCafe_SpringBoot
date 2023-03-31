@@ -6,11 +6,7 @@ import java.util.Optional;
 public interface SeatCustomRepository {
     Optional<Seat> findOptionalByUserId(Long userId);
 
-    int updateAllReservedSeatStateWithFixedTermTicket();
-
     int updateAllReservedSeatStateWithPartTimeTicket();
-
-    int updateAllReservedStatusWithStartTime();
 
     List<Seat> getAlmostFinishedSeatListWithFixedTermTicket(Long minute);
 

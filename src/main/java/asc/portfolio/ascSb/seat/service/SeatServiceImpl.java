@@ -57,9 +57,7 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public int updateAllReservedSeatState() {
         int count = 0;
-        count += seatRepository.updateAllReservedSeatStateWithFixedTermTicket();
         count += seatRepository.updateAllReservedSeatStateWithPartTimeTicket();
-        count += seatRepository.updateAllReservedStatusWithStartTime();
 
         return count;
     }
@@ -68,7 +66,7 @@ public class SeatServiceImpl implements SeatService {
         // TODO
         /* List<Seat>에서 FCM을 보낼 유저들을 특정 후 FireBase서버를 경유해 10분 남았다고 알림을 요청 */
         List<Long> userIds = list.stream()
-                .map(seat -> seat.getUsageData().getUserId())
+                .map(Seat::getUserId)
                 .collect(Collectors.toList());
 
         for (Long id : userIds) {

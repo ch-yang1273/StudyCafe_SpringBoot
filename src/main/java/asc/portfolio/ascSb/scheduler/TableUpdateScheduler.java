@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Slf4j
-@Component
 @Profile("!test") // test 프로필이 아닌 경우에만 활성화
 @RequiredArgsConstructor
+@Component
 public class TableUpdateScheduler {
 
     private final SeatService seatService;

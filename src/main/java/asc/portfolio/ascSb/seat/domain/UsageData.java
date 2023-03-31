@@ -17,13 +17,17 @@ public class UsageData {
     @Column(name = "START_TIME")
     private LocalDateTime startTime;
 
+    @Column(name = "END_TIME")
+    private LocalDateTime endTime;
+
     protected UsageData() {
     }
 
-    public UsageData(Long userId, Long ticketId, LocalDateTime startTime) {
+    public UsageData(Long userId, Long ticketId, LocalDateTime startTime, LocalDateTime endTime) {
         this.userId = userId;
         this.ticketId = ticketId;
         this.startTime = startTime;
+        this.endTime = endTime;
     }
 
     public Long getUserId() {
@@ -36,6 +40,10 @@ public class UsageData {
 
     public LocalDateTime getStartTime() {
         return startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
     }
 
     public Long getUsageDuration(LocalDateTime now) {

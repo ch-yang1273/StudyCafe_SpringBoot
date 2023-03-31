@@ -1,6 +1,9 @@
 package asc.portfolio.ascSb.seat.domain;
+import asc.portfolio.ascSb.reservation.domain.Reservation;
 import asc.portfolio.ascSb.seat.exception.SeatErrorData;
 import asc.portfolio.ascSb.seat.exception.SeatException;
+import asc.portfolio.ascSb.ticket.domain.Ticket;
+import asc.portfolio.ascSb.ticket.domain.TicketType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +16,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -46,9 +50,40 @@ public class Seat {
         this.isReserved = false;
     }
 
-    public void reserveSeat(UsageData usageData) {
+    private UsageData getUsageData() {
+        return usageData;
+    }
+
+    public Long getUserId() {
+        return usageData.getUserId();
+    }
+
+    public Long getTicketId() {
+        return usageData.getTicketId();
+    }
+
+    public LocalDateTime getStartTime() {
+        return usageData.getStartTime();
+    }
+
+    public LocalDateTime getEndTime() {
+        return usageData.getEndTime();
+    }
+
+    public Long getUsageDuration(LocalDateTime now) {
+        return usageData.getUsageDuration(now);
+    }
+
+    public void reserveSeat(Reservation reservation, Ticket ticket, LocalDateTime now) {
+        ticket.isTicketUsable();
+
+        LocalDateTime endTime = LocalDateTime.MAX;
+        if (ticket.isOfType(TicketType.PART_TERM)) {
+            endTime = now.plusMinutes(ticket.getRemainMinute());
+        }
+
         this.isReserved = true;
-        this.usageData = usageData;
+        this.usageData = reservation.toUsageData(endTime);
     }
 
     public void exit() {

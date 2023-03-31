@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Getter
@@ -62,8 +61,8 @@ public class Reservation extends BaseTimeEntity {
         this.status = ReservationStatus.IN_USE;
     }
 
-    public UsageData toUsageData() {
-        return new UsageData(this.userId, this.ticketId, this.startTime);
+    public UsageData toUsageData(LocalDateTime endTime) {
+        return new UsageData(this.userId, this.ticketId, this.startTime, endTime);
     }
 
     private void canReleaseBy(User user, Cafe cafe) {
@@ -86,14 +85,5 @@ public class Reservation extends BaseTimeEntity {
         seat.exit();
         this.status = ReservationStatus.END_OF_USE;
         this.endTime = now;
-    }
-
-    public Long getUsageMinute(LocalDateTime now) {
-        long minute = Duration.between(this.startTime, now).toMinutes();
-        if (minute < 0) {
-            //todo : Exception 수정
-            throw new RuntimeException("음수 시간");
-        }
-        return minute;
     }
 }

@@ -30,28 +30,6 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
     }
 
     @Override
-    public int updateAllReservedSeatStateWithFixedTermTicket() {
-        int count = 0;
-//        // Fixed-Term Ticket Update
-//        List<Seat> seatList = query
-//                .selectFrom(QSeat.seat)
-//                .join(QSeat.seat.ticket, QTicket.ticket)
-//                .where(QSeat.seat.isReserved.isTrue(),
-//                        QTicket.ticket.productLabel.contains("FIXED-TERM"),
-//                        QTicket.ticket.fixedTermTicket.before(LocalDateTime.now()))
-//                .fetch();
-//
-//        // 만료된 Fixed-Term Ticket 에 따른 Seat, reservation 종료 처리
-//        for (Seat seatOne : seatList) {
-//            count++;
-//            log.debug("Exited by FixedTermTicket update");
-//            exitSeatBySeatEntity(seatOne);
-//        }
-
-        return count;
-    }
-
-    @Override
     public int updateAllReservedSeatStateWithPartTimeTicket() {
         int count = 0;
 
@@ -78,26 +56,6 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
 //                return 0;
 //            }
 //        }
-
-        return count;
-    }
-
-    @Override
-    public int updateAllReservedStatusWithStartTime() {
-        int count = 0;
-        List<Reservation> reservationList = query
-                .selectFrom(QReservation.reservation)
-                .where(QReservation.reservation.status.eq(ReservationStatus.IN_USE),
-                        QReservation.reservation.endTime.before(LocalDateTime.now()))
-                .fetch();
-
-        for (Reservation rez : reservationList) {
-            count++;
-            log.debug("Exited by StartTime update, endTime={}", rez.getEndTime());
-            // todo : update 로직 수정
-//            Seat findSeat = seatRepository.findById(rez.getSeatId()).orElseThrow();
-//            exitSeatBySeatEntity(findSeat, rez);
-        }
 
         return count;
     }

@@ -1,5 +1,7 @@
 package asc.portfolio.ascSb.ticket.domain;
 import asc.portfolio.ascSb.common.domain.BaseTimeEntity;
+import asc.portfolio.ascSb.ticket.exception.TicketErrorData;
+import asc.portfolio.ascSb.ticket.exception.TicketException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,13 +47,14 @@ public class Ticket extends BaseTimeEntity {
     @Column(name = "PRICE")
     private Integer price;
 
+    // Fixed-Term Ticket
     @Column(name = "EXPIRY_DATE")
     private LocalDate expiryDate;
 
+    // Part-Time Ticket
     @Column(name = "TOTAL_DURATION")
     private Long totalDuration;
-
-    @Column(name = "REMAIN_MINUTE") // 시간제 티켓 남은시간 (분단위)
+    @Column(name = "REMAIN_MINUTE")
     private Long remainMinute;
 
     //todo : ticket Id로 사용합시다.
@@ -77,32 +80,9 @@ public class Ticket extends BaseTimeEntity {
         status = TicketStatus.END_OF_USE;
     }
 
-    public void exitUsingTicket(Long useTime) {
-        if (this.isExpiryDate()) {
-            this.isValidFixedTermTicket();
-        } else {
-            // partTime Ticket 일 때만 time 파라미터 사용
-            remainMinute -= useTime;
-            if (remainMinute <= 0) {
-                this.changeTicketStateToInvalid();
-            }
-            if (remainMinute < 0) {
-                log.error("Ticket.remainingTime is under 0");
-            }
-        }
-    }
-
-    /**
-     * @return true : FixedTerm Ticket, false : PartTime Ticket
-     */
-    public boolean isExpiryDate() {
-        if ((expiryDate != null) && (totalDuration == null) && (remainMinute == null)) {
-            return true;
-        } else if ((totalDuration != null) && (remainMinute != null)) {
-            return false;
-        } else {
-            log.error("알 수 없는 Ticket 상태입니다.");
-            throw new IllegalStateException("알 수 없는 Ticket 상태입니다.");
+    public void isTicketUsable() {
+        if (this.status == TicketStatus.END_OF_USE) {
+            throw new TicketException(TicketErrorData.TICKET_NOT_USABLE);
         }
     }
 
@@ -114,44 +94,17 @@ public class Ticket extends BaseTimeEntity {
         return !isOfType(type);
     }
 
-    public boolean isValidFixedTermTicket() {
-        if (expiryDate != null) {
-            boolean isValid = LocalDate.now().isBefore(expiryDate);
-            if (!isValid) {
-                this.changeTicketStateToInvalid();
-            }
-            return isValid;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isValidPartTimeTicket() {
-        if ((totalDuration != null) && (remainMinute != null)) {
-            if (remainMinute > 0) {
-                return true;
-            } else {
-                this.changeTicketStateToInvalid();
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isValidTicket() {
-        if (this.isValidFixedTermTicket()) {
-            return true;
-        } else {
-            return this.isValidPartTimeTicket();
-        }
-    }
-
     public void extendRemainingMinute(long minuteToExtend) {
+        if (isNotOfType(TicketType.PART_TERM)) {
+            throw new TicketException(TicketErrorData.NOT_PART_TIME_TICKET);
+        }
         this.remainMinute += minuteToExtend;
     }
 
     public void extendExpiryDate(long daysToExtend) {
+        if (isNotOfType(TicketType.FIXED_TERM)) {
+            throw new TicketException(TicketErrorData.NOT_FIXED_TERM_TICKET);
+        }
         this.expiryDate = this.expiryDate.plusDays(daysToExtend);
     }
 }

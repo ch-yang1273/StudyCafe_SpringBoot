@@ -33,6 +33,7 @@ import java.util.Random;
 @ActiveProfiles("test")
 @Transactional
 @Commit
+@Disabled
 public class TestDataGeneration {
     //Test 클래스의 @Transactional 은 Rollback 하니 @Commit 으로 설정
 
