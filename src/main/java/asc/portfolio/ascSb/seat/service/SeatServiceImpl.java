@@ -2,21 +2,14 @@ package asc.portfolio.ascSb.seat.service;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeFinder;
 import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
-import asc.portfolio.ascSb.common.infra.redis.RedisRepository;
 import asc.portfolio.ascSb.seat.domain.Seat;
 import asc.portfolio.ascSb.seat.domain.SeatFinder;
-import asc.portfolio.ascSb.seat.domain.SeatRepository;
-import asc.portfolio.ascSb.seat.domain.SeatUsageStatus;
-import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.firebase.service.FirebaseCloudMessageService;
 import asc.portfolio.ascSb.seat.dto.SeatStatusResponse;
-import asc.portfolio.ascSb.user.domain.UserFinder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,14 +18,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SeatServiceImpl implements SeatService {
 
-    private final SeatRepository seatRepository;
     private final SeatFinder seatFinder;
-    private final UserFinder userFinder;
     private final CafeFinder cafeFinder;
-    private final CurrentTimeProvider currentTimeProvider;
 
-    private final RedisRepository redisRepository;
-    private final FirebaseCloudMessageService firebaseCloudMessageService;
+    private final CurrentTimeProvider currentTimeProvider;
 
     @Transactional(readOnly = true)
     @Override
@@ -48,55 +37,9 @@ public class SeatServiceImpl implements SeatService {
     public List<SeatStatusResponse> getAllSeatsByCafeId(Long cafeId) {
         Cafe cafe = cafeFinder.findById(cafeId);
 
-        return seatFinder.findAllByCafeId(cafeId)
-                .stream()
+        List<Seat> seats = seatFinder.findAllByCafeId(cafeId);
+        return seats.stream()
                 .map(seat -> new SeatStatusResponse(cafe, seat, currentTimeProvider.localDateTimeNow()))
                 .collect(Collectors.toList());
-    }
-
-    @Transactional
-    @Override
-    public void updateApproachingExpiredSeatsStatus() {
-        List<Seat> seats = seatRepository.findSeatsByStatusWithEndTimeAfter(
-                SeatUsageStatus.IN_USE,
-                currentTimeProvider.localDateTimeNow().minusMinutes(10));
-
-        for (Seat seat : seats) {
-            seat.changeUsageStatusEndingSoon();
-        }
-    }
-
-    @Transactional
-    @Override
-    public void terminateExpiredSeatsStatus() {
-        List<Seat> seats = seatRepository.findSeatsByStatusWithEndTimeAfter(
-                SeatUsageStatus.ENDING_SOON,
-                currentTimeProvider.localDateTimeNow());
-
-        for (Seat seat : seats) {
-            seat.endSeatUsage();
-        }
-    }
-
-    private void alertFcm(List<Seat> list) {
-        // TODO
-        /* List<Seat>에서 FCM을 보낼 유저들을 특정 후 FireBase서버를 경유해 10분 남았다고 알림을 요청 */
-        List<Long> userIds = list.stream()
-                .map(Seat::getUserId)
-                .collect(Collectors.toList());
-
-        for (Long id : userIds) {
-            User user = userFinder.findById(id);
-            // todo 필수 값이 아닌 userName으로 검색을하고 있다. loginId로 변경
-            String token = redisRepository.getValue(user.getName() + "_" + "USER" + "_FCM_TOKEN");
-            try {
-                firebaseCloudMessageService.sendMessageToSpecificUser(token,
-                        "알라딘 스터디카페",
-                        "좌석이 10분 남았습니다.");
-            } catch (IOException e) {
-                log.info("FCM Message sending failed");
-                e.printStackTrace();
-            }
-        }
     }
 }

@@ -8,8 +8,4 @@ public interface SeatService {
     SeatStatusResponse getSeatStatus(Long userId);
 
     List<SeatStatusResponse> getAllSeatsByCafeId(Long cafeId);
-
-    void updateApproachingExpiredSeatsStatus();
-
-    void terminateExpiredSeatsStatus();
 }

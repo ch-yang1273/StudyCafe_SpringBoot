@@ -87,14 +87,15 @@ public class Reservation extends BaseTimeEntity {
         }
     }
 
-    public void finish(User user, Cafe cafe, Seat seat, LocalDateTime now) {
+    public void finish(User user, Cafe cafe, Seat seat, Ticket ticket, LocalDateTime now) {
         canReleaseBy(user, cafe);
         if (!seat.getId().equals(seatId)) {
             throw new ReservationException(ReservationErrorData.VALIDATE_UNMATCHED_SEAT);
         }
         seat.checkBelongToOrElseThrow(cafe.getId());
 
-        seat.endSeatUsage();
+        ticket.decreaseRemainingMinutes(seat.getUsageDuration(now));
+        seat.terminateSeatUsage();
         this.status = ReservationStatus.END_OF_USE;
         this.endTime = now;
     }

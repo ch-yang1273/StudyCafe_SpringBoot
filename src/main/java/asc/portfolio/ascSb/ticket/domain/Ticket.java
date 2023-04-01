@@ -101,10 +101,18 @@ public class Ticket extends BaseTimeEntity {
         this.remainMinute += minuteToExtend;
     }
 
+    public void decreaseRemainingMinutes(long minuteToDecrease) {
+        this.remainMinute -= minuteToDecrease;
+        if (this.remainMinute <= 0) {
+            status = TicketStatus.END_OF_USE;
+        }
+    }
+
     public void extendExpiryDate(long daysToExtend) {
         if (isNotOfType(TicketType.FIXED_TERM)) {
             throw new TicketException(TicketErrorData.NOT_FIXED_TERM_TICKET);
         }
         this.expiryDate = this.expiryDate.plusDays(daysToExtend);
     }
+
 }

@@ -12,6 +12,8 @@ import asc.portfolio.ascSb.user.domain.UserFinder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @RequiredArgsConstructor
 @Component
 public class ReservationManager {
@@ -37,7 +39,9 @@ public class ReservationManager {
         User user = userFinder.findById(authUserId); // 자신 or 관리자
         Cafe cafe = cafeFinder.findByAdminId(reservation.getCafeId());
         Seat seat = seatFinder.findById(reservation.getSeatId());
+        Ticket ticket = ticketFinder.findById(reservation.getTicketId());
 
-        reservation.finish(user, cafe, seat, currentTimeProvider.localDateTimeNow());
+        LocalDateTime now = currentTimeProvider.localDateTimeNow();
+        reservation.finish(user, cafe, seat, ticket, now);
     }
 }

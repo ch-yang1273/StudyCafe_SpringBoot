@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -14,6 +15,13 @@ import java.util.List;
 public class SeatCustomRepositoryImpl implements SeatCustomRepository {
 
     private final JPAQueryFactory query;
+
+    @Override
+    public Optional<Seat> findByUserId(Long userId) {
+        return Optional.ofNullable(query.selectFrom(QSeat.seat)
+                .where(QSeat.seat.usageData.userId.eq(userId))
+                .fetchOne());
+    }
 
     @Override
     public List<Seat> findSeatsByStatusWithEndTimeAfter(SeatUsageStatus usageStatus, LocalDateTime time) {

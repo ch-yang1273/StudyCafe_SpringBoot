@@ -55,6 +55,10 @@ public class Seat {
         return usageData;
     }
 
+    public boolean canReserve() {
+        return usageStatus.equals(SeatUsageStatus.NOT_IN_USE);
+    }
+
     public Long getUserId() {
         return usageData.getUserId();
     }
@@ -80,19 +84,18 @@ public class Seat {
         this.usageData = usageData;
     }
 
-    public void endSeatUsage() {
+    public void scheduleSeatUsageTermination() {
         this.usageStatus = SeatUsageStatus.SCHEDULED_FOR_TERMINATION;
         this.usageData = null;
-        log.debug("Seat.terminate");
-        log.debug("seatNumber = {}", seatNumber);
-        //todo : event 발생. PartTime이라면 ticket에 남은 시간 정리, Reservation 정리
+    }
+
+    public void terminateSeatUsage() {
+        this.usageStatus = SeatUsageStatus.NOT_IN_USE;
+        this.usageData = null;
     }
 
     public void changeUsageStatusEndingSoon() {
         this.usageStatus = SeatUsageStatus.ENDING_SOON;
-        log.debug("Seat.changeUsageStatusEndingSoon");
-        log.debug("seatNumber = {}", seatNumber);
-        //todo 좌석 사용자들에게 종료 예정 FCM 알림
     }
 
     public boolean isBelongTo(Long cafeId) {
