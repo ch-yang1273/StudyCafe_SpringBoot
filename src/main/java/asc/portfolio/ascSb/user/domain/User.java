@@ -49,8 +49,8 @@ public class User extends BaseTimeEntity {
     @Column(name = "QR")
     private String qrCode;
 
-    @Column(name = "USER_ROLE", nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(name = "USER_ROLE", nullable = false)
     private UserRoleType role;
 
     @Builder

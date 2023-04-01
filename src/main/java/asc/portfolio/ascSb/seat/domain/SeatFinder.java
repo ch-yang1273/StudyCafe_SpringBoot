@@ -19,7 +19,7 @@ public class SeatFinder {
     }
 
     private Optional<Seat> findOptionalByUserId(Long userId) {
-        return seatRepository.findOptionalByUserId(userId);
+        return seatRepository.findByUserId(userId);
     }
 
     public Seat findByUserId(Long userId) {

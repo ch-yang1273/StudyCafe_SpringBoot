@@ -1,14 +1,9 @@
 package asc.portfolio.ascSb.seat.domain;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface SeatCustomRepository {
-    Optional<Seat> findOptionalByUserId(Long userId);
 
-    int updateAllReservedSeatStateWithPartTimeTicket();
-
-    List<Seat> getAlmostFinishedSeatListWithFixedTermTicket(Long minute);
-
-    List<Seat> getAlmostFinishedSeatListWithStartTime(Long minute);
+    List<Seat> findSeatsByStatusWithEndTimeAfter(SeatUsageStatus usageStatus, LocalDateTime time);
 }

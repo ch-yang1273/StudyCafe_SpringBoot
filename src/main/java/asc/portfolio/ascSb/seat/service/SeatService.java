@@ -9,7 +9,7 @@ public interface SeatService {
 
     List<SeatStatusResponse> getAllSeatsByCafeId(Long cafeId);
 
-    int updateAllReservedSeatState();
+    void updateApproachingExpiredSeatsStatus();
 
-    void alertAlmostFinishedSeat();
+    void terminateExpiredSeatsStatus();
 }

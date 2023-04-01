@@ -5,6 +5,7 @@ import asc.portfolio.ascSb.common.exception.dto.InvalidResponse;
 import asc.portfolio.ascSb.reservation.domain.ReservationValidator;
 import asc.portfolio.ascSb.reservation.dto.ValidationTarget;
 import asc.portfolio.ascSb.seat.domain.Seat;
+import asc.portfolio.ascSb.seat.domain.SeatUsageStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -27,7 +28,7 @@ public class CafeSeatReservationValidator implements ReservationValidator {
             return Collections.singletonList(new InvalidResponse(request.getField(), "카페가 영업 중이 아닙니다."));
         }
 
-        if (seat.isReserved()) {
+        if (seat.getUsageStatus() == SeatUsageStatus.IN_USE) {
             return Collections.singletonList(new InvalidResponse(request.getField(), "사용 중인 좌석입니다.."));
         }
 

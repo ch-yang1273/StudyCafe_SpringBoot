@@ -28,16 +28,16 @@ public class ReservationManager {
         Seat seat = seatFinder.findById(reservation.getSeatId());
         Ticket ticket = ticketFinder.findById(reservation.getTicketId());
 
-        seat.reserveSeat(reservation, ticket, currentTimeProvider.localDateTimeNow());
+        reservation.create(seat, ticket, currentTimeProvider.localDateTimeNow());
 
         reservationRepository.save(reservation);
     }
 
-    public void release(Long authUserId, Reservation reservation) {
+    public void finish(Long authUserId, Reservation reservation) {
         User user = userFinder.findById(authUserId); // 자신 or 관리자
         Cafe cafe = cafeFinder.findByAdminId(reservation.getCafeId());
         Seat seat = seatFinder.findById(reservation.getSeatId());
 
-        reservation.release(user, cafe, seat, currentTimeProvider.localDateTimeNow());
+        reservation.finish(user, cafe, seat, currentTimeProvider.localDateTimeNow());
     }
 }

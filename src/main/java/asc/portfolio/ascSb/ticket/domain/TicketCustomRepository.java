@@ -5,6 +5,4 @@ import java.util.Optional;
 public interface TicketCustomRepository {
 
     Optional<Ticket> findTicketByUserIdAndCafeIdAndInUseStatus(Long userId, Long cafeId);
-
-    Long updateAllValidTicketState();
 }

@@ -141,9 +141,4 @@ public class TicketServiceImpl implements TicketService {
         deleteTicket.changeTicketStateToInvalid();
         ticketRepository.save(deleteTicket);
     }
-
-    @Override
-    public Long updateAllValidTicketState() {
-        return ticketRepository.updateAllValidTicketState();
-    }
 }

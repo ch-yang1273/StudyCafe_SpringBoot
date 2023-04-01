@@ -18,6 +18,4 @@ public interface TicketService {
     TicketForAdminResponse adminLookUpUserValidTicket(String userLoginID, Long adminId);
 
     void setInvalidTicket(String productLabel);
-
-    Long updateAllValidTicketState();
 }

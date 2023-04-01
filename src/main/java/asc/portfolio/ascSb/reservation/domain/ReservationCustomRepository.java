@@ -6,5 +6,5 @@ public interface ReservationCustomRepository {
 
     Optional<Reservation> findByUserIdAndInUseStatus(Long userId);
 
-    Optional<Reservation> findListBySeatIdAndInUseStatus(Long seatId);
+    Optional<Reservation> findBySeatIdAndInUseStatus(Long seatId);
 }

@@ -25,7 +25,7 @@ public class ReservationCustomRepositoryImpl implements ReservationCustomReposit
     }
 
     @Override
-    public Optional<Reservation> findListBySeatIdAndInUseStatus(Long seatId) {
+    public Optional<Reservation> findBySeatIdAndInUseStatus(Long seatId) {
         return Optional.ofNullable(query
                 .selectFrom(QReservation.reservation)
                 .where(QReservation.reservation.seatId.eq(seatId),

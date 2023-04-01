@@ -47,13 +47,13 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public void releaseReservation(Long userId) {
         Reservation reservation = reservationFinder.findByUserIdAndInUseStatus(userId);
-        reservationManager.release(userId, reservation);
+        reservationManager.finish(userId, reservation);
     }
 
     @Transactional
     @Override
     public void releaseReservationByAdmin(Long adminId, Long seatId) {
         Reservation reservation = reservationFinder.findBySeatIdAndInUseStatus(seatId);
-        reservationManager.release(adminId, reservation);
+        reservationManager.finish(adminId, reservation);
     }
 }

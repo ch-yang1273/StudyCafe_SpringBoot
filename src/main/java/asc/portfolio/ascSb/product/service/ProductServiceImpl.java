@@ -39,7 +39,7 @@ public class ProductServiceImpl implements ProductService {
         User user = userFinder.findByLoginId(userLoginId);
         Cafe cafe = cafeFinder.findByAdminId(adminId);
 
-        List<Product> list = productRepository.findProductListByUserIdAndCafeName(user.getId(), cafe.getCafeName());
+        List<Product> list = productRepository.findProductsByUserIdAndCafeName(user.getId(), cafe.getCafeName());
         return list.stream()
                 .map(ProductListResponseDto::new)
                 .collect(Collectors.toList());
@@ -49,7 +49,7 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductListResponseDto> adminSalesManagementWithStartDate(String cafeName, String dateString) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         LocalDateTime parse = LocalDateTime.parse(dateString, formatter);
-        return productRepository.findProductListByUserIdAndCafeNameAndStartTime(cafeName,parse).stream()
+        return productRepository.findProductsByUserIdAndCafeNameAndStartTime(cafeName,parse).stream()
                 .map(ProductListResponseDto::new)
                 .collect(Collectors.toList());
     }

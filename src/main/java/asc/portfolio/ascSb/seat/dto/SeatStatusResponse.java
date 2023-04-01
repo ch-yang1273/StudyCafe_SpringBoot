@@ -2,6 +2,7 @@ package asc.portfolio.ascSb.seat.dto;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.seat.domain.Seat;
+import asc.portfolio.ascSb.seat.domain.SeatUsageStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,7 +17,7 @@ public class SeatStatusResponse {
     private Long cafeId;
     private Long seatId;
 
-    private boolean isReserved;
+    private SeatUsageStatus usageStatus;
     private Long userId;
     private Long ticketId;
     private LocalDateTime startTime;
@@ -29,7 +30,7 @@ public class SeatStatusResponse {
         this.cafeId = cafe.getId();
         this.seatId = seat.getId();
 
-        this.isReserved = seat.isReserved();
+        this.usageStatus = seat.getUsageStatus();
         this.userId = seat.getUserId();
         this.ticketId = seat.getTicketId();
         this.startTime = seat.getStartTime();

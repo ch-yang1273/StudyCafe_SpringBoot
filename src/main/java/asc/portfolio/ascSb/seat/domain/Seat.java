@@ -1,23 +1,24 @@
 package asc.portfolio.ascSb.seat.domain;
-import asc.portfolio.ascSb.reservation.domain.Reservation;
 import asc.portfolio.ascSb.seat.exception.SeatErrorData;
 import asc.portfolio.ascSb.seat.exception.SeatException;
-import asc.portfolio.ascSb.ticket.domain.Ticket;
-import asc.portfolio.ascSb.ticket.domain.TicketType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -35,9 +36,9 @@ public class Seat {
     @Column(name = "SEAT_NUM", nullable = false)
     private int seatNumber;
 
-    // 좌석 예약 상태
-    @Column(name = "IS_RESERVED")
-    private boolean isReserved;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "USAGE_STATUS", nullable = false)
+    private SeatUsageStatus usageStatus;
 
     @Embedded
     private UsageData usageData;
@@ -47,7 +48,7 @@ public class Seat {
         this.id = id;
         this.cafeId = cafeId;
         this.seatNumber = seatNumber;
-        this.isReserved = false;
+        this.usageStatus = SeatUsageStatus.NOT_IN_USE;
     }
 
     private UsageData getUsageData() {
@@ -74,28 +75,33 @@ public class Seat {
         return usageData.getUsageDuration(now);
     }
 
-    public void reserveSeat(Reservation reservation, Ticket ticket, LocalDateTime now) {
-        ticket.isTicketUsable();
-
-        LocalDateTime endTime = LocalDateTime.MAX;
-        if (ticket.isOfType(TicketType.PART_TERM)) {
-            endTime = now.plusMinutes(ticket.getRemainMinute());
-        }
-
-        this.isReserved = true;
-        this.usageData = reservation.toUsageData(endTime);
+    public void startSeatUsage(UsageData usageData) {
+        this.usageStatus = SeatUsageStatus.IN_USE;
+        this.usageData = usageData;
     }
 
-    public void exit() {
-        this.isReserved = false;
+    public void endSeatUsage() {
+        this.usageStatus = SeatUsageStatus.SCHEDULED_FOR_TERMINATION;
         this.usageData = null;
+        log.debug("Seat.terminate");
+        log.debug("seatNumber = {}", seatNumber);
+        //todo : event 발생. PartTime이라면 ticket에 남은 시간 정리, Reservation 정리
+    }
+
+    public void changeUsageStatusEndingSoon() {
+        this.usageStatus = SeatUsageStatus.ENDING_SOON;
+        log.debug("Seat.changeUsageStatusEndingSoon");
+        log.debug("seatNumber = {}", seatNumber);
+        //todo 좌석 사용자들에게 종료 예정 FCM 알림
     }
 
     public boolean isBelongTo(Long cafeId) {
         return this.cafeId.equals(cafeId);
     }
 
-    public void isBelongToOrElseThrow(Long cafeId) {
-        throw new SeatException(SeatErrorData.NOT_MATCHED_SEAT_CAFE);
+    public void checkBelongToOrElseThrow(Long cafeId) {
+        if (!isBelongTo(cafeId)) {
+            throw new SeatException(SeatErrorData.NOT_MATCHED_SEAT_CAFE);
+        }
     }
 }

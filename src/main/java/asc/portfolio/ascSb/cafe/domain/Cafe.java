@@ -70,6 +70,7 @@ public class Cafe {
 
     public void openCafe(User authUser) {
         if (this.adminId.equals(authUser.getId())) {
+            //todo : 만료된 ticket 정리
             this.isOpen = true;
         } else {
             throw new CafeException(CafeErrorData.UNMATCHED_ADMIN);
@@ -78,7 +79,7 @@ public class Cafe {
 
     public void closeCafe(User authUser) {
         if (this.adminId.equals(authUser.getId())) {
-            //todo : 사용 중인 seat도 종료, 이벤트 쓰는 것이 좋겠다.
+            //todo : 사용 중인 seat도 종료, 해당 카페의 ticket도 정리.이벤트 쓰는 것이 좋겠다.
             this.isOpen = false;
         } else {
             throw new CafeException(CafeErrorData.UNMATCHED_ADMIN);

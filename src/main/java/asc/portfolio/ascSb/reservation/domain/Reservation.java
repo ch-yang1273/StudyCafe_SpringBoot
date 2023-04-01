@@ -6,6 +6,8 @@ import asc.portfolio.ascSb.reservation.exception.ReservationErrorData;
 import asc.portfolio.ascSb.reservation.exception.ReservationException;
 import asc.portfolio.ascSb.seat.domain.Seat;
 import asc.portfolio.ascSb.seat.domain.UsageData;
+import asc.portfolio.ascSb.ticket.domain.Ticket;
+import asc.portfolio.ascSb.ticket.domain.TicketType;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRoleType;
 import lombok.AccessLevel;
@@ -61,8 +63,18 @@ public class Reservation extends BaseTimeEntity {
         this.status = ReservationStatus.IN_USE;
     }
 
-    public UsageData toUsageData(LocalDateTime endTime) {
+    private UsageData toUsageData(LocalDateTime endTime) {
         return new UsageData(this.userId, this.ticketId, this.startTime, endTime);
+    }
+
+    public void create(Seat seat, Ticket ticket, LocalDateTime now) {
+        ticket.checkTicketUsable();
+
+        LocalDateTime endTime = LocalDateTime.MAX;
+        if (ticket.isOfType(TicketType.PART_TERM)) {
+            endTime = now.plusMinutes(ticket.getRemainMinute());
+        }
+        seat.startSeatUsage(toUsageData(endTime));
     }
 
     private void canReleaseBy(User user, Cafe cafe) {
@@ -75,14 +87,14 @@ public class Reservation extends BaseTimeEntity {
         }
     }
 
-    public void release(User user, Cafe cafe, Seat seat, LocalDateTime now) {
+    public void finish(User user, Cafe cafe, Seat seat, LocalDateTime now) {
         canReleaseBy(user, cafe);
         if (!seat.getId().equals(seatId)) {
             throw new ReservationException(ReservationErrorData.VALIDATE_UNMATCHED_SEAT);
         }
-        seat.isBelongToOrElseThrow(cafe.getId());
+        seat.checkBelongToOrElseThrow(cafe.getId());
 
-        seat.exit();
+        seat.endSeatUsage();
         this.status = ReservationStatus.END_OF_USE;
         this.endTime = now;
     }

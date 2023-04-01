@@ -22,7 +22,7 @@ public class ReservationFinder {
     }
 
     public Reservation findBySeatIdAndInUseStatus(Long seatId) {
-        return reservationRepository.findListBySeatIdAndInUseStatus(seatId).orElseThrow(
+        return reservationRepository.findBySeatIdAndInUseStatus(seatId).orElseThrow(
                 () -> new ReservationException(ReservationErrorData.RESERVATION_NOT_FOUND));
     }
 

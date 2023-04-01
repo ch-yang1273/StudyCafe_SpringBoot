@@ -6,6 +6,7 @@ import asc.portfolio.ascSb.common.infra.redis.RedisRepository;
 import asc.portfolio.ascSb.seat.domain.Seat;
 import asc.portfolio.ascSb.seat.domain.SeatFinder;
 import asc.portfolio.ascSb.seat.domain.SeatRepository;
+import asc.portfolio.ascSb.seat.domain.SeatUsageStatus;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.firebase.service.FirebaseCloudMessageService;
 import asc.portfolio.ascSb.seat.dto.SeatStatusResponse;
@@ -55,11 +56,26 @@ public class SeatServiceImpl implements SeatService {
 
     @Transactional
     @Override
-    public int updateAllReservedSeatState() {
-        int count = 0;
-        count += seatRepository.updateAllReservedSeatStateWithPartTimeTicket();
+    public void updateApproachingExpiredSeatsStatus() {
+        List<Seat> seats = seatRepository.findSeatsByStatusWithEndTimeAfter(
+                SeatUsageStatus.IN_USE,
+                currentTimeProvider.localDateTimeNow().minusMinutes(10));
 
-        return count;
+        for (Seat seat : seats) {
+            seat.changeUsageStatusEndingSoon();
+        }
+    }
+
+    @Transactional
+    @Override
+    public void terminateExpiredSeatsStatus() {
+        List<Seat> seats = seatRepository.findSeatsByStatusWithEndTimeAfter(
+                SeatUsageStatus.ENDING_SOON,
+                currentTimeProvider.localDateTimeNow());
+
+        for (Seat seat : seats) {
+            seat.endSeatUsage();
+        }
     }
 
     private void alertFcm(List<Seat> list) {
@@ -82,27 +98,5 @@ public class SeatServiceImpl implements SeatService {
                 e.printStackTrace();
             }
         }
-    }
-
-    private void checkAlmostFinishedSeatWithFixedTermTicket() {
-        List<Seat> list = seatRepository.getAlmostFinishedSeatListWithFixedTermTicket(10L);
-        log.debug("Alert list size with FixedTerm Ticket = {}", list.size());
-
-        alertFcm(list);
-    }
-
-    private void checkAlmostFinishedSeatWithStartTime() {
-        List<Seat> list = seatRepository.getAlmostFinishedSeatListWithStartTime(10L);
-        log.debug("Alert list size with StartTime = {}", list.size());
-
-        alertFcm(list);
-    }
-
-    //1분 초과로 스케쥴 잡아야 중복 alert 없음
-    @Transactional
-    @Override
-    public void alertAlmostFinishedSeat() {
-        this.checkAlmostFinishedSeatWithFixedTermTicket();
-        this.checkAlmostFinishedSeatWithStartTime();
     }
 }
