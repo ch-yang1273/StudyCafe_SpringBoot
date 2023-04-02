@@ -2,7 +2,6 @@ package asc.portfolio.ascSb.reservation.domain;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeFinder;
-import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
 import asc.portfolio.ascSb.seat.domain.Seat;
 import asc.portfolio.ascSb.seat.domain.SeatFinder;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
@@ -16,7 +15,7 @@ import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @Component
-public class ReservationManager {
+public class ReservationLifecycleManager {
 
     private final ReservationRepository reservationRepository;
     private final UserFinder userFinder;
@@ -24,24 +23,26 @@ public class ReservationManager {
     private final SeatFinder seatFinder;
     private final TicketFinder ticketFinder;
 
-    private final CurrentTimeProvider currentTimeProvider;
+    private final ReservationValidator reservationValidator;
 
-    public void reserve(Reservation reservation) {
-        Seat seat = seatFinder.findById(reservation.getSeatId());
-        Ticket ticket = ticketFinder.findById(reservation.getTicketId());
+    public void reserve(Long userId, Long cafeId, Long seatId, Long tickerId, LocalDateTime now) {
+        User user = userFinder.findById(userId);
+        Cafe cafe = cafeFinder.findById(cafeId);
+        Seat seat = seatFinder.findById(seatId);
+        Ticket ticket = ticketFinder.findById(tickerId);
 
-        reservation.create(seat, ticket, currentTimeProvider.localDateTimeNow());
+        Reservation reservation = new Reservation(user, cafe, seat, ticket, now);
+        reservationValidator.validate(reservation, user, cafe, seat, ticket);
 
         reservationRepository.save(reservation);
     }
 
-    public void finish(Long authUserId, Reservation reservation) {
+    public void finish(Long authUserId, Reservation reservation, LocalDateTime now) {
         User user = userFinder.findById(authUserId); // 자신 or 관리자
-        Cafe cafe = cafeFinder.findByAdminId(reservation.getCafeId());
+        Cafe cafe = cafeFinder.findById(reservation.getCafeId());
         Seat seat = seatFinder.findById(reservation.getSeatId());
         Ticket ticket = ticketFinder.findById(reservation.getTicketId());
 
-        LocalDateTime now = currentTimeProvider.localDateTimeNow();
         reservation.finish(user, cafe, seat, ticket, now);
     }
 }

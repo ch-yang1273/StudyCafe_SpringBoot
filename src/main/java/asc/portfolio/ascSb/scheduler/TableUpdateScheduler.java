@@ -1,5 +1,6 @@
 package asc.portfolio.ascSb.scheduler;
 
+import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
 import asc.portfolio.ascSb.seat.service.SeatScheduleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,10 +13,11 @@ import org.springframework.stereotype.Component;
 public class TableUpdateScheduler {
 
     private final SeatScheduleService seatScheduleService;
+    private final CurrentTimeProvider currentTimeProvider;
 
     @Scheduled(fixedDelay = 1000 * 60)
     public void updateSeatAndTicketState() {
-        seatScheduleService.terminateExpiredSeatsStatus();
-        seatScheduleService.updateApproachingExpiredSeatsStatus();
+        seatScheduleService.terminateExpiredSeatsStatus(currentTimeProvider.localDateTimeNow());
+        seatScheduleService.updateApproachingExpiredSeatsStatus(currentTimeProvider.localDateTimeNow());
     }
 }

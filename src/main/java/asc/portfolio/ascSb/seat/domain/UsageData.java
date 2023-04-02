@@ -8,10 +8,10 @@ import java.time.LocalDateTime;
 @Embeddable
 public class UsageData {
 
-    @Column(name = "USER_ID")
+    @Column(name = "USER_ID", unique = true)
     private Long userId;
 
-    @Column(name = "TICKET_ID")
+    @Column(name = "TICKET_ID", unique = true)
     private Long ticketId;
 
     @Column(name = "START_TIME")

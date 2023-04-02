@@ -1,8 +1,9 @@
 package asc.portfolio.ascSb.reservation.service;
 
+import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
 import asc.portfolio.ascSb.reservation.domain.Reservation;
 import asc.portfolio.ascSb.reservation.domain.ReservationFinder;
-import asc.portfolio.ascSb.reservation.domain.ReservationManager;
+import asc.portfolio.ascSb.reservation.domain.ReservationLifecycleManager;
 import asc.portfolio.ascSb.seat.domain.Seat;
 import asc.portfolio.ascSb.seat.domain.SeatFinder;
 import asc.portfolio.ascSb.seat.dto.SeatUsageEndingSoonEvent;
@@ -17,7 +18,8 @@ public class SeatUsageEventListener {
 
     private SeatFinder seatFinder;
     private ReservationFinder reservationFinder;
-    private ReservationManager reservationManager;
+    private ReservationLifecycleManager reservationLifecycleManager;
+    private CurrentTimeProvider currentTimeProvider;
 
     @TransactionalEventListener(SeatUsageEndingSoonEvent.class)
     public void handleEndingSoonEvent(SeatUsageEndingSoonEvent event) {
@@ -31,6 +33,6 @@ public class SeatUsageEventListener {
         Seat seat = seatFinder.findById(seatId);
         Reservation reservation = reservationFinder.findBySeatIdAndInUseStatus(seatId);
 
-        reservationManager.finish(seat.getUserId(), reservation);
+        reservationLifecycleManager.finish(seat.getUserId(), reservation, currentTimeProvider.localDateTimeNow());
     }
 }

@@ -14,10 +14,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -63,12 +65,14 @@ public class Reservation extends BaseTimeEntity {
         this.status = ReservationStatus.IN_USE;
     }
 
-    private UsageData toUsageData(LocalDateTime endTime) {
-        return new UsageData(this.userId, this.ticketId, this.startTime, endTime);
-    }
-
-    public void create(Seat seat, Ticket ticket, LocalDateTime now) {
+    public Reservation(User user, Cafe cafe, Seat seat, Ticket ticket, LocalDateTime now) {
         ticket.checkTicketUsable();
+
+        this.userId = user.getId();
+        this.cafeId = cafe.getId();
+        this.seatId = seat.getId();
+        this.ticketId = ticket.getId();
+        this.startTime = now;
 
         LocalDateTime endTime = LocalDateTime.MAX;
         if (ticket.isOfType(TicketType.PART_TERM)) {
@@ -76,6 +80,21 @@ public class Reservation extends BaseTimeEntity {
         }
         seat.startSeatUsage(toUsageData(endTime));
     }
+
+    private UsageData toUsageData(LocalDateTime endTime) {
+        return new UsageData(this.userId, this.ticketId, this.startTime, endTime);
+    }
+
+//    public void create(Seat seat, Ticket ticket) {
+//        ticket.checkTicketUsable();
+//
+//        LocalDateTime endTime = LocalDateTime.MAX;
+//        if (ticket.isOfType(TicketType.PART_TERM)) {
+//            endTime = this.startTime.plusMinutes(ticket.getRemainMinute());
+//        }
+//        log.debug("endTime = {}", endTime);
+//        seat.startSeatUsage(toUsageData(endTime));
+//    }
 
     private void canReleaseBy(User user, Cafe cafe) {
         if (this.userId.equals(user.getId())) {

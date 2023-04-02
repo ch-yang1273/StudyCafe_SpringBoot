@@ -8,5 +8,5 @@ public interface SeatCustomRepository {
 
     Optional<Seat> findByUserId(Long userId);
 
-    List<Seat> findSeatsByStatusWithEndTimeAfter(SeatUsageStatus usageStatus, LocalDateTime time);
+    List<Seat> findSeatsByStatusWithEndTimeBefore(SeatUsageStatus usageStatus, LocalDateTime time);
 }

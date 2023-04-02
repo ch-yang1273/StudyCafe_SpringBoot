@@ -24,10 +24,10 @@ public class SeatCustomRepositoryImpl implements SeatCustomRepository {
     }
 
     @Override
-    public List<Seat> findSeatsByStatusWithEndTimeAfter(SeatUsageStatus usageStatus, LocalDateTime time) {
+    public List<Seat> findSeatsByStatusWithEndTimeBefore(SeatUsageStatus usageStatus, LocalDateTime time) {
         return query.selectFrom(QSeat.seat)
                 .where(QSeat.seat.usageStatus.eq(usageStatus),
-                        QSeat.seat.usageData.endTime.after(time))
+                        QSeat.seat.usageData.endTime.before(time))
                 .fetch();
     }
 }

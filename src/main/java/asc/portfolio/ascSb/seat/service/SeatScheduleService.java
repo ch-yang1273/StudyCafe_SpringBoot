@@ -1,7 +1,6 @@
 package asc.portfolio.ascSb.seat.service;
 
 import asc.portfolio.ascSb.common.domain.CommonEventsPublisher;
-import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
 import asc.portfolio.ascSb.seat.domain.Seat;
 import asc.portfolio.ascSb.seat.domain.SeatRepository;
 import asc.portfolio.ascSb.seat.domain.SeatUsageStatus;
@@ -22,12 +21,10 @@ public class SeatScheduleService {
 
     private final SeatRepository seatRepository;
     private final CommonEventsPublisher eventsPublisher;
-    private final CurrentTimeProvider currentTimeProvider;
 
     @Transactional
-    public void updateApproachingExpiredSeatsStatus() {
-        LocalDateTime now = currentTimeProvider.localDateTimeNow();
-        List<Seat> seats = seatRepository.findSeatsByStatusWithEndTimeAfter(
+    public void updateApproachingExpiredSeatsStatus(LocalDateTime now) {
+        List<Seat> seats = seatRepository.findSeatsByStatusWithEndTimeBefore(
                 SeatUsageStatus.IN_USE,
                 now.minusMinutes(10));
 
@@ -38,12 +35,12 @@ public class SeatScheduleService {
     }
 
     @Transactional
-    public void terminateExpiredSeatsStatus() {
-        LocalDateTime now = currentTimeProvider.localDateTimeNow();
-        List<Seat> seats = seatRepository.findSeatsByStatusWithEndTimeAfter(
+    public void terminateExpiredSeatsStatus(LocalDateTime now) {
+        List<Seat> seats = seatRepository.findSeatsByStatusWithEndTimeBefore(
                 SeatUsageStatus.ENDING_SOON,
                 now);
 
+        log.debug("seats.size = {}", seats.size());
         for (Seat seat : seats) {
             seat.scheduleSeatUsageTermination();
             eventsPublisher.raise(new SeatUsageTerminatedEvent(seat.getId(), now));

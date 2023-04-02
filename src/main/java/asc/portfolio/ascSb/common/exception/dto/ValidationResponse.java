@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class InvalidResponse {
+public class ValidationResponse {
 
     private final String field;
     private final String message;

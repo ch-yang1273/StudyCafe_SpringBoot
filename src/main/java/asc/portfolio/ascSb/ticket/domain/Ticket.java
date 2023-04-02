@@ -80,8 +80,12 @@ public class Ticket extends BaseTimeEntity {
         status = TicketStatus.END_OF_USE;
     }
 
+    public boolean isTicketUsable() {
+        return this.status == TicketStatus.IN_USE;
+    }
+
     public void checkTicketUsable() {
-        if (this.status == TicketStatus.END_OF_USE) {
+        if (!isTicketUsable()) {
             throw new TicketException(TicketErrorData.TICKET_NOT_USABLE);
         }
     }
