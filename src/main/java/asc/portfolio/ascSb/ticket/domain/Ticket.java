@@ -118,5 +118,4 @@ public class Ticket extends BaseTimeEntity {
         }
         this.expiryDate = this.expiryDate.plusDays(daysToExtend);
     }
-
 }
