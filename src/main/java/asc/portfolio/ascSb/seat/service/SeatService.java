@@ -1,19 +1,11 @@
 package asc.portfolio.ascSb.seat.service;
-import asc.portfolio.ascSb.seat.dto.SeatResponseDto;
+import asc.portfolio.ascSb.seat.dto.SeatStatusResponse;
 
-import java.io.IOException;
+import java.util.List;
 
 public interface SeatService {
 
-    SeatResponseDto showSeatStateOne(Long userId, Integer seatNumber);
+    SeatStatusResponse getSeatStatus(Long userId);
 
-    Boolean exitSeat(Long userId);
-
-    Boolean reserveSeat(Long userId, Integer seatNumber, Long startTime);
-
-    void exitSeatBySeatNumber(Long adminId, int seatNumber);
-
-    int updateAllReservedSeatState();
-
-    void alertAlmostFinishedSeat() throws IOException;
+    List<SeatStatusResponse> getAllSeatsByCafeId(Long cafeId);
 }

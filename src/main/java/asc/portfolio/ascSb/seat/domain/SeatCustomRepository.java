@@ -1,22 +1,12 @@
 package asc.portfolio.ascSb.seat.domain;
 
-import asc.portfolio.ascSb.cafe.domain.Cafe;
-
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface SeatCustomRepository {
 
-    int updateAllReservedSeatStateWithFixedTermTicket();
+    Optional<Seat> findByUserId(Long userId);
 
-    int updateAllReservedSeatStateWithPartTimeTicket();
-
-    int updateAllReservedSeatStateWithStartTime();
-
-    List<Seat> getAlmostFinishedSeatListWithFixedTermTicket(Long minute);
-
-    List<Seat> getAlmostFinishedSeatListWithStartTime(Long minute);
-
-    Seat findByCafeAndSeatNumber(Cafe cafeObject, Integer seatNumber);
-
-    Seat findByCafeNameAndSeatNumber(String cafeName, int seatNumber);
+    List<Seat> findSeatsByStatusWithEndTimeBefore(SeatUsageStatus usageStatus, LocalDateTime time);
 }

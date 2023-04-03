@@ -2,6 +2,8 @@ package asc.portfolio.ascSb.firebase.service.fcmtoken;
 
 import asc.portfolio.ascSb.adminfcmtoken.domain.AdminFCMToken;
 import asc.portfolio.ascSb.adminfcmtoken.domain.AdminFCMTokenRepository;
+import asc.portfolio.ascSb.cafe.domain.Cafe;
+import asc.portfolio.ascSb.cafe.domain.CafeFinder;
 import asc.portfolio.ascSb.common.infra.redis.RedisRepository;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.firebase.dto.fcmtoken.AdminFCMTokenRequestDto;
@@ -21,10 +23,9 @@ import java.util.Optional;
 public class FCMTokenServiceImpl implements FCMTokenService {
 
     private final AdminFCMTokenRepository adminFCMTokenRepository;
-
     private final RedisRepository redisRepository;
-
     private final UserFinder userFinder;
+    private final CafeFinder cafeFinder;
 
     // 관리자가 FCM 토큰을 이미 가지고 있는지, 가지고 있으면 유효한 토큰인지 검사
     @Override
@@ -51,16 +52,17 @@ public class FCMTokenServiceImpl implements FCMTokenService {
 
     // FCM Token을 ADMIN_FCM_TOKEN 테이블에 저장 (Redis X) , 관리자 토큰은 RDBMS 에 별도 저장
     @Override
-    public Long confirmAdminFCMToken (Long userId, String adminFCMToken) throws IllegalArgumentException {
-        User user = userFinder.findById(userId);
+    public Long confirmAdminFCMToken (Long adminId, String adminFCMToken) throws IllegalArgumentException {
+        User admin = userFinder.findById(adminId);
+        Cafe cafe = cafeFinder.findByAdminId(adminId);
 
-        Boolean validation = isAdminHasToken(user.getId(), adminFCMToken);
+        Boolean validation = isAdminHasToken(adminId, adminFCMToken);
 
         if (!validation) {
             AdminFCMToken adminFCMTokenRequestDto =
                     AdminFCMTokenRequestDto.builder()
-                            .user(user)
-                            .cafe(user.getCafe())
+                            .user(admin)
+                            .cafe(cafe)
                             .fCMToken(adminFCMToken)
                             .build()
                             .toEntity();

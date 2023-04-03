@@ -19,7 +19,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final JPAQueryFactory query;
 
     @Override
-    public List<Product> findProductListByUserIdAndCafeNameAndStartTime(String cafeName, LocalDateTime startTime) {
+    public List<Product> findProductsByUserIdAndCafeNameAndStartTime(String cafeName, LocalDateTime startTime) {
         LocalDateTime now = LocalDateTime.now();
         return query
                 .select(product)
@@ -33,7 +33,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public List<Product> findProductListByUserIdAndCafeName(Long userId, String cafeName) {
+    public List<Product> findProductsByUserIdAndCafeName(Long userId, String cafeName) {
         QProduct qProduct = new QProduct("subQ");
         QCafe qCafe = new QCafe("subC");
 

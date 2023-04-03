@@ -31,9 +31,9 @@ public class ProductController {
     private final TicketService ticketService;
 
     @RequestMapping(value = "/admin/management", method = RequestMethod.GET)
-    public ResponseEntity<List<ProductListResponseDto>> productInfoOneUser(@LoginUser Long userId, @RequestParam String userLoginId) {
-        userRoleCheckService.isAdmin(userId);
-        return new ResponseEntity<>(productService.adminSalesManagementOneUser(userId), HttpStatus.OK);
+    public ResponseEntity<List<ProductListResponseDto>> productInfoOneUser(@LoginUser Long adminId, @RequestParam String userLoginId) {
+        userRoleCheckService.isAdmin(adminId);
+        return new ResponseEntity<>(productService.adminSalesManagementOneUser(adminId, userLoginId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/admin/management/start-time/{cafeName}", method = RequestMethod.GET)
@@ -46,7 +46,7 @@ public class ProductController {
     }
 
     @RequestMapping(value = "/admin/management/cancel/product", method = RequestMethod.POST)
-    public ResponseEntity<String> cancelOneProduct(@LoginUser Long userId, @RequestParam("product-label") String productLabel) throws Exception {
+    public ResponseEntity<String> cancelOneProduct(@LoginUser Long userId, @RequestParam("product-label") String productLabel) {
 
         final String receiptId = orderService.findReceiptIdToProductLabel(productLabel.substring(11)).getReceiptOrderId();
         userRoleCheckService.isAdmin(userId);

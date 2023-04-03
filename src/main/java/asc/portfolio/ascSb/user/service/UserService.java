@@ -1,13 +1,13 @@
 package asc.portfolio.ascSb.user.service;
 
-import asc.portfolio.ascSb.user.dto.UserProfileDto;
-import asc.portfolio.ascSb.user.dto.UserQrAndNameResponseDto;
+import asc.portfolio.ascSb.user.dto.UserProfile;
+import asc.portfolio.ascSb.user.dto.UserQrCodeResponse;
 
 public interface UserService {
 
-    UserQrAndNameResponseDto userQrAndName(Long id);
+    UserQrCodeResponse userQrAndName(Long id);
 
-    UserProfileDto getUserInfoByLoginId(String userId);
+    UserProfile getProfileById(Long userID);
 
-    void updateUserCafe(Long userId, Long cafeId);
+    UserProfile getUserInfoByLoginId(String userId);
 }

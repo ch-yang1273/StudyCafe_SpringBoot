@@ -8,5 +8,7 @@ public interface CafeRepository extends JpaRepository<Cafe, Long> {
 
     Optional<Cafe> findByCafeName(String cafeName);
 
-    Cafe findByCafeNameContains(String cafeName);
+    Optional<Cafe> findByAdminId(Long id);
+
+    Cafe findByCafeNameContains(String cafeName); //todo 삭제
 }

@@ -1,6 +1,8 @@
 package asc.portfolio.ascSb.product.service;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
+import asc.portfolio.ascSb.cafe.domain.CafeFinder;
+import asc.portfolio.ascSb.follow.domain.FollowFinder;
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.product.domain.Product;
 import asc.portfolio.ascSb.product.domain.ProductRepository;
@@ -29,13 +31,16 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final UserFinder userFinder;
+    private final FollowFinder followFinder; //todo : 삭제
+    private final CafeFinder cafeFinder;
 
     @Override
-    public List<ProductListResponseDto> adminSalesManagementOneUser(Long userId) {
-        User user = userFinder.findById(userId);
-        Cafe cafe = user.getCafe();
+    public List<ProductListResponseDto> adminSalesManagementOneUser(Long adminId, String userLoginId) {
+        User user = userFinder.findByLoginId(userLoginId);
+        Cafe cafe = cafeFinder.findByAdminId(adminId);
 
-        return productRepository.findProductListByUserIdAndCafeName(userId, cafe.getCafeName()).stream()
+        List<Product> list = productRepository.findProductsByUserIdAndCafeName(user.getId(), cafe.getCafeName());
+        return list.stream()
                 .map(ProductListResponseDto::new)
                 .collect(Collectors.toList());
     }
@@ -44,19 +49,22 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductListResponseDto> adminSalesManagementWithStartDate(String cafeName, String dateString) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         LocalDateTime parse = LocalDateTime.parse(dateString, formatter);
-        return productRepository.findProductListByUserIdAndCafeNameAndStartTime(cafeName,parse).stream()
+        return productRepository.findProductsByUserIdAndCafeNameAndStartTime(cafeName,parse).stream()
                 .map(ProductListResponseDto::new)
                 .collect(Collectors.toList());
     }
 
     @Override
     public void saveProduct(Long userId, BootPayOrderDto dto, Orders orders) {
+        // todo : 여기 cafe도 user로부터 나올 것이 아니라 주문에서 나와야한다. 수정 필요!
         User user = userFinder.findById(userId);
+        Cafe cafe = followFinder.findFollowedCafe(userId);
+
         Product product = ProductDto.builder()
-                .cafe(user.getCafe())
+                .cafe(cafe)
                 .user(user)
                 .productState(ProductStateType.SALE)
-                .productNameType(orders.getOrderProductName())
+                .productNameType(orders.getOrderProductNameType())
                 .productPrice(Math.toIntExact(orders.getOrderPrice()))
                 .productLabel(orders.getProductLabel())
                 .build()

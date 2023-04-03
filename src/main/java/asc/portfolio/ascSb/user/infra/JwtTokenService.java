@@ -1,8 +1,11 @@
 package asc.portfolio.ascSb.user.infra;
 
-import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
 import asc.portfolio.ascSb.common.dto.TokenPayload;
+import asc.portfolio.ascSb.user.domain.TokenPairDto;
+import asc.portfolio.ascSb.user.domain.TokenRepository;
 import asc.portfolio.ascSb.user.domain.TokenService;
+import asc.portfolio.ascSb.user.domain.User;
+import asc.portfolio.ascSb.user.domain.UserFinder;
 import asc.portfolio.ascSb.user.exception.ExpiredTokenException;
 import asc.portfolio.ascSb.user.exception.TokenException;
 import asc.portfolio.ascSb.user.exception.UserErrorData;
@@ -23,7 +26,8 @@ import java.util.Date;
 @Component
 public class JwtTokenService implements TokenService {
 
-    private final CurrentTimeProvider currentTimeProvider;
+    private final UserFinder userFinder;
+    private final TokenRepository tokenRepository;
 
     //  private final String secretKey;
     private final Key secretKey;
@@ -31,12 +35,15 @@ public class JwtTokenService implements TokenService {
     private final long refreshTime;
 
     @Autowired
-    public JwtTokenService(CurrentTimeProvider currentTimeProvider,
-                           @Value("${jwt.secret}") String secretKey,
-                           @Value("${jwt.expiration-in-seconds}") Long expireTime,
-                           @Value("${jwt.refresh-in-hour}") Long refreshTime) {
+    public JwtTokenService(
+            UserFinder userFinder,
+            TokenRepository tokenRepository,
+            @Value("${jwt.secret}") String secretKey,
+            @Value("${jwt.expiration-in-seconds}") Long expireTime,
+            @Value("${jwt.refresh-in-hour}") Long refreshTime) {
 
-        this.currentTimeProvider = currentTimeProvider;
+        this.userFinder = userFinder;
+        this.tokenRepository = tokenRepository;
 
         final long second = 1_000L;
         final long minute = 60 * second;
@@ -48,18 +55,22 @@ public class JwtTokenService implements TokenService {
     }
 
     @Override
-    public long getExpireTime() {
-        return expireTime;
-    }
-
-    @Override
     public long getRefreshTime() {
         return refreshTime;
     }
 
     @Override
-    public String createAccessToken(TokenPayload payload) {
-        Date now = currentTimeProvider.toDate(currentTimeProvider.now());
+    public TokenPairDto createTokenPair(String loginId, String password, Date now) {
+        User user = userFinder.findByLoginId(loginId);
+
+        String accessToken = createAccessToken(new TokenPayload(user.getId()), now);
+        String refreshToken = createRefreshToken(now);
+
+        return new TokenPairDto(user.getRole(), accessToken, refreshToken);
+    }
+
+    @Override
+    public String createAccessToken(TokenPayload payload, Date now) {
         Date expireDate = new Date(now.getTime() + expireTime);
 
         return Jwts.builder()
@@ -71,8 +82,7 @@ public class JwtTokenService implements TokenService {
     }
 
     @Override
-    public String createRefreshToken() {
-        Date now = currentTimeProvider.toDate(currentTimeProvider.now());
+    public String createRefreshToken(Date now) {
         Date expireDate = new Date(now.getTime() + refreshTime);
 
         return Jwts.builder()
@@ -91,7 +101,7 @@ public class JwtTokenService implements TokenService {
                     .getBody();
         } catch (ExpiredJwtException e) {
             log.debug("만료된 JWT 토큰입니다.");
-            throw new ExpiredTokenException(createTokenPayload(e.getClaims()),UserErrorData.USER_EXPIRED_TOKEN);
+            throw new ExpiredTokenException(createTokenPayload(e.getClaims()), UserErrorData.USER_EXPIRED_TOKEN);
         } catch (JwtException e) {
             throw new TokenException(UserErrorData.USER_WRONG_TOKEN);
         }
@@ -117,22 +127,23 @@ public class JwtTokenService implements TokenService {
     }
 
     @Override
-    public TokenPayload verifyAndGetPayload(String token) {
+    public TokenPayload verifyAccessToken(String token) {
         String baseToken = checkFormat(token);
         return createTokenPayload(validCheckAndGetBody(baseToken));
     }
 
     @Override
-    public TokenPayload verifyAndGetPayload(String token, String compare) {
-        if (!token.equals(compare)) {
+    public TokenPayload verifyRefreshToken(String accessToken, String refreshToken) {
+        TokenPayload payload = noVerifyAndGetPayload(accessToken);
+        String token = tokenRepository.getToken(payload.getUserId().toString());
+
+        if (!refreshToken.equals(token)) {
             throw new TokenException(UserErrorData.USER_WRONG_TOKEN);
         }
-        String baseToken = checkFormat(token);
-        return createTokenPayload(validCheckAndGetBody(baseToken));
+        return payload;
     }
 
-    @Override
-    public TokenPayload noVerifyAndGetPayload(String token) {
+    private TokenPayload noVerifyAndGetPayload(String token) {
         String baseToken = checkFormat(token);
         try {
             return createTokenPayload(validCheckAndGetBody(baseToken));

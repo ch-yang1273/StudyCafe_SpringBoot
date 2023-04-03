@@ -3,18 +3,16 @@ package asc.portfolio.ascSb.user.controller;
 import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
 import asc.portfolio.ascSb.support.User.UserFixture;
 import asc.portfolio.ascSb.support.User.UserMockMvcHelper;
-import asc.portfolio.ascSb.user.domain.PasswordEncoder;
+import asc.portfolio.ascSb.support.User.UserRepositoryHelper;
 import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.user.domain.UserRepository;
-import asc.portfolio.ascSb.user.dto.UserLoginRequestDto;
-import asc.portfolio.ascSb.user.dto.UserLoginResponseDto;
-import asc.portfolio.ascSb.user.dto.UserQrAndNameResponseDto;
-import asc.portfolio.ascSb.user.dto.UserTokenRequestDto;
+import asc.portfolio.ascSb.user.dto.UserLoginRequest;
+import asc.portfolio.ascSb.user.domain.TokenPairDto;
+import asc.portfolio.ascSb.user.dto.UserQrCodeResponse;
+import asc.portfolio.ascSb.user.dto.UserReissueRequest;
 import asc.portfolio.ascSb.user.infra.MapTokenRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
@@ -36,34 +34,30 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
 
-@Import(MapTokenRepository.class)
 @AutoConfigureMockMvc
+@Transactional
 @SpringBootTest
+@Import({MapTokenRepository.class, UserMockMvcHelper.class, UserRepositoryHelper.class})
 class UserControllerTest {
 
-    static final String LOGIN_URL = "/api/v1/user/login";
-    static final String LOGIN_CHECK_URL = "/api/v1/user/login-check";
-    static final String REISSUE_TOKEN_URL = "/api/v1/user/reissue";
-    static final String QR_REQ_URL = "/api/v1/user/qr-name";
-    static final String USER_INFO_URL = "/api/v1/user/admin/check";
-
-    @Autowired
-    private UserRepository userRepository;
+    static final String BASE_URL = "/api/v1/user";
+    static final String LOGIN_URL = BASE_URL + "/login";
+    static final String REISSUE_TOKEN_URL = BASE_URL + "/reissue";
+    static final String QR_REQ_URL = BASE_URL + "/qr";
+    static final String USER_INFO_URL = BASE_URL + "/admin/check";
+    static final String PROFILE_URL = BASE_URL + "/profile";
 
     @Autowired
     private MockMvc mockMvc;
-    private UserMockMvcHelper helper;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private UserMockMvcHelper mvcHelper;
+
+    @Autowired
+    private UserRepositoryHelper repositoryHelper;
 
     @SpyBean
     private CurrentTimeProvider currentTimeProvider;
-
-    @BeforeEach
-    void init() {
-        helper = new UserMockMvcHelper(mockMvc);
-    }
 
     private String fromDtoToJson(Object dto) {
         try {
@@ -73,62 +67,57 @@ class UserControllerTest {
         }
     }
 
-    @Transactional
     @Test
     @DisplayName("올바른 SingUp 등록에는 200을 반환하고, password는 암호화 된다.")
-    public void User_등록() throws Exception {
+    public void User_회원가입() throws Exception {
 
         //given
         UserFixture bloo = UserFixture.BLOO;
-        helper.회원가입을_한다(bloo)
+        mvcHelper.회원가입을_한다(bloo)
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
         //when
-        User findUser = userRepository.findByLoginId(bloo.getLoginId()).orElseThrow();
+        User findUser = repositoryHelper.유저를_찾는다(bloo);
 
         //then
         assertThat(findUser.getPassword()).isNotEqualTo(bloo.getPassword());
         assertThat(findUser.getEmail()).isEqualTo(bloo.getEmail());
     }
 
-    @Transactional
     @Test
-    @DisplayName("중복등록에는 BadRequest status를 반환한다.")
-    public void User_중복등록() throws Exception {
-        helper.회원가입을_한다(UserFixture.BLOO)
+    @DisplayName("중복 회원가입에는 BadRequest status를 반환한다.")
+    public void User_중복_회원가입() throws Exception {
+        mvcHelper.회원가입을_한다(UserFixture.BLOO)
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
-        helper.회원가입을_한다(UserFixture.BLOO)
+        mvcHelper.회원가입을_한다(UserFixture.BLOO)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andDo(MockMvcResultHandlers.print());
     }
 
-    @Transactional
     @Test
     @DisplayName("기본 login 성공 테스트")
     public void User_Login() throws Exception {
-        helper.회원가입과_로그인을_한다(UserFixture.BLOO)
+        mvcHelper.회원가입과_로그인을_한다(UserFixture.BLOO)
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
     }
 
-    @Transactional
     @Test
     @DisplayName("존재하지 않는 loginId로 로그인 시에는 Bad Request를 반환한다.")
     public void 존재하지_않는_loginId로_로그인() throws Exception {
-        helper.로그인을_한다(UserFixture.BLOO)
+        mvcHelper.로그인을_한다(UserFixture.BLOO)
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andDo(MockMvcResultHandlers.print());
     }
 
-    @Transactional
     @Test
     @DisplayName("loginId를 넣지 않았을 때는 Bad Request를 반환한다.")
     public void loginId를_넣지_않았을_때() throws Exception {
-        helper.회원가입을_한다(UserFixture.BLOO);
-        UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
+        mvcHelper.회원가입을_한다(UserFixture.BLOO);
+        UserLoginRequest requestLoginDto = UserLoginRequest.builder()
                 .password(UserFixture.BLOO.getPassword())
                 .build();
 
@@ -141,13 +130,12 @@ class UserControllerTest {
                 .andDo(MockMvcResultHandlers.print());
     }
 
-    @Transactional
     @Test
     @DisplayName("비밀번호를 넣지 않았을 때에는 Bad Request를 반환한다.")
     public void 비밀번호를_넣지_않았을_때() throws Exception {
-        helper.회원가입을_한다(UserFixture.BLOO);
+        mvcHelper.회원가입을_한다(UserFixture.BLOO);
 
-        UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
+        UserLoginRequest requestLoginDto = UserLoginRequest.builder()
                 .loginId(UserFixture.BLOO.getLoginId())
                 .build();
 
@@ -160,13 +148,12 @@ class UserControllerTest {
                 .andDo(MockMvcResultHandlers.print());
     }
 
-    @Transactional
     @Test
     @DisplayName("비밀번호를 틀렸을 때는 Bad Request를 반환한다.")
     public void 비밀번호를_틀렸을_때() throws Exception {
-        helper.회원가입을_한다(UserFixture.BLOO);
+        mvcHelper.회원가입을_한다(UserFixture.BLOO);
 
-        UserLoginRequestDto requestLoginDto = UserLoginRequestDto.builder()
+        UserLoginRequest requestLoginDto = UserLoginRequest.builder()
                 .loginId(UserFixture.BLOO.getLoginId())
                 .password("f" + UserFixture.BLOO.getPassword())
                 .build();
@@ -180,55 +167,48 @@ class UserControllerTest {
                 .andDo(MockMvcResultHandlers.print());
     }
 
-    @Transactional
     @Test
     @DisplayName("accessToken을 갖고 접근했을 때 OK 반환")
     public void accessToken을_갖고_접근() throws Exception {
-        UserLoginResponseDto dto = helper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
-
-        mockMvc.perform(MockMvcRequestBuilders.get(LOGIN_CHECK_URL)
-                        .header(HttpHeaders.AUTHORIZATION, dto.getAccessToken()))
+        TokenPairDto dto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        mvcHelper.내_Profile을_조회한다(dto.getAccessToken())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
     }
 
-    @Transactional
     @Test
     @DisplayName("accessToken 없이 갖고 접근했을 때 Unauthorized 반환")
     public void accessToken_없이_접근() throws Exception {
-        UserLoginResponseDto dto = helper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        TokenPairDto dto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
 
-        mockMvc.perform(MockMvcRequestBuilders.get(LOGIN_CHECK_URL))
+        mockMvc.perform(MockMvcRequestBuilders.get(PROFILE_URL)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                 .andDo(MockMvcResultHandlers.print());
     }
 
-    @Transactional
     @Test
     @DisplayName("올바르지 않은 accessToken으로 접근했을 때 Unauthorized 반환")
     public void 올바르지_않은_accessToken으로_접근() throws Exception {
-        UserLoginResponseDto dto = helper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
-
-        mockMvc.perform(MockMvcRequestBuilders.get(LOGIN_CHECK_URL)
-                        .header(HttpHeaders.AUTHORIZATION, "test"))
+        TokenPairDto dto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        mvcHelper.내_Profile을_조회한다("failTest")
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                 .andDo(MockMvcResultHandlers.print());
     }
 
-    @Transactional
     @Test
     @DisplayName("refreshToken으로 accessToken 갱신 성공")
     public void refreshToken으로_accessToken_갱신() throws Exception {
-        UserLoginResponseDto loginDto = helper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        TokenPairDto loginDto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
 
-        UserTokenRequestDto tokenRequestDto = new UserTokenRequestDto();
+        UserReissueRequest tokenRequestDto = new UserReissueRequest();
         tokenRequestDto.setAccessToken(loginDto.getAccessToken());
         tokenRequestDto.setRefreshToken(loginDto.getRefreshToken());
 
         String tokenReqContent = fromDtoToJson(tokenRequestDto);
 
         // 현재 시간을 반환하는 로직이 1분뒤의 시간을 반환하도록 Mocking
-        BDDMockito.given(currentTimeProvider.now()).willReturn(LocalDateTime.now().plusMinutes(1L));
+        BDDMockito.given(currentTimeProvider.localDateTimeNow()).willReturn(LocalDateTime.now().plusMinutes(1L));
         //then
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(REISSUE_TOKEN_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -238,18 +218,17 @@ class UserControllerTest {
                 .andReturn();
 
         String respJson = mvcResult.getResponse().getContentAsString();
-        UserLoginResponseDto reissueDto = new ObjectMapper().readValue(respJson, UserLoginResponseDto.class);
+        TokenPairDto reissueDto = new ObjectMapper().readValue(respJson, TokenPairDto.class);
 
         Assertions.assertThat(loginDto.getAccessToken()).isNotEqualTo(reissueDto.getAccessToken());
         Assertions.assertThat(loginDto.getRefreshToken()).isEqualTo(reissueDto.getRefreshToken());
     }
 
-    @Transactional
     @Test
     @DisplayName("올바르지 않은 refreshToken으로 accessToken 갱신 실패")
     public void refreshToken으로_accessToken_갱신실패() throws Exception {
-        UserLoginResponseDto loginDto = helper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
-        UserTokenRequestDto tokenRequestDto = new UserTokenRequestDto();
+        TokenPairDto loginDto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        UserReissueRequest tokenRequestDto = new UserReissueRequest();
         tokenRequestDto.setAccessToken(loginDto.getAccessToken());
         tokenRequestDto.setRefreshToken("Fail");
 
@@ -264,12 +243,11 @@ class UserControllerTest {
     }
 
 
-    @Transactional
     @Test
     @DisplayName("QrCode를 요청 시 QrCode 반환. OK")
     public void qrCode_요청() throws Exception {
         //given
-        UserLoginResponseDto dto = helper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        TokenPairDto dto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
 
         String accessToken = dto.getAccessToken();
 
@@ -280,35 +258,31 @@ class UserControllerTest {
                 .andReturn();
 
         String qrJson = qrResult.getResponse().getContentAsString();
-        UserQrAndNameResponseDto qrDto = new ObjectMapper().readValue(qrJson, UserQrAndNameResponseDto.class);
+        UserQrCodeResponse qrDto = new ObjectMapper().readValue(qrJson, UserQrCodeResponse.class);
         assertThat(qrDto.getQrCode()).isNotBlank();
     }
 
-    @Transactional
     @Test
     @DisplayName("Admin 권한의 회원 조회 성공")
     public void 회원조회_byAdmin() throws Exception {
-        User admin = UserFixture.ADMIN_BUTTERCUP.toUser();
-        admin.encryptPassword(passwordEncoder);
-        userRepository.save(admin);
-
-        UserLoginResponseDto dto = helper.액세스토큰을_받는다(UserFixture.ADMIN_BUTTERCUP);
+        UserFixture adminFixture = UserFixture.ADMIN_BUTTERCUP;
+        repositoryHelper.유저를_등록한다(adminFixture);
+        TokenPairDto dto = mvcHelper.액세스토큰을_받는다(adminFixture);
 
         String accessToken = dto.getAccessToken();
 
         mockMvc.perform(MockMvcRequestBuilders.get(USER_INFO_URL)
                         .header(HttpHeaders.AUTHORIZATION, accessToken)
-                        .param("userLoginId", admin.getLoginId()))
+                        .param("userLoginId", adminFixture.getLoginId()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print())
                 .andReturn();
     }
 
-    @Transactional
     @Test
     @DisplayName("USER 권한의 회원 조회 실패")
     public void 회원조회_byUser() throws Exception {
-        UserLoginResponseDto dto = helper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
+        TokenPairDto dto = mvcHelper.회원가입_후_액세스토큰을_받는다(UserFixture.BLOO);
 
         String accessToken = dto.getAccessToken();
 
@@ -320,15 +294,11 @@ class UserControllerTest {
                 .andReturn();
     }
 
-    @Transactional
     @Test
     @DisplayName("Admin 권한의 없는 회원 조회")
     public void 없는_회원조회_byAdmin() throws Exception {
-        User admin = UserFixture.ADMIN_BUTTERCUP.toUser();
-        admin.encryptPassword(passwordEncoder);
-        userRepository.save(admin);
-
-        UserLoginResponseDto dto = helper.액세스토큰을_받는다(UserFixture.ADMIN_BUTTERCUP);
+        repositoryHelper.유저를_등록한다(UserFixture.ADMIN_BLOSSOM);
+        TokenPairDto dto = mvcHelper.액세스토큰을_받는다(UserFixture.ADMIN_BLOSSOM);
 
         String accessToken = dto.getAccessToken();
 

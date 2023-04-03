@@ -1,18 +1,17 @@
 package asc.portfolio.ascSb.user.controller;
 
 import asc.portfolio.ascSb.common.auth.LoginUser;
-import asc.portfolio.ascSb.user.dto.UserLoginRequestDto;
-import asc.portfolio.ascSb.user.dto.UserLoginResponseDto;
-import asc.portfolio.ascSb.user.dto.UserProfileDto;
-import asc.portfolio.ascSb.user.dto.UserQrAndNameResponseDto;
-import asc.portfolio.ascSb.user.dto.UserSignupDto;
-import asc.portfolio.ascSb.user.dto.UserTokenRequestDto;
+import asc.portfolio.ascSb.user.dto.UserLoginRequest;
+import asc.portfolio.ascSb.user.domain.TokenPairDto;
+import asc.portfolio.ascSb.user.dto.UserProfile;
+import asc.portfolio.ascSb.user.dto.UserQrCodeResponse;
+import asc.portfolio.ascSb.user.dto.UserSignupRequest;
+import asc.portfolio.ascSb.user.dto.UserReissueRequest;
 import asc.portfolio.ascSb.user.service.UserAuthService;
 import asc.portfolio.ascSb.user.service.UserRoleCheckService;
 import asc.portfolio.ascSb.user.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -50,8 +49,9 @@ public class UserController {
         }
     }
 
+    //bindingResult 관련도 에러 메시지 통합할 수 있겠다. 발생되는 에러 유형만 확인해서 Advice 만듭시다.
     @PostMapping("/signup")
-    public ResponseEntity<String> singUp(@RequestBody @Valid UserSignupDto signUpDto, BindingResult bindingResult) {
+    public ResponseEntity<String> singUp(@RequestBody @Valid UserSignupRequest signUpDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(validateSingUpDto(bindingResult), HttpStatus.BAD_REQUEST);
         }
@@ -62,50 +62,42 @@ public class UserController {
             return new ResponseEntity<>("Unique violation", HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<>("OK", HttpStatus.OK);
+        return ResponseEntity.ok().body("OK");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserLoginResponseDto> login(@RequestBody @Valid UserLoginRequestDto loginDto) {
-        UserLoginResponseDto loginRespDto = userAuthService.checkPassword(loginDto.getLoginId(), loginDto.getPassword());
-        return new ResponseEntity<>(loginRespDto, HttpStatus.OK);
-    }
-
-    @GetMapping("/login-check") //Test
-    public ResponseEntity<Void> loginCheck(@LoginUser Long userId) {
-        log.debug("login user = {}", userId);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<TokenPairDto> login(@RequestBody @Valid UserLoginRequest loginDto) {
+        TokenPairDto loginRespDto = userAuthService.checkPassword(loginDto.getLoginId(), loginDto.getPassword());
+        return ResponseEntity.ok().body(loginRespDto);
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<UserLoginResponseDto> reissueToken(@RequestBody @Valid UserTokenRequestDto tokenRequestDto) {
-        return new ResponseEntity<>(
-                userAuthService.reissueToken(tokenRequestDto.getAccessToken(), tokenRequestDto.getRefreshToken()),
-                HttpStatus.OK);
+    public ResponseEntity<TokenPairDto> reissueToken(@RequestBody @Valid UserReissueRequest tokenRequestDto) {
+        return ResponseEntity.ok()
+                .body(userAuthService.reissueToken(
+                        tokenRequestDto.getAccessToken(),
+                        tokenRequestDto.getRefreshToken()));
     }
 
-    @GetMapping("/qr-name")
-    public ResponseEntity<UserQrAndNameResponseDto> userQrAndNameInfo(@LoginUser Long userId) {
-        return new ResponseEntity<>(userService.userQrAndName(userId), HttpStatus.OK);
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfile> getMyProfile(@LoginUser Long userId) {
+        return ResponseEntity.ok().body(userService.getProfileById(userId));
+    }
+
+    @GetMapping("/qr")
+    public ResponseEntity<UserQrCodeResponse> getQrCode(@LoginUser Long userId) {
+        return ResponseEntity.ok().body(userService.userQrAndName(userId));
     }
 
     @GetMapping("/admin/check")
-    public ResponseEntity<UserProfileDto> getUserInfoByLoginId(@LoginUser Long adminId, @RequestParam String userLoginId) {
+    public ResponseEntity<UserProfile> getUserInfoByLoginId(@LoginUser Long adminId, @RequestParam String userLoginId) {
         userRoleCheckService.isAdmin(adminId);
-        return new ResponseEntity<>(userService.getUserInfoByLoginId(userLoginId), HttpStatus.OK);
+        return ResponseEntity.ok().body(userService.getUserInfoByLoginId(userLoginId));
     }
 
     @GetMapping("/admin/check/user-id")
     public ResponseEntity<Void> checkUserInfoByLoginId(@RequestParam String userLoginId) {
         userService.getUserInfoByLoginId(userLoginId);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @Parameter(name = "cafeId", example = "1")
-    @PostMapping("/update/{cafeId}")
-    public ResponseEntity<Void> updateUserCafe(@LoginUser Long userId, @PathVariable Long cafeId) {
-        userRoleCheckService.isUser(userId);
-        userService.updateUserCafe(userId, cafeId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 }

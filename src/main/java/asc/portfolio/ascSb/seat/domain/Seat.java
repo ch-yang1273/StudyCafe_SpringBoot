@@ -1,20 +1,24 @@
 package asc.portfolio.ascSb.seat.domain;
-import asc.portfolio.ascSb.ticket.domain.Ticket;
+import asc.portfolio.ascSb.seat.exception.SeatErrorData;
+import asc.portfolio.ascSb.seat.exception.SeatException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 
+@Slf4j
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -32,35 +36,78 @@ public class Seat {
     @Column(name = "SEAT_NUM", nullable = false)
     private int seatNumber;
 
-    // 좌석 예약 상태
-    @Column(name = "IS_RESERVED")
-    private boolean isReserved;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "USAGE_STATUS", nullable = false)
+    private SeatUsageStatus usageStatus;
 
-    // 좌석 예약자
-    @Column(name = "USER_ID", unique = true)
-    private Long userId;
-
-    // todo : 추후 Id 참조로 변경
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "T_ID")
-    private Ticket ticket;
+    @Embedded
+    private UsageData usageData;
 
     @Builder
-    public Seat(Long cafeId, int seatNumber) {
+    public Seat(Long id, Long cafeId, int seatNumber) {
+        this.id = id;
         this.cafeId = cafeId;
         this.seatNumber = seatNumber;
-        this.isReserved = false;
+        this.usageStatus = SeatUsageStatus.NOT_IN_USE;
     }
 
-    public void reserveSeat(Long userId, Ticket ticket) {
-        this.userId = userId;
-        this.ticket = ticket;
-        this.isReserved = true;
+    private UsageData getUsageData() {
+        return usageData;
     }
 
-    public void exitSeat() {
-        this.userId = null;
-        this.ticket = null;
-        this.isReserved = false;
+    public boolean canReserve() {
+        return usageStatus.equals(SeatUsageStatus.NOT_IN_USE);
+    }
+
+    public Long getUserId() {
+        return usageData.getUserId();
+    }
+
+    public Long getTicketId() {
+        return usageData.getTicketId();
+    }
+
+    public LocalDateTime getStartTime() {
+        return usageData.getStartTime();
+    }
+
+    public LocalDateTime getEndTime() {
+        return usageData.getEndTime();
+    }
+
+    public Long getUsageDuration(LocalDateTime now) {
+        return usageData.getUsageDuration(now);
+    }
+
+    public void startSeatUsage(UsageData usageData) {
+        if (!canReserve()) {
+            throw new SeatException(SeatErrorData.NOT_AVAILABLE_SEAT);
+        }
+        this.usageStatus = SeatUsageStatus.IN_USE;
+        this.usageData = usageData;
+    }
+
+    public void scheduleSeatUsageTermination() {
+        this.usageStatus = SeatUsageStatus.SCHEDULED_FOR_TERMINATION;
+        this.usageData = null;
+    }
+
+    public void terminateSeatUsage() {
+        this.usageStatus = SeatUsageStatus.NOT_IN_USE;
+        this.usageData = null;
+    }
+
+    public void changeUsageStatusEndingSoon() {
+        this.usageStatus = SeatUsageStatus.ENDING_SOON;
+    }
+
+    public boolean isBelongTo(Long cafeId) {
+        return this.cafeId.equals(cafeId);
+    }
+
+    public void checkBelongToOrElseThrow(Long cafeId) {
+        if (!isBelongTo(cafeId)) {
+            throw new SeatException(SeatErrorData.NOT_MATCHED_SEAT_CAFE);
+        }
     }
 }

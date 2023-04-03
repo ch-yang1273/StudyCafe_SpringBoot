@@ -27,7 +27,7 @@ public class Orders extends BaseTimeEntity {
 
     @Enumerated(value = EnumType.STRING)
     @Column(name = "O_PN")
-    private ProductNameType orderProductName;
+    private ProductNameType orderProductNameType;
 
     @Column(name = "O_P")
     private Long orderPrice;
@@ -40,10 +40,10 @@ public class Orders extends BaseTimeEntity {
 
     @Builder
     private Orders(OrderStateType orderStateType, String userId, ProductNameType
-            orderProductName, Long orderPrice, String receiptOrderId, String productLabel) {
+            orderProductNameType, Long orderPrice, String receiptOrderId, String productLabel) {
         this.orderStateType = orderStateType;
         this.userId = userId;
-        this.orderProductName = orderProductName;
+        this.orderProductNameType = orderProductNameType;
         this.orderPrice = orderPrice;
         this.receiptOrderId = receiptOrderId;
         this.productLabel = productLabel;

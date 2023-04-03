@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ProductService {
 
-    List<ProductListResponseDto> adminSalesManagementOneUser(Long userId);
+    List<ProductListResponseDto> adminSalesManagementOneUser(Long adminId, String userLoginId);
 
     List<ProductListResponseDto> adminSalesManagementWithStartDate(String cafeName, String dateString);
 
