@@ -80,6 +80,9 @@ public class Seat {
     }
 
     public void startSeatUsage(UsageData usageData) {
+        if (!canReserve()) {
+            throw new SeatException(SeatErrorData.NOT_AVAILABLE_SEAT);
+        }
         this.usageStatus = SeatUsageStatus.IN_USE;
         this.usageData = usageData;
     }

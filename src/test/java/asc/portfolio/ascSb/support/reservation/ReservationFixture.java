@@ -19,15 +19,4 @@ public enum ReservationFixture {
     ReservationFixture(Long id) {
         this.id = id;
     }
-
-    public Reservation toReservation(User user, Cafe cafe, Seat seat, Ticket ticket, LocalDateTime startTime) {
-        return Reservation.builder()
-                .id(id)
-                .userId(user.getId())
-                .cafeId(cafe.getId())
-                .seatId(seat.getId())
-                .ticketId(ticket.getId())
-                .startTime(startTime)
-                .build();
-    }
 }

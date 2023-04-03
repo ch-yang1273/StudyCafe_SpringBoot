@@ -54,17 +54,6 @@ public class Reservation extends BaseTimeEntity {
     private ReservationStatus status;
 
     @Builder
-    public Reservation(Long id, Long userId, Long cafeId, Long seatId, Long ticketId, LocalDateTime startTime) {
-        this.id = id;
-        this.userId = userId;
-        this.cafeId = cafeId;
-        this.seatId = seatId;
-        this.ticketId = ticketId;
-
-        this.startTime = startTime;
-        this.status = ReservationStatus.IN_USE;
-    }
-
     public Reservation(User user, Cafe cafe, Seat seat, Ticket ticket, LocalDateTime now) {
         ticket.checkTicketUsable();
 
@@ -84,17 +73,6 @@ public class Reservation extends BaseTimeEntity {
     private UsageData toUsageData(LocalDateTime endTime) {
         return new UsageData(this.userId, this.ticketId, this.startTime, endTime);
     }
-
-//    public void create(Seat seat, Ticket ticket) {
-//        ticket.checkTicketUsable();
-//
-//        LocalDateTime endTime = LocalDateTime.MAX;
-//        if (ticket.isOfType(TicketType.PART_TERM)) {
-//            endTime = this.startTime.plusMinutes(ticket.getRemainMinute());
-//        }
-//        log.debug("endTime = {}", endTime);
-//        seat.startSeatUsage(toUsageData(endTime));
-//    }
 
     private void canReleaseBy(User user, Cafe cafe) {
         if (this.userId.equals(user.getId())) {

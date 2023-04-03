@@ -27,10 +27,6 @@ public class CafeSeatReservationRule implements ReservationRule {
             list.add(new ValidationResponse(request.getField(), "카페가 영업 중이 아닙니다."));
         }
 
-        if (!seat.canReserve()) {
-            list.add(new ValidationResponse(request.getField(), "사용 중인 좌석입니다.."));
-        }
-
         return list;
     }
 }
