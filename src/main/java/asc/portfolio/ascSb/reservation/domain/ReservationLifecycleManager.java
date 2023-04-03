@@ -31,8 +31,8 @@ public class ReservationLifecycleManager {
         Seat seat = seatFinder.findById(seatId);
         Ticket ticket = ticketFinder.findById(tickerId);
 
+        reservationValidator.validate(user, cafe, seat, ticket);
         Reservation reservation = new Reservation(user, cafe, seat, ticket, now);
-        reservationValidator.validate(reservation, user, cafe, seat, ticket);
 
         reservationRepository.save(reservation);
     }

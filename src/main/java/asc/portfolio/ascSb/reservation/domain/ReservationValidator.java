@@ -20,9 +20,8 @@ public class ReservationValidator {
 
     private final List<ReservationRule> reservationRules;
 
-    public void validate(Reservation rez, User user, Cafe cafe, Seat seat, Ticket ticket) {
-        ValidationContext target = new ValidationContext(
-                rez, user, cafe, seat, ticket);
+    public void validate(User user, Cafe cafe, Seat seat, Ticket ticket) {
+        ValidationContext target = new ValidationContext(user, cafe, seat, ticket);
 
         List<ValidationResponse> list = reservationRules.stream()
                 .map(rule -> rule.validate(target))

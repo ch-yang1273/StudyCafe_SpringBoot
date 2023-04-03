@@ -1,13 +1,5 @@
 package asc.portfolio.ascSb.support.reservation;
 
-import asc.portfolio.ascSb.cafe.domain.Cafe;
-import asc.portfolio.ascSb.reservation.domain.Reservation;
-import asc.portfolio.ascSb.seat.domain.Seat;
-import asc.portfolio.ascSb.ticket.domain.Ticket;
-import asc.portfolio.ascSb.user.domain.User;
-
-import java.time.LocalDateTime;
-
 public enum ReservationFixture {
     RESERVATION_A(1L),
     RESERVATION_B(2L),
