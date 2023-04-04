@@ -23,6 +23,7 @@ class CafeServiceTest {
     }
 
     @Test
+    @DisplayName("Admin 권한이 아닌 유저는 카페 생성 실패")
     public void registerCafe_Fail() {
         //given
         User user = UserFixture.BLOO.toUser();

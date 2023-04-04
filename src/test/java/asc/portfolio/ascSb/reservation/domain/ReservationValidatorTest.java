@@ -75,6 +75,7 @@ class ReservationValidatorTest {
     void validate(String message, User user, Cafe cafe, Seat seat, Ticket ticket, int expect) {
         log.info("Running Test: {}", message);
 
+        // given
         List<ReservationRule> Rules = new ArrayList<>();
         Rules.add(new CafeSeatReservationRule());
         Rules.add(new CafeTicketReservationRule());

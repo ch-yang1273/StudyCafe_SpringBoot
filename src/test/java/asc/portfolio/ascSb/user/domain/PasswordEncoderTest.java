@@ -15,5 +15,4 @@ class PasswordEncoderTest {
 
         Assertions.assertThat(encrypted).isNotEqualTo(password);
     }
-
 }
