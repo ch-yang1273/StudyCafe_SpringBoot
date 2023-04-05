@@ -6,7 +6,7 @@
 
 ## 🚀 v2.0 리팩터링
 
-프로젝트를 진행하면서 코드 정리에 어려움을 격어 아키텍처 관련 학습을 했고, 배운 점을 적용하여 리팩터링 중입니다.
+프로젝트를 진행하면서 코드 정리에 어려움을 격어 아키텍처 관련 학습 후 배운 점을 적용하여 리팩터링 중입니다.
 
 ### v1.0 기존 프로젝트 링크
 
@@ -16,9 +16,6 @@ https://github.com/ch-yang1273/StudyCafe_SpringBoot/tree/v1.0
 - 각 레이어의 역할을 구분 (Controller, Service, Repository, Domain)
 - 패키지 간 순환이 발생하지 않도록 의존성을 정리
 - 테스트하기 좋은 코드를 작성하고, 단위 테스트 작성
-
-### 참여자
-- ch-yang1273
 
 ### 기간
 - 2023년 3월 11일 ~ 진행 중
@@ -56,6 +53,12 @@ https://github.com/ch-yang1273/StudyCafe_SpringBoot/tree/v1.0
 
 ### [테스트 관련 수정 내용]
 
+✂ 테스트
+
+  - 외부 의존성이 있는 코드와 비즈니스 로직을 분리하고, 단위 테스트 작성
+  - [실행 코드 예시](https://github.com/ch-yang1273/StudyCafe_SpringBoot/blob/master/src/main/java/asc/portfolio/ascSb/reservation/domain/ReservationLifecycleManager.java)
+  - [테스트 코드 예시](https://github.com/ch-yang1273/StudyCafe_SpringBoot/blob/master/src/test/java/asc/portfolio/ascSb/reservation/domain/ReservationValidatorTest.java)
+
 ✂ 시간 메서드 테스트 (생성자, 정적 메서드)
 
    - 시간 메서드들은 테스트에서 제어가 어렵고, Mocking에도 추가적인 라이브러리(mockito-inline, PowerMokito)가 필요함
@@ -87,6 +90,7 @@ https://github.com/ch-yang1273/StudyCafe_SpringBoot/tree/v1.0
 - Orders, Product, AdminFcmToken 도메인 코드 정리
 - 각 도메인에서 VO 세분화
 - Repository 도메인에서 Cafe에 대한 의존성 제거
+- Admin 기능과 User 서비스 기능은 애플리케이션을 분리하는 것이 좋을 듯함
 
 ## 🌟 v1.0
 
