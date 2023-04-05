@@ -14,6 +14,7 @@ import asc.portfolio.ascSb.ticket.domain.Ticket;
 import asc.portfolio.ascSb.user.domain.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -47,23 +48,19 @@ class ReservationValidatorTest {
         Ticket ticketOfOpenCafe = TicketFixture.TICKET_A.toFixedTermTicket(user, openCafe, LocalDate.now().plusDays(1));
         Ticket ticketOfClosedCafe = TicketFixture.TICKET_A.toFixedTermTicket(user, closedCafe, LocalDate.now().plusDays(1));
 
-        Ticket usableTicket = TicketFixture.TICKET_B.toFixedTermTicket(user, openCafe, LocalDate.now().plusDays(1));
         Ticket unusableTicket = TicketFixture.TICKET_D.toFixedTermTicket(user, openCafe, LocalDate.now().plusDays(1));
-
 
         // 테스트 시나리오
         String scenario;
-        scenario = "1. 모든 Validation 통과";
-        list.add(Arguments.of(scenario, user, openCafe, seatOfOpenCafe, usableTicket, 0));
-        scenario = "2. 해당하는 카페에 속하지 않은 좌석은 Validation 실패";
+        scenario = "1. 해당하는 카페에 속하지 않은 좌석은 Validation 실패";
         list.add(Arguments.of(scenario, user, openCafe, seatOfClosedCafe, ticketOfOpenCafe, 1));
-        scenario = "3. 닫힌 카페는 Validation 실패";
+        scenario = "2. 닫힌 카페는 Validation 실패";
         list.add(Arguments.of(scenario, user, closedCafe, seatOfClosedCafe, ticketOfClosedCafe, 1));
-        scenario = "4. 사용 만료된 티켓으로는 Validation 실패";
+        scenario = "3. 사용 만료된 티켓으로는 Validation 실패";
         list.add(Arguments.of(scenario, user, openCafe, seatOfOpenCafe, unusableTicket, 1));
-        scenario = "5. 해당하는 카페의 티켓이 아니면 Validation 실패";
+        scenario = "4. 해당하는 카페의 티켓이 아니면 Validation 실패";
         list.add(Arguments.of(scenario, user, openCafe, seatOfOpenCafe, ticketOfClosedCafe, 1));
-        scenario = "6. 사용 중인 좌석은 Validation 실패";
+        scenario = "5. 사용 중인 좌석은 Validation 실패";
         list.add(Arguments.of(scenario, user, openCafe, seatStatusReserved, ticketOfOpenCafe, 1));
 
         return list.stream();
@@ -71,8 +68,8 @@ class ReservationValidatorTest {
 
     @ParameterizedTest
     @MethodSource("validateDataProvider")
-    @DisplayName("CafeSeatReservationRule, CafeTicketReservationRule 통합 테스트")
-    void validate(String message, User user, Cafe cafe, Seat seat, Ticket ticket, int expect) {
+    @DisplayName("CafeSeatReservationRule, CafeTicketReservationRule 테스트 - 실패 케이스")
+    void validate_실패(String message, User user, Cafe cafe, Seat seat, Ticket ticket, int expect) {
         log.info("Running Test: {}", message);
 
         // given
@@ -83,20 +80,32 @@ class ReservationValidatorTest {
         ReservationValidator validator = new ReservationValidator(Rules);
 
         // When
-        RuleViolationException exception = null;
-        if (expect == 0) {
-            validator.validate(user, cafe, seat, ticket);
-        } else {
-            Throwable throwable = catchThrowable(() -> validator.validate(user, cafe, seat, ticket));
-            assertThat(throwable).isInstanceOf(RuleViolationException.class);
-            exception = (RuleViolationException) throwable;
-        }
+        Throwable throwable = catchThrowable(() -> validator.validate(user, cafe, seat, ticket));
+        assertThat(throwable).isInstanceOf(RuleViolationException.class);
+        RuleViolationException exception = (RuleViolationException) throwable;
 
         // Then
-        if (expect == 0) {
-            assertThat(exception).isNull();
-        } else {
-            assertThat(exception.getResponses().size()).isEqualTo(expect);
-        }
+        assertThat(exception.getResponses().size()).isEqualTo(expect);
+    }
+
+    @Test
+    @DisplayName("CafeSeatReservationRule, CafeTicketReservationRule 통합 테스트 - 성공 케이스")
+    void validate_성공() {
+        // given
+        List<ReservationRule> Rules = new ArrayList<>();
+        Rules.add(new CafeSeatReservationRule());
+        Rules.add(new CafeTicketReservationRule());
+        Rules.add(new SeatReservationRule());
+        ReservationValidator validator = new ReservationValidator(Rules);
+
+        User admin = UserFixture.ADMIN_BUTTERCUP.toUser();
+        User user = UserFixture.DAISY.toUser();
+        Cafe openCafe = CafeFixture.CAFE_A.toCafe(admin);
+        openCafe.openCafe(admin);
+        Seat seatOfOpenCafe = SeatFixture.SEAT_A.toSeat(openCafe.getId());
+        Ticket usableTicket = TicketFixture.TICKET_B.toFixedTermTicket(user, openCafe, LocalDate.now().plusDays(1));
+
+        // when, then
+        validator.validate(user, openCafe, seatOfOpenCafe, usableTicket);
     }
 }
