@@ -7,12 +7,18 @@ import asc.portfolio.ascSb.follow.exception.FollowException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Component
 public class FollowFinder {
 
     private final FollowingRepository followingRepository;
     private final CafeFinder cafeFinder;
+
+    public Optional<Follow> findOptionalById(Long userId) {
+        return followingRepository.findById(userId);
+    }
 
     public Cafe findFollowedCafe(Long userId) {
         Follow follow = followingRepository.findById(userId).orElseThrow(() -> new FollowException(FollowErrorData.NO_FOLLOWED_CAFE));
