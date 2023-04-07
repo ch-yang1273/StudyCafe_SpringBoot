@@ -2,8 +2,6 @@
 
 ## 스터디카페 이용, 관리앱
 
-- Notion : [협업노션, 자세한 개발 과정이 나와있습니다.](https://furry-ocean-0ef.notion.site/d484ac9d91d84327a01a10238da944fe)
-
 ## 🚀 v2.0 리팩터링
 
 프로젝트를 진행하면서 코드 정리에 어려움을 격어 아키텍처 관련 학습 후 배운 점을 적용하여 리팩터링 중입니다.
@@ -49,11 +47,11 @@ https://github.com/ch-yang1273/StudyCafe_SpringBoot/tree/v1.0
 
 ✂ CQRS 패턴 적용
    - 명령은 void를 반환하고, 조회는 DTO를 반환
-   - Repository를 Read와 CUD로 분리하지는 않음
+   - Read와 CUD를 분리하지는 않음
 
 ### [테스트 관련 수정 내용]
 
-✂ 테스트
+✂ 테스트하기 좋은 코드 작성
 
   - 외부 의존성이 있는 코드와 비즈니스 로직을 분리하고, 단위 테스트 작성
   - [실행 코드 예시](https://github.com/ch-yang1273/StudyCafe_SpringBoot/blob/master/src/main/java/asc/portfolio/ascSb/reservation/domain/ReservationLifecycleManager.java)
@@ -79,20 +77,22 @@ https://github.com/ch-yang1273/StudyCafe_SpringBoot/tree/v1.0
            ...
    }
    ```
-- 시간 메서드 의존을 외부로 빼내어, Mocking 없이 단위 테스트 가능
+- 시간 메서드 의존성을 외부로 빼내어, Mocking 없이 단위 테스트 가능
 - 통합 테스트에서는 mockito-inline 라이브러리 없이 CurrentTimeProvider를 Mocking
-
-*****
 
 ### 남은 작업
 - 단위 테스트 추가
 - Ticket 도메인 코드 정리
 - Orders, Product, AdminFcmToken 도메인 코드 정리
 - 각 도메인에서 VO 세분화
-- Repository 도메인에서 Cafe에 대한 의존성 제거
-- Admin 기능과 User 서비스 기능은 애플리케이션을 분리하는 것이 좋을 듯함
+- Repository Entity의 user와 Cafe에 대한 의존성 제거 (연관 관계가 너무 많음)
+- Admin 기능과 User 서비스 기능은 애플리케이션을 분리하는 것이 좋겠음
+
+*****
 
 ## 🌟 v1.0
+
+- Notion : [협업노션, 자세한 개발 과정이 나와있습니다.](https://furry-ocean-0ef.notion.site/d484ac9d91d84327a01a10238da944fe)
 
 ## 1. 제작 기간 & 참여 인원
 
