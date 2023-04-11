@@ -35,7 +35,5 @@ out/
 
 ### VS Code ###
 .vscode/
-
-application-db.properties
-application-jwt.properties
+application-prod.properties
 /src/main/resources/firebase/asc-fcm-firebase-adminsdk-16y8u-046592cf63.json

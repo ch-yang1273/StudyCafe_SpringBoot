@@ -12,6 +12,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Import(TestQueryDslConfig.class)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 class SeatRepositoryTest {
 
@@ -44,7 +46,7 @@ class SeatRepositoryTest {
         int count = 0;
         for (Seat seat : seats) {
             count++;
-            seat.startSeatUsage(SeatFixture.makeUsageData(user.getId(), now.plusMinutes(count)));
+            seat.startSeatUsage(SeatFixture.makeUsageData(user.getId() + count, now.plusMinutes(count)));
         }
 
         userRepository.save(user);
