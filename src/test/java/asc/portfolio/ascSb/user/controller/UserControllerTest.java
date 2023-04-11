@@ -9,7 +9,6 @@ import asc.portfolio.ascSb.user.dto.UserLoginRequest;
 import asc.portfolio.ascSb.user.domain.TokenPairDto;
 import asc.portfolio.ascSb.user.dto.UserQrCodeResponse;
 import asc.portfolio.ascSb.user.dto.UserReissueRequest;
-import asc.portfolio.ascSb.user.infra.MapTokenRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
@@ -37,7 +36,7 @@ import static org.assertj.core.api.Assertions.*;
 @AutoConfigureMockMvc
 @Transactional
 @SpringBootTest
-@Import({MapTokenRepository.class, UserMockMvcHelper.class, UserRepositoryHelper.class})
+@Import({UserMockMvcHelper.class, UserRepositoryHelper.class})
 class UserControllerTest {
 
     static final String BASE_URL = "/api/v1/user";

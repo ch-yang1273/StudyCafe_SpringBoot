@@ -1,4 +1,4 @@
-package asc.portfolio.ascSb.cafe.controller;
+package asc.portfolio.ascSb._integrational.cafe;
 
 import asc.portfolio.ascSb.cafe.dto.CafeResponse;
 import asc.portfolio.ascSb.support.User.UserFixture;
@@ -7,7 +7,6 @@ import asc.portfolio.ascSb.support.User.UserRepositoryHelper;
 import asc.portfolio.ascSb.support.cafe.CafeFixture;
 import asc.portfolio.ascSb.support.cafe.CafeMockMvcHelper;
 import asc.portfolio.ascSb.user.domain.TokenPairDto;
-import asc.portfolio.ascSb.user.infra.MapTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureMockMvc
 @Transactional
 @SpringBootTest
-@Import({MapTokenRepository.class, CafeMockMvcHelper.class, UserMockMvcHelper.class, UserRepositoryHelper.class})
+@Import({CafeMockMvcHelper.class, UserMockMvcHelper.class, UserRepositoryHelper.class})
 class CafeControllerTest {
 
     @Autowired

@@ -1,4 +1,4 @@
-package asc.portfolio.ascSb.follow.controller;
+package asc.portfolio.ascSb._integrational.follow;
 
 import asc.portfolio.ascSb.cafe.dto.CafeResponse;
 import asc.portfolio.ascSb.follow.dto.CafeFollowersResponse;
@@ -9,7 +9,6 @@ import asc.portfolio.ascSb.support.cafe.CafeFixture;
 import asc.portfolio.ascSb.support.cafe.CafeMockMvcHelper;
 import asc.portfolio.ascSb.support.follw.FollowMockMvcHelper;
 import asc.portfolio.ascSb.user.domain.TokenPairDto;
-import asc.portfolio.ascSb.user.infra.MapTokenRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,8 +27,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 @SpringBootTest
 @Import({
-        MapTokenRepository.class, CafeMockMvcHelper.class,
-        UserMockMvcHelper.class, UserRepositoryHelper.class,
+        CafeMockMvcHelper.class,
+        UserMockMvcHelper.class,
+        UserRepositoryHelper.class,
         FollowMockMvcHelper.class
 })
 class FollowControllerTest {
