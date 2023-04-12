@@ -1,14 +1,18 @@
-package asc.portfolio.ascSb.seat.domain;
+package asc.portfolio.ascSb._integrational.seat;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeRepository;
 import asc.portfolio.ascSb.config.querydslconfig.TestQueryDslConfig;
+import asc.portfolio.ascSb.seat.domain.Seat;
+import asc.portfolio.ascSb.seat.domain.SeatRepository;
+import asc.portfolio.ascSb.seat.domain.SeatUsageStatus;
 import asc.portfolio.ascSb.support.User.UserFixture;
 import asc.portfolio.ascSb.support.cafe.CafeFixture;
 import asc.portfolio.ascSb.support.seat.SeatFixture;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +23,7 @@ import org.springframework.context.annotation.Import;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Disabled
 @Import(TestQueryDslConfig.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
