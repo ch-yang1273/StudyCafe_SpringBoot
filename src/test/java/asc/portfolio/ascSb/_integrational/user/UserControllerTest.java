@@ -12,7 +12,6 @@ import asc.portfolio.ascSb.user.dto.UserReissueRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
@@ -34,7 +33,6 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
 
-@Disabled
 @AutoConfigureMockMvc
 @Transactional
 @SpringBootTest
