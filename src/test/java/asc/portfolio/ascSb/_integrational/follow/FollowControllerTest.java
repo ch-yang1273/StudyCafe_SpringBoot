@@ -11,7 +11,6 @@ import asc.portfolio.ascSb.support.follw.FollowMockMvcHelper;
 import asc.portfolio.ascSb.user.domain.TokenPairDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled
 @AutoConfigureMockMvc
 @Transactional
 @SpringBootTest
