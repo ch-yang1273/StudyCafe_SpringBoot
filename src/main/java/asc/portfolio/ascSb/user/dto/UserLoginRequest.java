@@ -12,12 +12,12 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class UserLoginRequest {
 
-    @Schema(description = "아이디", example = "tUser_A_login")
+    @Schema(description = "아이디", example = "testUserId")
     @NotBlank
     @Length(min = 8, max = 16)
     private String loginId;
 
-    @Schema(description = "패스워드", example = "tUser_A_password")
+    @Schema(description = "패스워드", example = "abcdef123456")
     @NotBlank
     @Length(min = 8)
     private String password;

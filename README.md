@@ -14,6 +14,7 @@ https://github.com/ch-yang1273/StudyCafe_SpringBoot/tree/v1.0
 - 각 레이어의 역할을 구분 (Controller, Service, Repository, Domain)
 - 패키지 간 순환이 발생하지 않도록 의존성을 정리
 - 테스트하기 좋은 코드를 작성하고, 단위 테스트 작성
+- GitHub Actions를 사용하여 CI/CD 적용
 
 ### 기간
 - 2023년 3월 11일 ~ 진행 중
@@ -47,7 +48,7 @@ https://github.com/ch-yang1273/StudyCafe_SpringBoot/tree/v1.0
 
 ✂ CQRS 패턴 적용
    - 명령은 void를 반환하고, 조회는 DTO를 반환
-   - Read와 CUD를 분리하지는 않음
+   - Read와 CUD를 분리하지는 않았음
 
 ### [테스트 관련 수정 내용]
 
@@ -79,6 +80,35 @@ https://github.com/ch-yang1273/StudyCafe_SpringBoot/tree/v1.0
    ```
 - 시간 메서드 의존성을 외부로 빼내어, Mocking 없이 단위 테스트 가능
 - 통합 테스트에서는 mockito-inline 라이브러리 없이 CurrentTimeProvider를 Mocking
+
+### [Github Actions를 사용하여 CI/CD 적용]
+
+### [@EC2 퍼블릭 IPv4 주소](http://3.34.210.88:8080/)
+
+Github Actions를 이용하여 CI/CD를 적용했습니다.
+
+- Master Branch 외의 Branch에 Push 시, Github Actions를 통해 테스트를 진행
+- Master Branch에 Push 시, 테스트를 진행하고, AWS CodeDeploy를 통해 배포
+
+🔨 CI (master branch 외)
+```mermaid
+flowchart LR
+    A[Push] --> B[Container Init] --> C[빌드 환경 구성] --> D[빌드 환경 Caching] --> E[단위/통합 테스트]
+```
+- MariaDB, Redis Container를 Init 하여 단위/통합 테스트 진행
+- 빌드 환경 Caching를 통해 빌드 속도를 높임
+- [ci.yml](https://github.com/ch-yang1273/StudyCafe_SpringBoot/blob/master/.github/workflows/ci.yml)
+
+🔨 CI/CD (master branch)
+```mermaid
+flowchart LR
+    A[Push] --> B([CI: Test & Build]) --> C[빌드 파일 압축] --> D[AWS 인증 정보 설정] --> E[S3 업로드] --> F[S3에서 EC2로 배포]
+```
+- Master Branch에서는 CI에 추가로 배포(CD)까지 진행
+- 빌드 파일을 S3에 업로드하고, CodeDeploy를 통해 배포
+- 배포 후 application.properties를 Production 용으로 교체하고 애플리케이션 재시작
+- [cicd.yml](https://github.com/ch-yang1273/StudyCafe_SpringBoot/blob/master/.github/workflows/cicd.yml)
+- [application-start.sh](https://github.com/ch-yang1273/StudyCafe_SpringBoot/blob/master/scripts/application-start.sh)
 
 ### 남은 작업
 - 단위 테스트 추가
