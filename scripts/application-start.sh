@@ -21,5 +21,7 @@ else
 fi
 
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
-echo "> DEPLOY_JAR deploy"    >> /home/ec2-user/deploy.log
-nohup java -jar -Dspring.config.location=file:/home/ec2-user/resources/ $DEPLOY_JAR >> /home/ec2-user/deploy.log 2>/home/ec2-user/deploy_err.log &
+PROPERTIES_LIST=file:/home/ec2-user/resources/application.properties,file:/home/ec2-user/resources/application-prod.properties
+echo "> DEPLOY_JAR deploy" >> /home/ec2-user/deploy.log
+echo "> properties: $PROPERTIES_LIST" >> /home/ec2-user/deploy.log
+nohup java -jar -Dspring.config.location=$PROPERTIES_LIST $DEPLOY_JAR >> /home/ec2-user/deploy.log 2>/home/ec2-user/deploy_err.log &
