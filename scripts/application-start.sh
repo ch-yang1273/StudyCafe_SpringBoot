@@ -4,10 +4,6 @@ BUILD_JAR=$(ls /home/ec2-user/build/build/libs/ascSb-0.0.1-SNAPSHOT.jar)
 JAR_NAME=$(basename $BUILD_JAR)
 echo "> build file name: $JAR_NAME" >> /home/ec2-user/deploy.log
 
-echo "> build file copy" >> /home/ec2-user/deploy.log
-DEPLOY_PATH=/home/ec2-user/
-cp $BUILD_JAR $DEPLOY_PATH
-
 echo "> Checl the currently running application PID" >> /home/ec2-user/deploy.log
 CURRENT_PID=$(pgrep -f $JAR_NAME)
 
@@ -19,6 +15,10 @@ else
   kill -15 $CURRENT_PID
   sleep 5
 fi
+
+echo "> build file copy" >> /home/ec2-user/deploy.log
+DEPLOY_PATH=/home/ec2-user/
+cp $BUILD_JAR $DEPLOY_PATH
 
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
 PROPERTIES_LIST=file:/home/ec2-user/resources/application.properties,file:/home/ec2-user/resources/application-prod.properties
