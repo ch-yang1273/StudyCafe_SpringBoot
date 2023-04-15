@@ -28,8 +28,8 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Transactional
     @Override
-    public void signUp(UserSignupRequest signUpDto) {
-        User newUser = signUpDto.toEntity();
+    public void signup(UserSignupRequest signupDto) {
+        User newUser = signupDto.toEntity();
         newUser.encryptPassword(passwordEncoder);
 
         userRepository.save(newUser);
