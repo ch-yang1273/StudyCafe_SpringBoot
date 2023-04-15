@@ -5,7 +5,7 @@ import asc.portfolio.ascSb.user.dto.UserSignupRequest;
 
 public interface UserAuthService {
 
-    void signUp(UserSignupRequest signUpDto);
+    void signup(UserSignupRequest signupDto);
 
     TokenPairDto checkPassword(String loginId, String password);
 

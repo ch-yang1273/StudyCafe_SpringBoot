@@ -1,29 +1,26 @@
 package asc.portfolio.ascSb.user.controller;
 
 import asc.portfolio.ascSb.common.auth.LoginUser;
-import asc.portfolio.ascSb.user.dto.UserLoginRequest;
 import asc.portfolio.ascSb.user.domain.TokenPairDto;
+import asc.portfolio.ascSb.user.dto.UserLoginRequest;
 import asc.portfolio.ascSb.user.dto.UserProfile;
 import asc.portfolio.ascSb.user.dto.UserQrCodeResponse;
-import asc.portfolio.ascSb.user.dto.UserSignupRequest;
 import asc.portfolio.ascSb.user.dto.UserReissueRequest;
+import asc.portfolio.ascSb.user.dto.UserSignupRequest;
 import asc.portfolio.ascSb.user.service.UserAuthService;
 import asc.portfolio.ascSb.user.service.UserRoleCheckService;
 import asc.portfolio.ascSb.user.service.UserService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -35,34 +32,10 @@ public class UserController {
     private final UserRoleCheckService userRoleCheckService;
     private final UserService userService;
 
-    private String validateSingUpDto(BindingResult bindingResult) {
-        Map<String, String> map = new HashMap<>();
-        for (FieldError error : bindingResult.getFieldErrors()) {
-            map.put(error.getField(), error.getDefaultMessage());
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(map);
-        } catch (JsonProcessingException ex) {
-            throw new RuntimeException("JsonProcessingException", ex);
-        }
-    }
-
-    //bindingResult 관련도 에러 메시지 통합할 수 있겠다. 발생되는 에러 유형만 확인해서 Advice 만듭시다.
     @PostMapping("/signup")
-    public ResponseEntity<String> singUp(@RequestBody @Valid UserSignupRequest signUpDto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return new ResponseEntity<>(validateSingUpDto(bindingResult), HttpStatus.BAD_REQUEST);
-        }
-
-        try {
-            userAuthService.signUp(signUpDto);
-        } catch (DataIntegrityViolationException ex) {
-            return new ResponseEntity<>("Unique violation", HttpStatus.BAD_REQUEST);
-        }
-
-        return ResponseEntity.ok().body("OK");
+    public ResponseEntity<Void> signup(@RequestBody @Valid UserSignupRequest signupDto) {
+        userAuthService.signup(signupDto);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")

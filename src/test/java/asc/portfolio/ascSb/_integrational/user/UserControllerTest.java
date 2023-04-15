@@ -85,14 +85,14 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("중복 회원가입에는 BadRequest status를 반환한다.")
+    @DisplayName("중복 회원가입에는 Confilct status를 반환한다.")
     public void User_중복_회원가입() throws Exception {
         mvcHelper.회원가입을_한다(UserFixture.BLOO)
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
         mvcHelper.회원가입을_한다(UserFixture.BLOO)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.status().isConflict())
                 .andDo(MockMvcResultHandlers.print());
     }
 
