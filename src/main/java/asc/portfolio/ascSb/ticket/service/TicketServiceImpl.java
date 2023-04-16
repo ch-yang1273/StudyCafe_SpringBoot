@@ -17,12 +17,10 @@ import asc.portfolio.ascSb.ticket.exception.TicketException;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserFinder;
 import asc.portfolio.ascSb.bootpay.dto.BootPayOrderDto;
-import asc.portfolio.ascSb.ticket.dto.TicketForAdminResponse;
 import asc.portfolio.ascSb.ticket.dto.TicketStatusResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -30,7 +28,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional(propagation = Propagation.REQUIRED)
 @RequiredArgsConstructor
 @Slf4j
 public class TicketServiceImpl implements TicketService {
@@ -44,6 +41,7 @@ public class TicketServiceImpl implements TicketService {
     private final FollowingRepository followingRepository; // todo : 삭제
     private final ProductRepository productRepository;
 
+    @Transactional(readOnly = true)
     @Override
     public TicketStatusResponse userValidTicket(Long userId, String cafeName) {
         Cafe cafe = cafeFinder.findByCafeName(cafeName);
@@ -53,6 +51,7 @@ public class TicketServiceImpl implements TicketService {
     }
 
     //todo 코드 너무 길다.
+    @Transactional
     @Override
     public void saveProductToTicket(Long userId, BootPayOrderDto bootPayOrderDto, Orders orders) {
         User user = userFinder.findById(userId);
@@ -114,6 +113,7 @@ public class TicketServiceImpl implements TicketService {
         }
     }
 
+    @Transactional
     @Override
     public List<TicketStatusResponse> lookupUserTickets(String userLoginId, Long adminId) {
         User user = userFinder.findByLoginId(userLoginId);
@@ -125,16 +125,7 @@ public class TicketServiceImpl implements TicketService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public TicketForAdminResponse adminLookUpUserValidTicket(String userLoginId, Long adminId) throws NullPointerException {
-        User user = userFinder.findByLoginId(userLoginId);
-        Cafe adminCafe = cafeFinder.findByAdminId(adminId);
-
-        Ticket ticket = ticketFinder.findTicketByUserIdAndCafeIdAndInUseStatus(user.getId(), adminCafe.getId());
-        String productNameType = productRepository.findByProductLabelContains(ticket.getProductLabel()).getProductNameType().getValue();
-        return new TicketForAdminResponse(ticket, productNameType);
-    }
-
+    @Transactional
     @Override
     public void setInvalidTicket(String productLabel) {
         Ticket deleteTicket = ticketRepository.findByProductLabelContains(productLabel);

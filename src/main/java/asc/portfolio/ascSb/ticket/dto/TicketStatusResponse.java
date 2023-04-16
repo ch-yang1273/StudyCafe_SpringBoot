@@ -2,6 +2,7 @@ package asc.portfolio.ascSb.ticket.dto;
 
 import asc.portfolio.ascSb.ticket.domain.Ticket;
 import asc.portfolio.ascSb.ticket.domain.TicketStatus;
+import asc.portfolio.ascSb.ticket.domain.TicketType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,14 +14,14 @@ import java.time.LocalDate;
 public class TicketStatusResponse {
 
     private Long id;
-    private String type;
+    private TicketType type;
     private TicketStatus status;
     private LocalDate expiryTime;   // for Fixed-Ticket
     private Long totalDuration;     // for Part-time Ticket
     private Long remainTime;        // for Part-time Ticket
 
     @Builder
-    public TicketStatusResponse(Long id, String type, TicketStatus status,
+    public TicketStatusResponse(Long id, TicketType type, TicketStatus status,
                                 LocalDate expiryTime, Long totalDuration, Long remainTime) {
         this.id = id;
         this.type = type;
@@ -33,7 +34,7 @@ public class TicketStatusResponse {
     public static TicketStatusResponse of(Ticket ticket) {
         return TicketStatusResponse.builder()
                 .id(ticket.getId())
-                .type(ticket.getTicketType().getName())
+                .type(ticket.getTicketType())
                 .status(ticket.getStatus())
                 .expiryTime(ticket.getExpiryDate())
                 .totalDuration(ticket.getTotalDuration())
