@@ -2,12 +2,10 @@ package asc.portfolio.ascSb.ticket.controller;
 
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.ticket.service.TicketService;
-import asc.portfolio.ascSb.ticket.dto.TicketForAdminResponse;
 import asc.portfolio.ascSb.ticket.dto.TicketStatusResponse;
 import asc.portfolio.ascSb.user.service.UserRoleCheckService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,22 +25,15 @@ public class TicketController {
     private final UserRoleCheckService userRoleCheckService;
 
     @GetMapping("/{cafeName}")
-    public TicketStatusResponse userTicket(@LoginUser Long userId, @PathVariable String cafeName) {
-        return ticketService.userValidTicket(userId, cafeName);
+    public ResponseEntity<TicketStatusResponse> getMyTicket(@LoginUser Long userId, @PathVariable String cafeName) {
+        // todo : 소유한 모든 카페의 Ticket을 가져오도록 수정
+        return ResponseEntity.ok().body(ticketService.userValidTicket(userId, cafeName));
     }
 
     @GetMapping("/lookup")
     public ResponseEntity<List<TicketStatusResponse>> lookupUserTickets(@LoginUser Long adminId,
                                                                         @RequestParam("user") String targetUserLoginId) {
-
-        userRoleCheckService.isAdmin(adminId);
-        List<TicketStatusResponse> ticketStatusResponse = ticketService.lookupUserTickets(targetUserLoginId, adminId);
-        return new ResponseEntity<>(ticketStatusResponse, HttpStatus.OK);
-    }
-
-    @GetMapping("/admin/lookup")
-    public ResponseEntity<TicketForAdminResponse> adminLookUpUserValidTicket(@LoginUser Long adminId, @RequestParam String userLoginId) {
-        userRoleCheckService.isAdmin(adminId);
-        return new ResponseEntity<>(ticketService.adminLookUpUserValidTicket(userLoginId, adminId), HttpStatus.OK);
+        // todo : 조건 검색 추가
+        return ResponseEntity.ok().body(ticketService.lookupUserTickets(targetUserLoginId, adminId));
     }
 }

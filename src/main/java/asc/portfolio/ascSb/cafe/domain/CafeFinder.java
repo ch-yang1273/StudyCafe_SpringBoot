@@ -20,6 +20,6 @@ public class CafeFinder {
     }
 
     public Cafe findByAdminId(Long adminId) {
-        return cafeRepository.findByAdminId(adminId).orElseThrow(() -> new CafeException(CafeErrorData.CAFE_NOT_FOUND));
+        return cafeRepository.findByAdminId(adminId).orElseThrow(() -> new CafeException(CafeErrorData.ADMIN_NOT_FOUND));
     }
 }

@@ -9,9 +9,12 @@ import asc.portfolio.ascSb.seat.domain.SeatFinder;
 import asc.portfolio.ascSb.seat.dto.SeatUsageEndingSoonEvent;
 import asc.portfolio.ascSb.seat.dto.SeatUsageTerminatedEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class SeatUsageEventListener {
@@ -21,8 +24,9 @@ public class SeatUsageEventListener {
     private ReservationLifecycleManager reservationLifecycleManager;
     private CurrentTimeProvider currentTimeProvider;
 
-    @TransactionalEventListener(SeatUsageEndingSoonEvent.class)
+    @EventListener
     public void handleEndingSoonEvent(SeatUsageEndingSoonEvent event) {
+        log.info("Handling SeatUsageEndingSoonEvent: SeatId={}, TimeStamp={}", event.getSeatId(), event.getTimestamp());
         //todo : FCM Alert
     }
 
