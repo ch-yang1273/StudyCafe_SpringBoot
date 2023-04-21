@@ -1,9 +1,9 @@
 package asc.portfolio.ascSb.firebase.controller;
 
 import asc.portfolio.ascSb.common.auth.LoginUser;
-import asc.portfolio.ascSb.firebase.service.FirebaseCloudMessageService;
-import asc.portfolio.ascSb.firebase.service.fcmtoken.FCMTokenService;
 import asc.portfolio.ascSb.firebase.dto.FCMRequestDto;
+import asc.portfolio.ascSb.firebase.service.CloudMessageService;
+import asc.portfolio.ascSb.firebase.service.fcmtoken.FCMTokenService;
 import asc.portfolio.ascSb.user.service.UserRoleCheckService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class FirebaseController {
 
     private final FCMTokenService fcmTokenService;
     private final UserRoleCheckService userRoleCheckService;
-    private final FirebaseCloudMessageService firebaseCloudMessageService;
+    private final CloudMessageService cloudMessageService;
 
     @PostMapping("/cm-token/confirm")
     public ResponseEntity<?> checkFCMToken(@LoginUser Long userId, @RequestParam String fCMToken) {
@@ -53,7 +53,7 @@ public class FirebaseController {
 
         String targetToken = fcmTokenService.adminFindSpecificToken(requestDTO.getUser_name());
 
-        firebaseCloudMessageService.sendMessageToSpecificUser(
+        cloudMessageService.sendMessageToSpecificUser(
                 targetToken,
                 requestDTO.getTitle(),
                 requestDTO.getBody());

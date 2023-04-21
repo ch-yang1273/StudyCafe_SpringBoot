@@ -23,18 +23,6 @@ public class SeatScheduleService {
     private final CommonEventsPublisher eventsPublisher;
 
     @Transactional
-    public void updateApproachingExpiredSeatsStatus(LocalDateTime now) {
-        List<Seat> seats = seatRepository.findSeatsByStatusWithEndTimeBefore(
-                SeatUsageStatus.IN_USE,
-                now.minusMinutes(10));
-
-        for (Seat seat : seats) {
-            seat.changeUsageStatusEndingSoon();
-            eventsPublisher.raise(new SeatUsageEndingSoonEvent(seat.getId(), now));
-        }
-    }
-
-    @Transactional
     public void terminateExpiredSeatsStatus(LocalDateTime now) {
         List<Seat> seats = seatRepository.findSeatsByStatusWithEndTimeBefore(
                 SeatUsageStatus.ENDING_SOON,
@@ -44,6 +32,18 @@ public class SeatScheduleService {
         for (Seat seat : seats) {
             seat.scheduleSeatUsageTermination();
             eventsPublisher.raise(new SeatUsageTerminatedEvent(seat.getId(), now));
+        }
+    }
+
+    @Transactional
+    public void updateApproachingExpiredSeatsStatus(LocalDateTime now) {
+        List<Seat> seats = seatRepository.findSeatsByStatusWithEndTimeBefore(
+                SeatUsageStatus.IN_USE,
+                now.minusMinutes(10));
+
+        for (Seat seat : seats) {
+            seat.changeUsageStatusEndingSoon();
+            eventsPublisher.raise(new SeatUsageEndingSoonEvent(seat.getId(), now));
         }
     }
 
