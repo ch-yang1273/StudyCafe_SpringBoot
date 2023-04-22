@@ -5,7 +5,6 @@ import asc.portfolio.ascSb.firebase.service.CloudMessageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
-import lombok.RequiredArgsConstructor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -19,13 +18,17 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.List;
 
-@RequiredArgsConstructor
 @Component
 public class CloudMessageServiceImpl implements CloudMessageService {
 
-    //API의 엔드포인트 URL
-    @Value("${firebase.project-id}")
-    private final String API_URL;
+    private final String apiURL;
+    private final String firebaseCertification;
+
+    public CloudMessageServiceImpl(@Value("${firebase.project-id}") String projectId,
+                                   @Value("${firebase.certification}") String firebaseCertification) {
+        this.apiURL = "https://fcm.googleapis.com/v1/projects/" + projectId + "/messages:send";
+        this.firebaseCertification = firebaseCertification;
+    }
 
     @Override
     public void sendMessageToSpecificUser(String deviceToken, String title, String body) throws IOException {
@@ -35,7 +38,7 @@ public class CloudMessageServiceImpl implements CloudMessageService {
         RequestBody requestBody = RequestBody.create(message,
                 MediaType.get("application/json; charset=utf-8"));
         Request request = new Request.Builder()
-                .url(API_URL)
+                .url(apiURL)
                 .post(requestBody)
                 .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
                 .addHeader(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8")
@@ -63,12 +66,9 @@ public class CloudMessageServiceImpl implements CloudMessageService {
     }
 
     private String getAccessToken() throws IOException {
-
         // Firebase springBoot private secret key
-        String firebaseConfigPath = "firebase/asc-fcm-firebase-adminsdk-16y8u-046592cf63.json";
-
         GoogleCredentials googleCredentials = GoogleCredentials
-                .fromStream(new ClassPathResource(firebaseConfigPath).getInputStream())
+                .fromStream(new ClassPathResource(firebaseCertification).getInputStream())
                 .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
 
         googleCredentials.refreshIfExpired();
