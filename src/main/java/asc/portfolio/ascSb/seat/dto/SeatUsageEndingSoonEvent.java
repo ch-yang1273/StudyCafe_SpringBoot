@@ -1,22 +1,19 @@
 package asc.portfolio.ascSb.seat.dto;
 
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 
+@Getter
 public class SeatUsageEndingSoonEvent {
 
+    private final Long userId;
     private final Long seatId;
     private final LocalDateTime timestamp;
 
-    public SeatUsageEndingSoonEvent(Long seatId, LocalDateTime timestamp) {
+    public SeatUsageEndingSoonEvent(Long userId, Long seatId, LocalDateTime timestamp) {
+        this.userId = userId;
         this.seatId = seatId;
         this.timestamp = timestamp;
-    }
-
-    public Long getSeatId() {
-        return seatId;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
     }
 }

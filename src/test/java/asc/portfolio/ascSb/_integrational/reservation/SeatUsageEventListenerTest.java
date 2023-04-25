@@ -7,7 +7,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
 
@@ -24,7 +24,7 @@ class SeatUsageEventListenerTest {
     @Autowired
     private CommonEventsPublisher eventsPublisher;
 
-    @SpyBean
+    @MockBean
     private SeatUsageEventListener listener;
 
     @Autowired
@@ -32,7 +32,7 @@ class SeatUsageEventListenerTest {
 
     @Test
     void raise() {
-        eventsPublisher.raise(new SeatUsageEndingSoonEvent(1L, LocalDateTime.now()));
+        eventsPublisher.raise(new SeatUsageEndingSoonEvent(1L, 1L, LocalDateTime.now()));
 
         // 1. Mockito로 EventListener 가 호출되었는지 확인
         verify(listener, times(1)).handleEndingSoonEvent(any());

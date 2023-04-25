@@ -60,7 +60,7 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.13'
 
     // FCM 관련 의존성 추가
-    implementation 'com.google.firebase:firebase-admin:8.1.0'
+    implementation 'com.google.firebase:firebase-admin:9.1.1'
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.0'
 }
 
