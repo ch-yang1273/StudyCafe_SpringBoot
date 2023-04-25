@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export GOOGLE_APPLICATION_CREDENTIALS="/home/ec2-user/resources/firebase/certification.json
+
 BUILD_JAR=$(ls /home/ec2-user/build/build/libs/ascSb-0.0.1-SNAPSHOT.jar)
 JAR_NAME=$(basename $BUILD_JAR)
 echo "> build file name: $JAR_NAME" >> /home/ec2-user/deploy.log
