@@ -28,10 +28,13 @@ public class SeatScheduleService {
                 SeatUsageStatus.ENDING_SOON,
                 now);
 
-        log.debug("seats.size = {}", seats.size());
         for (Seat seat : seats) {
             seat.scheduleSeatUsageTermination();
-            eventsPublisher.raise(new SeatUsageTerminatedEvent(seat.getId(), now));
+            eventsPublisher.raise(new SeatUsageTerminatedEvent(seat.getUserId(), seat.getId(), now));
+        }
+
+        if (seats.size() > 0) {
+            log.info("Number of seats terminated: {}", seats.size());
         }
     }
 
@@ -43,29 +46,11 @@ public class SeatScheduleService {
 
         for (Seat seat : seats) {
             seat.changeUsageStatusEndingSoon();
-            eventsPublisher.raise(new SeatUsageEndingSoonEvent(seat.getId(), now));
+            eventsPublisher.raise(new SeatUsageEndingSoonEvent(seat.getUserId(), seat.getId(), now));
+        }
+
+        if (seats.size() > 0) {
+            log.info("Number of seats approaching expiration: {}", seats.size());
         }
     }
-
-//    private void alertFcm(List<Seat> list) {
-//        // TODO
-//        /* List<Seat>에서 FCM을 보낼 유저들을 특정 후 FireBase서버를 경유해 10분 남았다고 알림을 요청 */
-//        List<Long> userIds = list.stream()
-//                .map(Seat::getUserId)
-//                .collect(Collectors.toList());
-//
-//        for (Long id : userIds) {
-//            User user = userFinder.findById(id);
-//            // todo 필수 값이 아닌 userName으로 검색을하고 있다. loginId로 변경
-//            String token = redisRepository.getValue(user.getName() + "_" + "USER" + "_FCM_TOKEN");
-//            try {
-//                firebaseCloudMessageService.sendMessageToSpecificUser(token,
-//                        "알라딘 스터디카페",
-//                        "좌석이 10분 남았습니다.");
-//            } catch (IOException e) {
-//                log.info("FCM Message sending failed");
-//                e.printStackTrace();
-//            }
-//        }
-//    }
 }

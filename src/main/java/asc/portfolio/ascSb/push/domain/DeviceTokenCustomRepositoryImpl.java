@@ -14,8 +14,8 @@ public class DeviceTokenCustomRepositoryImpl implements DeviceTokenCustomReposit
 
     @Override
     public void deleteExpiredToken(LocalDate now) {
-        query.delete(QFcmToken.fcmToken)
-                .where(QFcmToken.fcmToken.expiredAt.before(now))
+        query.delete(QDeviceToken.deviceToken)
+                .where(QDeviceToken.deviceToken.expiredAt.before(now))
                 .execute();
     }
 }

@@ -7,10 +7,12 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MulticastMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Slf4j
+@Component
 public class FcmPushMessageSender implements PushMessageSender {
 
     @Override
