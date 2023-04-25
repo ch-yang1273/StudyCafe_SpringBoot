@@ -1,4 +1,4 @@
-package asc.portfolio.ascSb.firebase.dto.fcmtoken;
+package asc.portfolio.ascSb.firebase_old.dto.fcmtoken;
 
 import asc.portfolio.ascSb.adminfcmtoken.domain.AdminFCMToken;
 import asc.portfolio.ascSb.cafe.domain.Cafe;

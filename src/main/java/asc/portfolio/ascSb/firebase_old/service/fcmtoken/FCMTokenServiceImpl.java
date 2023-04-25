@@ -1,4 +1,4 @@
-package asc.portfolio.ascSb.firebase.service.fcmtoken;
+package asc.portfolio.ascSb.firebase_old.service.fcmtoken;
 
 import asc.portfolio.ascSb.adminfcmtoken.domain.AdminFCMToken;
 import asc.portfolio.ascSb.adminfcmtoken.domain.AdminFCMTokenRepository;
@@ -6,7 +6,7 @@ import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeFinder;
 import asc.portfolio.ascSb.common.infra.redis.RedisRepository;
 import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.firebase.dto.fcmtoken.AdminFCMTokenRequestDto;
+import asc.portfolio.ascSb.firebase_old.dto.fcmtoken.AdminFCMTokenRequestDto;
 import asc.portfolio.ascSb.user.domain.UserFinder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

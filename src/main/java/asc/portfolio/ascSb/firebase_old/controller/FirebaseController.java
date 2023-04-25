@@ -1,9 +1,9 @@
-package asc.portfolio.ascSb.firebase.controller;
+package asc.portfolio.ascSb.firebase_old.controller;
 
 import asc.portfolio.ascSb.common.auth.LoginUser;
-import asc.portfolio.ascSb.firebase.dto.FCMRequestDto;
-import asc.portfolio.ascSb.firebase.service.CloudMessageService;
-import asc.portfolio.ascSb.firebase.service.fcmtoken.FCMTokenService;
+import asc.portfolio.ascSb.firebase_old.dto.FCMRequestDto;
+import asc.portfolio.ascSb.firebase_old.service.CloudMessageService;
+import asc.portfolio.ascSb.firebase_old.service.fcmtoken.FCMTokenService;
 import asc.portfolio.ascSb.user.service.UserRoleCheckService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

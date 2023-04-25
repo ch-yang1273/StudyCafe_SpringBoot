@@ -1,7 +1,7 @@
-package asc.portfolio.ascSb.firebase.infra;
+package asc.portfolio.ascSb.firebase_old.infra;
 
-import asc.portfolio.ascSb.firebase.dto.FCMMessageDto;
-import asc.portfolio.ascSb.firebase.service.CloudMessageService;
+import asc.portfolio.ascSb.firebase_old.dto.FCMMessageDto;
+import asc.portfolio.ascSb.firebase_old.service.CloudMessageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;

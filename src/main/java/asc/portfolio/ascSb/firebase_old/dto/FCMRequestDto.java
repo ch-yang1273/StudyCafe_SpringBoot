@@ -1,4 +1,4 @@
-package asc.portfolio.ascSb.firebase.dto;
+package asc.portfolio.ascSb.firebase_old.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
