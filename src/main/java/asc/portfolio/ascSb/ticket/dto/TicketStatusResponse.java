@@ -14,6 +14,7 @@ import java.time.LocalDate;
 public class TicketStatusResponse {
 
     private Long id;
+    private Long cafeId;
     private TicketType type;
     private TicketStatus status;
     private LocalDate expiryTime;   // for Fixed-Ticket
@@ -21,9 +22,10 @@ public class TicketStatusResponse {
     private Long remainTime;        // for Part-time Ticket
 
     @Builder
-    public TicketStatusResponse(Long id, TicketType type, TicketStatus status,
+    public TicketStatusResponse(Long id, Long cafeId, TicketType type, TicketStatus status,
                                 LocalDate expiryTime, Long totalDuration, Long remainTime) {
         this.id = id;
+        this.cafeId = cafeId;
         this.type = type;
         this.status = status;
         this.expiryTime = expiryTime;
@@ -34,6 +36,7 @@ public class TicketStatusResponse {
     public static TicketStatusResponse of(Ticket ticket) {
         return TicketStatusResponse.builder()
                 .id(ticket.getId())
+                .cafeId(ticket.getCafeId())
                 .type(ticket.getTicketType())
                 .status(ticket.getStatus())
                 .expiryTime(ticket.getExpiryDate())
