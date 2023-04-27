@@ -10,4 +10,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, TicketCus
     Ticket findByProductLabelContains(String productLabel);
 
     List<Ticket> findAllByUserIdAndCafeId(Long userId, Long cafeId);
+
+    List<Ticket> findAllByUserId(Long userId);
 }

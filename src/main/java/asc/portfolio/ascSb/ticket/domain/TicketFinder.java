@@ -26,4 +26,8 @@ public class TicketFinder {
     public List<Ticket> findAllByUserIdAndCafeId(Long userId, Long cafeId) {
         return ticketRepository.findAllByUserIdAndCafeId(userId, cafeId);
     }
+
+    public List<Ticket> findAllByUserId(Long userId) {
+        return ticketRepository.findAllByUserId(userId);
+    }
 }

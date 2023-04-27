@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface TicketService {
 
+    List<TicketStatusResponse> getAllUserTickets(Long userId);
+
     TicketStatusResponse userValidTicket(Long userId, String cafeName);
 
     void saveProductToTicket(Long userId, BootPayOrderDto bootPayOrderDto, Orders orders);

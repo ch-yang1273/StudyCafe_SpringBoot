@@ -6,7 +6,6 @@ import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
 import asc.portfolio.ascSb.follow.domain.Follow;
 import asc.portfolio.ascSb.follow.domain.FollowingRepository;
 import asc.portfolio.ascSb.order.domain.Orders;
-import asc.portfolio.ascSb.product.domain.ProductRepository;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
 import asc.portfolio.ascSb.ticket.domain.TicketFinder;
 import asc.portfolio.ascSb.ticket.domain.TicketRepository;
@@ -39,7 +38,15 @@ public class TicketServiceImpl implements TicketService {
     private final CurrentTimeProvider currentTimeProvider;
 
     private final FollowingRepository followingRepository; // todo : 삭제
-    private final ProductRepository productRepository;
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<TicketStatusResponse> getAllUserTickets(Long userId) {
+        List<Ticket> tickets = ticketFinder.findAllByUserId(userId);
+        return tickets.stream()
+                .map(TicketStatusResponse::of)
+                .collect(Collectors.toList());
+    }
 
     @Transactional(readOnly = true)
     @Override
