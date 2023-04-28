@@ -6,7 +6,6 @@ import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
 import asc.portfolio.ascSb.follow.domain.Follow;
 import asc.portfolio.ascSb.follow.domain.FollowingRepository;
 import asc.portfolio.ascSb.order.domain.Orders;
-import asc.portfolio.ascSb.product.domain.ProductRepository;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
 import asc.portfolio.ascSb.ticket.domain.TicketFinder;
 import asc.portfolio.ascSb.ticket.domain.TicketRepository;
@@ -39,7 +38,15 @@ public class TicketServiceImpl implements TicketService {
     private final CurrentTimeProvider currentTimeProvider;
 
     private final FollowingRepository followingRepository; // todo : 삭제
-    private final ProductRepository productRepository;
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<TicketStatusResponse> getAllUserTickets(Long userId) {
+        List<Ticket> tickets = ticketFinder.findAllByUserId(userId);
+        return tickets.stream()
+                .map(TicketStatusResponse::of)
+                .collect(Collectors.toList());
+    }
 
     @Transactional(readOnly = true)
     @Override
@@ -60,7 +67,7 @@ public class TicketServiceImpl implements TicketService {
         Follow follow = followingRepository.findById(userId).orElseThrow();
         Cafe cafe = cafeFinder.findById(follow.getCafeId());
 
-        Optional<Ticket> findTicketOpt = ticketRepository.findTicketByUserIdAndCafeIdAndInUseStatus(userId, cafe.getId());
+        Optional<Ticket> findTicketOpt = ticketRepository.findTicketByUserIdAndCafeIdAndTicketStatus(userId, cafe.getId(), TicketStatus.IN_USE);
 
         // todo : ticket 연장과 새로 생성하는 코드가 분리. Ticket 연장 기능은 제공해야겠다.
         if (findTicketOpt.isPresent()) {

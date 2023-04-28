@@ -3,7 +3,6 @@ package asc.portfolio.ascSb.ticket.controller;
 import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.ticket.service.TicketService;
 import asc.portfolio.ascSb.ticket.dto.TicketStatusResponse;
-import asc.portfolio.ascSb.user.service.UserRoleCheckService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +21,11 @@ import java.util.List;
 public class TicketController {
 
     private final TicketService ticketService;
-    private final UserRoleCheckService userRoleCheckService;
+
+    @GetMapping("/all")
+    public ResponseEntity<List<TicketStatusResponse>> getAllUserTickets(@LoginUser Long userId) {
+        return ResponseEntity.ok().body(ticketService.getAllUserTickets(userId));
+    }
 
     @GetMapping("/{cafeName}")
     public ResponseEntity<TicketStatusResponse> getMyTicket(@LoginUser Long userId, @PathVariable String cafeName) {
