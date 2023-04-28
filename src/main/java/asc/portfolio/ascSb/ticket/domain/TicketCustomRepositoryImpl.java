@@ -15,12 +15,12 @@ public class TicketCustomRepositoryImpl implements TicketCustomRepository {
     private final JPAQueryFactory query;
 
     @Override
-    public Optional<Ticket> findTicketByUserIdAndCafeIdAndInUseStatus(Long userId, Long cafeId) {
+    public Optional<Ticket> findTicketByUserIdAndCafeIdAndTicketStatus(Long userId, Long cafeId, TicketStatus status) {
         return Optional.ofNullable(query
                 .selectFrom(QTicket.ticket)
                 .where(QTicket.ticket.userId.eq(userId),
                         QTicket.ticket.cafeId.eq(cafeId),
-                        QTicket.ticket.status.eq(TicketStatus.IN_USE))
+                        QTicket.ticket.status.eq(status))
                 .fetchOne());
     }
 }

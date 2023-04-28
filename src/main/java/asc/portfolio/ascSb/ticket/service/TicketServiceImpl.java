@@ -67,7 +67,7 @@ public class TicketServiceImpl implements TicketService {
         Follow follow = followingRepository.findById(userId).orElseThrow();
         Cafe cafe = cafeFinder.findById(follow.getCafeId());
 
-        Optional<Ticket> findTicketOpt = ticketRepository.findTicketByUserIdAndCafeIdAndInUseStatus(userId, cafe.getId());
+        Optional<Ticket> findTicketOpt = ticketRepository.findTicketByUserIdAndCafeIdAndTicketStatus(userId, cafe.getId(), TicketStatus.IN_USE);
 
         // todo : ticket 연장과 새로 생성하는 코드가 분리. Ticket 연장 기능은 제공해야겠다.
         if (findTicketOpt.isPresent()) {

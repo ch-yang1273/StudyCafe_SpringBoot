@@ -19,7 +19,7 @@ public class TicketFinder {
     }
 
     public Ticket findTicketByUserIdAndCafeIdAndInUseStatus(Long userId, Long cafeId) {
-        return ticketRepository.findTicketByUserIdAndCafeIdAndInUseStatus(userId, cafeId)
+        return ticketRepository.findTicketByUserIdAndCafeIdAndTicketStatus(userId, cafeId, TicketStatus.IN_USE)
                 .orElseThrow(() -> new TicketException(TicketErrorData.TICKET_NOT_FOUND));
     }
 
