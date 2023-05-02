@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class TableUpdateScheduler {
+public class SeatStatusScheduler {
 
     private final SeatScheduleService seatScheduleService;
     private final CurrentTimeProvider currentTimeProvider;
