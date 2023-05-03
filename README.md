@@ -36,15 +36,15 @@ https://github.com/ch-yang1273/StudyCafe_SpringBoot/tree/v1.0
 ✂ 패키지 의존성 순환 해결
    - Follow 도메인 추가
      
-     User가 사용 중인 Cafe 정보를 User Entity가 갖고 있고, Cafe 대부분 서비스는 User를 의존했음
+     User가 사용 중인 Cafe 정보를 User Entity가 갖고 있고, Cafe 대부분 서비스는 User를 의존
      
-     -> Follow Entity를 추가하여 User와 Cafe의 연관관계를 분리
+     -> User가 사용 중인 Cafe 정보를 Follow Entity에 이관하여 Cafe에 대한 의존성을 제거
 
    - 좌석 예약 기능을 Seat에서 Reservation으로 이동
+     
+     Reservation이 예약한 Seat 정보를 포함하고, Seat의 서비스가 Reservation을 생성하면서 의존성이 순환
 
-     Seat의 서비스에서 예약을 진행하고 Reservation을 생성하여 저장해서 의존성이 발생
-
-     -> Reservation에서 예약을 진행하고, Seat의 상태를 업데이트
+     -> Reservation 서비스에서 예약을 진행하고, Seat의 상태를 업데이트하면서 단방향 의존성으로 변경
 
 ✂ CQRS 패턴 적용
    - 명령은 void를 반환하고, 조회는 DTO를 반환
@@ -59,10 +59,6 @@ https://github.com/ch-yang1273/StudyCafe_SpringBoot/tree/v1.0
   - [테스트 코드 예시](https://github.com/ch-yang1273/StudyCafe_SpringBoot/blob/master/src/test/java/asc/portfolio/ascSb/reservation/domain/ReservationValidatorTest.java)
 
 ✂ 시간 메서드 테스트 (생성자, 정적 메서드)
-
-   - 시간 메서드들은 테스트에서 제어가 어렵고, Mocking에도 추가적인 라이브러리(mockito-inline, PowerMokito)가 필요함
-   - 시간 함수에 대한 의존성을 최대한 상위 레이어로 올리고, CurrentTimeProvider 클래스로 감싸서 사용
-
    ```java
    // 기존 코드 (v1.0 JwtTokenProvider.java) 
    public String createAccessToken(String subject) {
@@ -71,6 +67,9 @@ https://github.com/ch-yang1273/StudyCafe_SpringBoot/tree/v1.0
        ...
    }
    ```
+   - 코드의 ```new Date()```와 같은 시간 메서드는 테스트에서 제어가 어려움
+   - 생성자와 Static 메서드는 Mocking에도 추가적인 라이브러리(mockito-inline, PowerMokito)가 필요
+
    ```java
    // 수정 코드 (v2.0 JwtTokenService.java)
    public String createAccessToken(TokenPayload payload, Date now) {
@@ -78,19 +77,20 @@ https://github.com/ch-yang1273/StudyCafe_SpringBoot/tree/v1.0
            ...
    }
    ```
-- 시간 메서드 의존성을 외부로 빼내어, Mocking 없이 단위 테스트 가능
+- 시간 메서드 의존성을 상위 레이어로 빼내어, Mocking 없이 단위 테스트 가능
+- 시간 메서드는 CurrentTimeProvider 인터페이스로 추상화하여 사용
 - 통합 테스트에서는 mockito-inline 라이브러리 없이 CurrentTimeProvider를 Mocking
 
 ### [Github Actions를 사용하여 CI/CD 적용]
 
-### [@EC2 퍼블릭 IPv4 주소](http://3.34.210.88:8080/)
+### [@EC2 퍼블릭 IPv4 링크](http://3.34.210.88:8080/)
 
 Github Actions를 이용하여 CI/CD를 적용했습니다.
 
 - Master Branch 외의 Branch에 Push 시, Github Actions를 통해 테스트를 진행
 - Master Branch에 Push 시, 테스트를 진행하고, AWS CodeDeploy를 통해 배포
 
-🔨 CI (master branch 외)
+🔨 CI (All branch)
 ```mermaid
 flowchart LR
     A[Push] --> B[Container Init] --> C[빌드 환경 구성] --> D[빌드 환경 Caching] --> E[단위/통합 테스트]
@@ -113,9 +113,9 @@ flowchart LR
 ### 남은 작업
 - 단위 테스트 추가
 - Ticket 도메인 코드 정리
-- Orders, Product, AdminFcmToken 도메인 코드 정리
+- Orders, Product 도메인 코드 정리
 - 각 도메인에서 VO 세분화
-- Repository Entity의 user와 Cafe에 대한 의존성 제거 (연관 관계가 너무 많음)
+- Repository Entity의 User와 Cafe에 대한 의존성 제거 (연관 관계가 많음)
 - Admin 기능과 User 서비스 기능은 애플리케이션을 분리하는 것이 좋겠음
 
 *****
