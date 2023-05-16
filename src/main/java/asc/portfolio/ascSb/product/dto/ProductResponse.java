@@ -4,14 +4,12 @@ import asc.portfolio.ascSb.product.domain.ProductNameType;
 import asc.portfolio.ascSb.product.domain.Product;
 import asc.portfolio.ascSb.product.domain.ProductStateType;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 
 @Getter
-@Setter
-public class ProductListResponseDto {
+public class ProductResponse {
 
     private ProductStateType productState;
     private ProductNameType productNameType;
@@ -21,7 +19,7 @@ public class ProductListResponseDto {
     private String productLabel;
     private LocalDateTime createDate;
 
-    public ProductListResponseDto(Product product) {
+    public ProductResponse(Product product) {
         this.productState = product.getProductState();
         this.productNameType = product.getProductNameType();
         this.description = product.getDescription();

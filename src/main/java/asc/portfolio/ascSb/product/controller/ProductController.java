@@ -6,13 +6,12 @@ import asc.portfolio.ascSb.common.auth.LoginUser;
 import asc.portfolio.ascSb.order.service.OrderService;
 import asc.portfolio.ascSb.product.service.ProductService;
 import asc.portfolio.ascSb.ticket.service.TicketService;
-import asc.portfolio.ascSb.product.dto.ProductListResponseDto;
+import asc.portfolio.ascSb.product.dto.ProductResponse;
 import asc.portfolio.ascSb.user.service.UserRoleCheckService;
 import kr.co.bootpay.model.request.Cancel;
 import kr.co.bootpay.model.response.ResDefault;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,18 +30,18 @@ public class ProductController {
     private final TicketService ticketService;
 
     @GetMapping("/admin/management")
-    public ResponseEntity<List<ProductListResponseDto>> productInfoOneUser(@LoginUser Long adminId, @RequestParam String userLoginId) {
+    public ResponseEntity<List<ProductResponse>> productInfoOneUser(@LoginUser Long adminId, @RequestParam String userLoginId) {
         userRoleCheckService.isAdmin(adminId);
-        return new ResponseEntity<>(productService.adminSalesManagementOneUser(adminId, userLoginId), HttpStatus.OK);
+        return ResponseEntity.ok().body(productService.adminSalesManagementOneUser(adminId, userLoginId));
     }
 
     @GetMapping("/admin/management/start-time/{cafeName}")
-    public ResponseEntity<List<ProductListResponseDto>> productInfoWithConstTerm(
+    public ResponseEntity<List<ProductResponse>> productInfoWithConstTerm(
             @LoginUser Long userId,
             @PathVariable String cafeName,
             @RequestHeader(value = "dateString") String dateString) {
         userRoleCheckService.isAdmin(userId);
-        return new ResponseEntity<>(productService.adminSalesManagementWithStartDate(cafeName, dateString), HttpStatus.OK);
+        return ResponseEntity.ok().body(productService.adminSalesManagementWithStartDate(cafeName, dateString));
     }
 
     @PostMapping("/admin/management/cancel/product")
@@ -74,11 +73,11 @@ public class ProductController {
             // 환불한 티켓을 Invalid 처리
             ticketService.setInvalidTicket(productLabel.substring(11));
 
-            return new ResponseEntity<>("환불완료", HttpStatus.OK);
+            return ResponseEntity.ok().body("환불완료");
 
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>("환불실패",HttpStatus.BAD_GATEWAY);
+            return ResponseEntity.badRequest().body("환불실패");
         }
     }
 }
