@@ -30,13 +30,13 @@ public class ProductController {
     private final OrderService orderService;
     private final TicketService ticketService;
 
-    @RequestMapping(value = "/admin/management", method = RequestMethod.GET)
+    @GetMapping("/admin/management")
     public ResponseEntity<List<ProductListResponseDto>> productInfoOneUser(@LoginUser Long adminId, @RequestParam String userLoginId) {
         userRoleCheckService.isAdmin(adminId);
         return new ResponseEntity<>(productService.adminSalesManagementOneUser(adminId, userLoginId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/admin/management/start-time/{cafeName}", method = RequestMethod.GET)
+    @GetMapping("/admin/management/start-time/{cafeName}")
     public ResponseEntity<List<ProductListResponseDto>> productInfoWithConstTerm(
             @LoginUser Long userId,
             @PathVariable String cafeName,
@@ -45,7 +45,7 @@ public class ProductController {
         return new ResponseEntity<>(productService.adminSalesManagementWithStartDate(cafeName, dateString), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/admin/management/cancel/product", method = RequestMethod.POST)
+    @PostMapping("/admin/management/cancel/product")
     public ResponseEntity<String> cancelOneProduct(@LoginUser Long userId, @RequestParam("product-label") String productLabel) {
 
         final String receiptId = orderService.findReceiptIdToProductLabel(productLabel.substring(11)).getReceiptOrderId();
