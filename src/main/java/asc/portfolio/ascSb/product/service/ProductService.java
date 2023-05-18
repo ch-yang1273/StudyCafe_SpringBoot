@@ -63,7 +63,7 @@ public class ProductService {
     }
 
     public void cancelProduct(String productLabel) {
-        Product cancelProductInfo = productRepository.findByProductLabelContains(productLabel);
+        Product cancelProductInfo = productRepository.findByLabelContains(productLabel).orElseThrow();
         cancelProductInfo.cancelProduct();
         productRepository.save(cancelProductInfo);
     }
