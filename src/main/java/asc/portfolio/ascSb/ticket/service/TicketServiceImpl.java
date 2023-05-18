@@ -78,17 +78,17 @@ public class TicketServiceImpl implements TicketService {
                 if (ticket.isNotOfType(TicketType.PART_TERM)) {
                     throw new TicketException(TicketErrorData.CANNOT_EXTEND_DIFFERENT_TYPE);
                 }
-                ticket.extendRemainingMinute(orders.getOrderProductNameType().getMinute()); // todo : 캡슐화 ex) orders.getMinute
+                ticket.extendRemainingMinute(orders.getProductType().getMinute()); // todo : 캡슐화 ex) orders.getMinute
             } else if (bootPayOrderDto.getData().getName().contains("일")) {
                 if (ticket.isNotOfType(TicketType.FIXED_TERM)) {
                     throw new TicketException(TicketErrorData.CANNOT_EXTEND_DIFFERENT_TYPE);
                 }
-                ticket.extendExpiryDate(orders.getOrderProductNameType().getDays()); // todo : 이것도 지저분합니다.
+                ticket.extendExpiryDate(orders.getProductType().getDays()); // todo : 이것도 지저분합니다.
             }
         }
 
         // todo : TickeType에 따라 생성 코드 분리. FixedTypeof, PartTypeOf
-        int days = orders.getOrderProductNameType().getDays();
+        int days = orders.getProductType().getDays();
         if (bootPayOrderDto.getData().getName().contains("시간")) {
             Ticket ticket = Ticket.builder()
                     .userId(user.getId())
@@ -97,8 +97,8 @@ public class TicketServiceImpl implements TicketService {
                     .price(bootPayOrderDto.getData().getPrice())
                     .ticketType(TicketType.PART_TERM)
                     .expiryDate(null)
-                    .totalDuration(orders.getOrderProductNameType().getMinute())
-                    .remainMinute(orders.getOrderProductNameType().getMinute())
+                    .totalDuration(orders.getProductType().getMinute())
+                    .remainMinute(orders.getProductType().getMinute())
                     .productLabel(orders.getProductLabel())
                     .build();
 
