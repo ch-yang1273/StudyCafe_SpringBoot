@@ -1,6 +1,5 @@
 package asc.portfolio.ascSb.product.domain;
 
-import asc.portfolio.ascSb.cafe.domain.QCafe;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +15,10 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final JPAQueryFactory query;
 
     @Override
-    public List<Product> findProductsByUserIdAndCafeName(Long userId, String cafeName) {
+    public List<Product> findProductsByUserIdAndCafeId(Long userId, Long cafeId) {
         return query.select(QProduct.product)
                 .from(QProduct.product)
-                .join(QProduct.product.cafe, QCafe.cafe)
-                .where(QProduct.product.user.id.eq(userId), QCafe.cafe.cafeName.eq(cafeName))
+                .where(QProduct.product.userId.eq(userId), QProduct.product.cafeId.eq(cafeId))
                 .fetch();
     }
 }

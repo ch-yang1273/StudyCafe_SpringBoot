@@ -36,7 +36,7 @@ public class ProductService {
         User user = userFinder.findByLoginId(userLoginId);
         Cafe cafe = cafeFinder.findByAdminId(adminId);
 
-        List<Product> list = productRepository.findProductsByUserIdAndCafeName(user.getId(), cafe.getCafeName());
+        List<Product> list = productRepository.findProductsByUserIdAndCafeId(user.getId(), cafe.getId());
         return list.stream()
                 .map(ProductResponse::new)
                 .collect(Collectors.toList());
