@@ -181,11 +181,13 @@ public class TestDataGeneration {
     }
 
     private void generateProductData() {
+        Cafe cafe = cafeRepository.findByCafeNameContains("서울지점");
+        User user = userRepository.findByNameContains(userName[2]); // todo : 삭제
         for (int i = 0; i < 1000; i++) {
             Product product = Product.builder()
-                    .cafe(cafeRepository.findByCafeNameContains("서울지점"))
+                    .cafeId(cafe.getId())
+                    .userId(user.getId())
                     .productType(ProductType.FIXED_TERM_FOUR_WEEK)
-                    .user(userRepository.findByNameContains(userName[2])) //todo : 삭제
                     .productStatus(ProductStatus.SALE)
                     .description("테스트 product")
                     .price(13100)

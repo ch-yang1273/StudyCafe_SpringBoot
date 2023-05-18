@@ -37,6 +37,7 @@ public class BootPayController {
        return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 
+
     @GetMapping("/confirm")
     public ResponseEntity<?> confirmPay(
             @LoginUser Long userId,

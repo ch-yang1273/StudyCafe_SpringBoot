@@ -19,9 +19,7 @@ import java.time.LocalDateTime;
 public class ReservationServiceImpl implements ReservationService {
 
     private final ReservationLifecycleManager reservationLifecycleManager;
-
     private final ReservationFinder reservationFinder;
-
     private final CurrentTimeProvider currentTimeProvider;
 
     @Transactional(readOnly = true)

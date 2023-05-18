@@ -2,9 +2,6 @@ package asc.portfolio.ascSb.product.domain;
 
 
 import asc.portfolio.ascSb.common.domain.BaseTimeEntity;
-import asc.portfolio.ascSb.cafe.domain.Cafe;
-import asc.portfolio.ascSb.user.domain.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,15 +20,11 @@ public class Product extends BaseTimeEntity {
     @Column(name = "PRODUCT_ID", nullable = false)
     private Long id;
 
-    @JoinColumn(name = "CAFE_ID")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Cafe cafe;
+    @Column(name = "CAFE_ID")
+    private Long cafeId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name ="USER_ID")
-    @JsonIgnore
-    private User user;
+    @Column(name ="USER_ID")
+    private Long userId; // 구매자 id, customerId가 더 어울리겠다.
 
     @Enumerated(EnumType.STRING)
     @Column(name ="STATUE")
@@ -51,11 +44,11 @@ public class Product extends BaseTimeEntity {
     private String label;
 
     @Builder
-    public Product(Cafe cafe, User user, ProductStatus productStatus, ProductType productType,
+    public Product(Long cafeId, Long userId, ProductStatus productStatus, ProductType productType,
                    String description, Integer price, String label)
     {
-        this.cafe = cafe;
-        this.user = user;
+        this.cafeId = cafeId;
+        this.userId = userId;
         this.productState = productStatus;
         this.productType = productType;
         this.description = description;
