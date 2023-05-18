@@ -1,8 +1,8 @@
 package asc.portfolio.ascSb.product.dto;
 
-import asc.portfolio.ascSb.product.domain.ProductNameType;
+import asc.portfolio.ascSb.product.domain.ProductType;
 import asc.portfolio.ascSb.product.domain.Product;
-import asc.portfolio.ascSb.product.domain.ProductStateType;
+import asc.portfolio.ascSb.product.domain.ProductStatus;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 @Getter
 public class ProductResponse {
 
-    private ProductStateType productState;
-    private ProductNameType productNameType;
-    private String productNameTypeString;
+    private ProductStatus productState;
+    private ProductType productType;
+    private String productTypeString;
     private String description;
     private Integer productPrice;
     private String productLabel;
@@ -21,11 +21,11 @@ public class ProductResponse {
 
     public ProductResponse(Product product) {
         this.productState = product.getProductState();
-        this.productNameType = product.getProductNameType();
+        this.productType = product.getProductType();
         this.description = product.getDescription();
-        this.productPrice = product.getProductPrice();
-        this.productLabel = product.getProductLabel();
-        this.productNameTypeString = product.getProductNameType().getValue();
+        this.productPrice = product.getPrice();
+        this.productLabel = product.getLabel();
+        this.productTypeString = product.getProductType().getValue();
         this.createDate = product.getCreateDate();
     }
 }

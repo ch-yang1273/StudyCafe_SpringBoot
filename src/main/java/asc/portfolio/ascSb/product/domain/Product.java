@@ -20,10 +20,10 @@ public class Product extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "P_ID", nullable = false)
+    @Column(name = "PRODUCT_ID", nullable = false)
     private Long id;
 
-    @JoinColumn(name = "C_ID")
+    @JoinColumn(name = "CAFE_ID")
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private Cafe cafe;
@@ -34,40 +34,37 @@ public class Product extends BaseTimeEntity {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    private ProductStateType productState;
+    @Column(name ="STATUE")
+    private ProductStatus productState;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "O_PN")
-    private ProductNameType productNameType;
+    @Column(name = "TYPE")
+    private ProductType productType;
 
-    @Column(name = "DE")
+    @Column(name = "DESCRIPTION")
     private String description;
 
-    @Column(name = "P_P")
-    private Integer productPrice;
+    @Column(name = "PRICE")
+    private Integer price;
 
-    @Column(unique = true)
-    private String productLabel;
+    @Column(name = "LABEL", unique = true)
+    private String label;
 
     @Builder
-    public Product(Cafe cafe, User user, ProductStateType productState, ProductNameType productNameType,
-                   String description, Integer productPrice, String productLabel)
+    public Product(Cafe cafe, User user, ProductStatus productStatus, ProductType productType,
+                   String description, Integer price, String label)
     {
         this.cafe = cafe;
         this.user = user;
-        this.productState = productState;
-        this.productNameType = productNameType;
+        this.productState = productStatus;
+        this.productType = productType;
         this.description = description;
-        this.productPrice = productPrice;
-        this.productLabel = productLabel;
-    }
-
-    public void saleProduct() {
-        this.productState = ProductStateType.SALE;
+        this.price = price;
+        this.label = label;
     }
 
     public void cancelProduct() {
-        this.productState = ProductStateType.CANCEL;
+        this.productState = ProductStatus.CANCEL;
     }
 
 }

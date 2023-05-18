@@ -6,7 +6,7 @@ import asc.portfolio.ascSb.follow.domain.FollowFinder;
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.product.domain.Product;
 import asc.portfolio.ascSb.product.domain.ProductRepository;
-import asc.portfolio.ascSb.product.domain.ProductStateType;
+import asc.portfolio.ascSb.product.domain.ProductStatus;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserFinder;
 import asc.portfolio.ascSb.bootpay.dto.BootPayOrderDto;
@@ -53,8 +53,8 @@ public class ProductService {
         Product product = ProductDto.builder()
                 .cafe(cafe)
                 .user(user)
-                .productState(ProductStateType.SALE)
-                .productNameType(orders.getOrderProductNameType())
+                .productState(ProductStatus.SALE)
+                .productType(orders.getProductType())
                 .productPrice(Math.toIntExact(orders.getOrderPrice()))
                 .productLabel(orders.getProductLabel())
                 .build()

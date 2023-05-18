@@ -3,10 +3,10 @@ package asc.portfolio.ascSb;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeRepository;
 import asc.portfolio.ascSb.follow.service.FollowService;
-import asc.portfolio.ascSb.product.domain.ProductNameType;
+import asc.portfolio.ascSb.product.domain.ProductType;
 import asc.portfolio.ascSb.product.domain.Product;
 import asc.portfolio.ascSb.product.domain.ProductRepository;
-import asc.portfolio.ascSb.product.domain.ProductStateType;
+import asc.portfolio.ascSb.product.domain.ProductStatus;
 import asc.portfolio.ascSb.seat.domain.Seat;
 import asc.portfolio.ascSb.seat.domain.SeatRepository;
 import asc.portfolio.ascSb.ticket.domain.TicketRepository;
@@ -184,12 +184,12 @@ public class TestDataGeneration {
         for (int i = 0; i < 1000; i++) {
             Product product = Product.builder()
                     .cafe(cafeRepository.findByCafeNameContains("서울지점"))
-                    .productNameType(ProductNameType.FIXED_TERM_FOUR_WEEK)
+                    .productType(ProductType.FIXED_TERM_FOUR_WEEK)
                     .user(userRepository.findByNameContains(userName[2])) //todo : 삭제
-                    .productState(ProductStateType.SALE)
+                    .productStatus(ProductStatus.SALE)
                     .description("테스트 product")
-                    .productPrice(13100)
-                    .productLabel("FIXED-TERM" + i)
+                    .price(13100)
+                    .label("FIXED-TERM" + i)
                     .build();
             Random random = new Random(i);
             productRepository.save(product);

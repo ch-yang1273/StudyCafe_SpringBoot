@@ -1,9 +1,9 @@
 package asc.portfolio.ascSb.product.dto;
 
-import asc.portfolio.ascSb.product.domain.ProductNameType;
+import asc.portfolio.ascSb.product.domain.ProductType;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.product.domain.Product;
-import asc.portfolio.ascSb.product.domain.ProductStateType;
+import asc.portfolio.ascSb.product.domain.ProductStatus;
 import asc.portfolio.ascSb.user.domain.User;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,8 +16,8 @@ public class ProductDto {
 
     private Cafe cafe;
     private User user;
-    private ProductStateType productState;
-    private ProductNameType productNameType;
+    private ProductStatus productState;
+    private ProductType productType;
 
     private String productNameTypeString;
     private String description;
@@ -26,27 +26,27 @@ public class ProductDto {
 
 
     @Builder
-    public ProductDto(Cafe cafe, User user, ProductStateType productState, ProductNameType productNameType,
+    public ProductDto(Cafe cafe, User user, ProductStatus productState, ProductType productType,
                       String description, Integer productPrice, String productLabel) {
         this.cafe = cafe;
         this.user = user;
         this.productState = productState;
-        this.productNameType = productNameType;
+        this.productType = productType;
         this.description = description;
         this.productPrice = productPrice;
         this.productLabel = productLabel;
-        this.productNameTypeString = productNameType.name();
+        this.productNameTypeString = productType.name();
     }
 
     public Product toEntity() {
         return Product.builder()
                 .cafe(cafe)
                 .user(user)
-                .productState(productState)
-                .productNameType(productNameType)
+                .productStatus(productState)
+                .productType(productType)
                 .description(description)
-                .productPrice(productPrice)
-                .productLabel(productLabel)
+                .price(productPrice)
+                .label(productLabel)
                 .build();
     }
 }

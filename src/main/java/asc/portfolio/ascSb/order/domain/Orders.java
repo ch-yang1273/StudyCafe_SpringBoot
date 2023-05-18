@@ -1,7 +1,7 @@
 package asc.portfolio.ascSb.order.domain;
 
 import asc.portfolio.ascSb.common.domain.BaseTimeEntity;
-import asc.portfolio.ascSb.product.domain.ProductNameType;
+import asc.portfolio.ascSb.product.domain.ProductType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,7 +27,7 @@ public class Orders extends BaseTimeEntity {
 
     @Enumerated(value = EnumType.STRING)
     @Column(name = "O_PN")
-    private ProductNameType orderProductNameType;
+    private ProductType productType;
 
     @Column(name = "O_P")
     private Long orderPrice;
@@ -39,11 +39,11 @@ public class Orders extends BaseTimeEntity {
     private String productLabel; // 상품 고유번호
 
     @Builder
-    private Orders(OrderStateType orderStateType, String userId, ProductNameType
-            orderProductNameType, Long orderPrice, String receiptOrderId, String productLabel) {
+    private Orders(OrderStateType orderStateType, String userId, ProductType
+            productType, Long orderPrice, String receiptOrderId, String productLabel) {
         this.orderStateType = orderStateType;
         this.userId = userId;
-        this.orderProductNameType = orderProductNameType;
+        this.productType = productType;
         this.orderPrice = orderPrice;
         this.receiptOrderId = receiptOrderId;
         this.productLabel = productLabel;
