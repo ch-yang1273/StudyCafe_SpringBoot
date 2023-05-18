@@ -35,15 +35,6 @@ public class ProductController {
         return ResponseEntity.ok().body(productService.adminSalesManagementOneUser(adminId, userLoginId));
     }
 
-    @GetMapping("/admin/management/start-time/{cafeName}")
-    public ResponseEntity<List<ProductResponse>> productInfoWithConstTerm(
-            @LoginUser Long userId,
-            @PathVariable String cafeName,
-            @RequestHeader(value = "dateString") String dateString) {
-        userRoleCheckService.isAdmin(userId);
-        return ResponseEntity.ok().body(productService.adminSalesManagementWithStartDate(cafeName, dateString));
-    }
-
     @PostMapping("/admin/management/cancel/product")
     public ResponseEntity<String> cancelOneProduct(@LoginUser Long userId, @RequestParam("product-label") String productLabel) {
 

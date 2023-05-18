@@ -18,8 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,20 +43,13 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public List<ProductResponse> adminSalesManagementWithStartDate(String cafeName, String dateString) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-        LocalDateTime parse = LocalDateTime.parse(dateString, formatter);
-        return productRepository.findProductsByUserIdAndCafeNameAndStartTime(cafeName,parse).stream()
-                .map(ProductResponse::new)
-                .collect(Collectors.toList());
-    }
-
     // BootPay의 PaymentService에서 호출하고 있다.
     public void saveProduct(Long userId, BootPayOrderDto dto, Orders orders) {
         // todo : 여기 cafe도 user로부터 나올 것이 아니라 주문에서 나와야한다. 수정 필요!
         User user = userFinder.findById(userId);
         Cafe cafe = followFinder.findFollowedCafe(userId);
 
+        // 왜그랬는지는 모르겠는데 ProductDto를 만들고 바로 Product로 변환하고 있다.
         Product product = ProductDto.builder()
                 .cafe(cafe)
                 .user(user)
