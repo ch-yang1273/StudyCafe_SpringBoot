@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface ProductCustomRepository {
 
-    List<Product> findProductsByUserIdAndCafeId(Long userId, Long cafeId);
+    List<Product> findProductsByCafIdAndCustomerId(Long cafeId, Long customerId);
 }

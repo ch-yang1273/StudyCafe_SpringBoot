@@ -30,13 +30,13 @@ public class ProductController {
     private final TicketService ticketService;
 
     @GetMapping("/admin/management")
-    public ResponseEntity<List<ProductResponse>> productInfoOneUser(@LoginUser Long adminId, @RequestParam String userLoginId) {
+    public ResponseEntity<List<ProductResponse>> getProducts(@LoginUser Long adminId, @RequestParam Long customerId) {
         userRoleCheckService.isAdmin(adminId);
-        return ResponseEntity.ok().body(productService.adminSalesManagementOneUser(adminId, userLoginId));
+        return ResponseEntity.ok().body(productService.getProducts(adminId, customerId));
     }
 
     @PostMapping("/admin/management/cancel/product")
-    public ResponseEntity<String> cancelOneProduct(@LoginUser Long userId, @RequestParam("product-label") String productLabel) {
+    public ResponseEntity<String> cancelProduct(@LoginUser Long userId, @RequestParam("product-label") String productLabel) {
 
         final String receiptId = orderService.findReceiptIdToProductLabel(productLabel.substring(11)).getReceiptOrderId();
         userRoleCheckService.isAdmin(userId);

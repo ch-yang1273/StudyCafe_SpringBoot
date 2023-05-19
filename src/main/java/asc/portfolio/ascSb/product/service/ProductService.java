@@ -1,14 +1,12 @@
 package asc.portfolio.ascSb.product.service;
 
 import asc.portfolio.ascSb.cafe.domain.Cafe;
-import asc.portfolio.ascSb.cafe.domain.CafeFinder;
 import asc.portfolio.ascSb.follow.domain.FollowFinder;
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.product.domain.Product;
+import asc.portfolio.ascSb.product.domain.ProductFinder;
 import asc.portfolio.ascSb.product.domain.ProductRepository;
 import asc.portfolio.ascSb.product.domain.ProductStatus;
-import asc.portfolio.ascSb.user.domain.User;
-import asc.portfolio.ascSb.user.domain.UserFinder;
 import asc.portfolio.ascSb.bootpay.dto.BootPayOrderDto;
 import asc.portfolio.ascSb.product.dto.ProductResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,17 +24,13 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final UserFinder userFinder;
+    private final ProductFinder productFinder;
     private final FollowFinder followFinder; //todo : 삭제
-    private final CafeFinder cafeFinder;
+
 
     @Transactional(readOnly = true)
-    public List<ProductResponse> adminSalesManagementOneUser(Long adminId, String userLoginId) {
-        // admin의 Cafe, 대상 유저의 LoginId로 Product List를 찾고 있다.
-        User user = userFinder.findByLoginId(userLoginId);
-        Cafe cafe = cafeFinder.findByAdminId(adminId);
-
-        List<Product> list = productRepository.findProductsByUserIdAndCafeId(user.getId(), cafe.getId());
+    public List<ProductResponse> getProducts(Long adminId, Long customerId) {
+        List<Product> list = productFinder.findCustomerProductsInAdminCafe(adminId, customerId);
         return list.stream()
                 .map(ProductResponse::new)
                 .collect(Collectors.toList());

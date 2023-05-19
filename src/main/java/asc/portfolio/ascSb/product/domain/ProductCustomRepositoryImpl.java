@@ -15,10 +15,10 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final JPAQueryFactory query;
 
     @Override
-    public List<Product> findProductsByUserIdAndCafeId(Long userId, Long cafeId) {
+    public List<Product> findProductsByCafIdAndCustomerId(Long cafeId, Long customerId) {
         return query.select(QProduct.product)
                 .from(QProduct.product)
-                .where(QProduct.product.userId.eq(userId), QProduct.product.cafeId.eq(cafeId))
+                .where(QProduct.product.cafeId.eq(cafeId), QProduct.product.userId.eq(customerId))
                 .fetch();
     }
 }
