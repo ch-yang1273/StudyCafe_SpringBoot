@@ -45,8 +45,8 @@ public class ProductService {
         Product product = Product.builder()
                 .cafeId(cafe.getId())
                 .userId(userId)
-                .productStatus(ProductStatus.SALE)
-                .productType(orders.getProductType())
+                .status(ProductStatus.SALE)
+                .type(orders.getProductType())
                 .price(Math.toIntExact(orders.getOrderPrice()))
                 .label(orders.getProductLabel())
                 .build();

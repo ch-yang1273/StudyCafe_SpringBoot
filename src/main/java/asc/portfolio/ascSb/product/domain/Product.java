@@ -28,11 +28,11 @@ public class Product extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name ="STATUE")
-    private ProductStatus productState;
+    private ProductStatus status;
 
     @Enumerated(value = EnumType.STRING)
     @Column(name = "TYPE")
-    private ProductType productType;
+    private ProductType type;
 
     @Column(name = "DESCRIPTION")
     private String description;
@@ -44,20 +44,20 @@ public class Product extends BaseTimeEntity {
     private String label;
 
     @Builder
-    public Product(Long cafeId, Long userId, ProductStatus productStatus, ProductType productType,
+    public Product(Long cafeId, Long userId, ProductStatus status, ProductType type,
                    String description, Integer price, String label)
     {
         this.cafeId = cafeId;
         this.userId = userId;
-        this.productState = productStatus;
-        this.productType = productType;
+        this.status = status;
+        this.type = type;
         this.description = description;
         this.price = price;
         this.label = label;
     }
 
     public void cancelProduct() {
-        this.productState = ProductStatus.CANCEL;
+        this.status = ProductStatus.CANCEL;
     }
 
 }

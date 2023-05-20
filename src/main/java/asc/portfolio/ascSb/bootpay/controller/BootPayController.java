@@ -6,13 +6,11 @@ import asc.portfolio.ascSb.bootpay.service.payment.PaymentService;
 import asc.portfolio.ascSb.order.service.OrderService;
 import asc.portfolio.ascSb.bootpay.domain.Bootpay;
 import asc.portfolio.ascSb.bootpay.dto.BootPayOrderDto;
-import asc.portfolio.ascSb.order.dto.OrderDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.bootpay.model.request.Cancel;
 import kr.co.bootpay.model.response.ResDefault;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,18 +23,6 @@ import java.util.HashMap;
 public class BootPayController {
     private final OrderService orderService;
     private final PaymentService paymentService;
-
-    @PostMapping("/order")
-    public ResponseEntity<String> pay(@LoginUser Long userId, @RequestBody OrderDto dto) {
-        try {
-            Long receiptOrderId = orderService.saveOrder(userId, dto);
-            log.info("주문번호={}", receiptOrderId);
-        } catch (Exception e) {
-            return new ResponseEntity<>("유효하지 않은 주문입니다.", HttpStatus.BAD_REQUEST);
-        }
-       return new ResponseEntity<>("OK", HttpStatus.OK);
-    }
-
 
     @GetMapping("/confirm")
     public ResponseEntity<?> confirmPay(
@@ -65,7 +51,7 @@ public class BootPayController {
         }
 
         String orderReceiptId = dto.getData().getReceipt_id();
-        Orders orders = orderService.findReceiptOrderId(orderReceiptId); // ReceiptId 에 맞는 Orders를 검색
+        Orders orders = orderService.findOrderByReceiptId(orderReceiptId); // ReceiptId 에 맞는 Orders를 검색
         log.info("findOrders완료");
         int price = Math.toIntExact(orders.getOrderPrice());
 

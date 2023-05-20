@@ -2,10 +2,11 @@ package asc.portfolio.ascSb.order.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
-    Orders findByReceiptOrderIdContains(String receiptId);
+    Optional<Orders> findByReceiptId(String receiptId);
 
-    Orders findByProductLabelContains(String productLabel);
-
+    Optional<Orders> findByProductLabel(String productLabel);
 }

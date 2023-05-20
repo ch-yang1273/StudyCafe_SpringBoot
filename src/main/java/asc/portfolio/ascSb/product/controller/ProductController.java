@@ -35,10 +35,10 @@ public class ProductController {
         return ResponseEntity.ok().body(productService.getProducts(adminId, customerId));
     }
 
-    @PostMapping("/admin/management/cancel/product")
+    @PostMapping("/admin/management/cancel")
     public ResponseEntity<String> cancelProduct(@LoginUser Long userId, @RequestParam("product-label") String productLabel) {
 
-        final String receiptId = orderService.findReceiptIdToProductLabel(productLabel.substring(11)).getReceiptOrderId();
+        final String receiptId = orderService.findReceiptIdToProductLabel(productLabel.substring(11)).getReceiptId();
         userRoleCheckService.isAdmin(userId);
 
         String rest_application_id = "";

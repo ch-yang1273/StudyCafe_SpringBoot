@@ -20,12 +20,12 @@ public class ProductResponse {
     private LocalDateTime createDate;
 
     public ProductResponse(Product product) {
-        this.productState = product.getProductState();
-        this.productType = product.getProductType();
+        this.productState = product.getStatus();
+        this.productType = product.getType();
         this.description = product.getDescription();
         this.productPrice = product.getPrice();
         this.productLabel = product.getLabel();
-        this.productTypeString = product.getProductType().getValue();
+        this.productTypeString = product.getType().getValue();
         this.createDate = product.getCreateDate();
     }
 }

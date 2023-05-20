@@ -12,40 +12,42 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "ORDERS")
 public class Orders extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "O_ID", nullable = false)
+    @Column(name = "ORDER_ID", nullable = false)
     private Long id;
 
     @Enumerated(value = EnumType.STRING)
-    private OrderStateType orderStateType;
+    @Column(name = "USER_ID")
+    private OrderStatus status;
 
-    @Column(name = "U_I")
-    private String userId;
+    @Column(name = "USER_ID")
+    private Long userId;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "O_PN")
+    @Column(name = "PRODUCT_TYPE")
     private ProductType productType;
 
-    @Column(name = "O_P")
+    @Column(name = "ORDER_PRICE")
     private Long orderPrice;
 
-    @Column(unique = true)
-    private String receiptOrderId; // PG사의 검증을 위한 영수증 id (휘발성)
+    @Column(name = "RECEIPT_ID", unique = true)
+    private String receiptId; // PG사의 검증을 위한 영수증 id (휘발성)
 
-    @Column(name = "P_R", unique = true)
+    @Column(name = "PRODUCT_LABEL", unique = true)
     private String productLabel; // 상품 고유번호
 
     @Builder
-    private Orders(OrderStateType orderStateType, String userId, ProductType
-            productType, Long orderPrice, String receiptOrderId, String productLabel) {
-        this.orderStateType = orderStateType;
+    private Orders(OrderStatus status, Long userId, ProductType
+            productType, Long orderPrice, String receiptId, String productLabel) {
+        this.status = status;
         this.userId = userId;
         this.productType = productType;
         this.orderPrice = orderPrice;
-        this.receiptOrderId = receiptOrderId;
+        this.receiptId = receiptId;
         this.productLabel = productLabel;
     }
 
@@ -53,13 +55,13 @@ public class Orders extends BaseTimeEntity {
      * 주문 정상적으로 완료
      */
     public void completeOrder() {
-        this.orderStateType = OrderStateType.DONE;
+        this.status = OrderStatus.DONE;
     }
 
     /**
      * 주문 실패
      */
     public void failOrder() {
-        this.orderStateType = OrderStateType.CANCEL;
+        this.status = OrderStatus.CANCEL;
     }
 }
