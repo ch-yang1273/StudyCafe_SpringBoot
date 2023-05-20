@@ -27,7 +27,6 @@ public class ProductService {
     private final ProductFinder productFinder;
     private final FollowFinder followFinder; //todo : 삭제
 
-
     @Transactional(readOnly = true)
     public List<ProductResponse> getProducts(Long adminId, Long customerId) {
         List<Product> list = productFinder.findCustomerProductsInAdminCafe(adminId, customerId);

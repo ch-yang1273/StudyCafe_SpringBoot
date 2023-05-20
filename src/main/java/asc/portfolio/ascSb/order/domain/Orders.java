@@ -21,7 +21,7 @@ public class Orders extends BaseTimeEntity {
     private Long id;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "USER_ID")
+    @Column(name = "STATUS")
     private OrderStatus status;
 
     @Column(name = "USER_ID")
