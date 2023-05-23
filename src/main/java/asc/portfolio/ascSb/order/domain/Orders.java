@@ -1,7 +1,6 @@
 package asc.portfolio.ascSb.order.domain;
 
 import asc.portfolio.ascSb.common.domain.BaseTimeEntity;
-import asc.portfolio.ascSb.product.domain.ProductType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +11,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "ORDERS")
+@Table(name = "ORDER_TABLE")
 public class Orders extends BaseTimeEntity {
 
     @Id
@@ -32,7 +31,7 @@ public class Orders extends BaseTimeEntity {
 
     @Enumerated(value = EnumType.STRING)
     @Column(name = "PRODUCT_TYPE")
-    private ProductType productType;
+    private OrderType orderType;
 
     @Column(name = "ORDER_PRICE")
     private int price;
@@ -44,12 +43,13 @@ public class Orders extends BaseTimeEntity {
     private String productLabel; // 상품 고유번호
 
     @Builder
-    public Orders(Long id, OrderStatus status, Long userId, Long cafeId, ProductType productType, int price, String receiptId, String productLabel) {
+    public Orders(Long id, OrderStatus status, Long userId, Long cafeId, OrderType orderType,
+                  int price, String receiptId, String productLabel) {
         this.id = id;
         this.status = status;
         this.userId = userId;
         this.cafeId = cafeId;
-        this.productType = productType;
+        this.orderType = orderType;
         this.price = price;
         this.receiptId = receiptId;
         this.productLabel = productLabel;
@@ -59,13 +59,13 @@ public class Orders extends BaseTimeEntity {
      * 주문 정상적으로 완료
      */
     public void completeOrder() {
-        this.status = OrderStatus.DONE;
+        this.status = OrderStatus.PAYMENT_COMPLETED;
     }
 
     /**
      * 주문 실패
      */
     public void failOrder() {
-        this.status = OrderStatus.CANCEL;
+        this.status = OrderStatus.CANCELED;
     }
 }

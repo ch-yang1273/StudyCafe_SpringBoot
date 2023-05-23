@@ -5,20 +5,30 @@ import asc.portfolio.ascSb.order.exception.OrdersException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Component
 public class OrderFinder {
 
     private final OrdersRepository ordersRepository;
 
-    public Orders findByReceiptId(String receiptId) {
-        return ordersRepository.findByReceiptId(receiptId).orElseThrow(
+    public Orders findById(Long orderId) {
+        return ordersRepository.findById(orderId).orElseThrow(
                 () -> new OrdersException(OrderErrorData.ORDER_NOT_FOUND)
         );
     }
 
-    public Orders findByProductLabel(String productLabel) {
-        return ordersRepository.findByProductLabel(productLabel).orElseThrow(
+    public List<Orders> findOrdersByUserId(Long userId) {
+        return ordersRepository.findByUserId(userId);
+    }
+
+    public List<Orders> findOrdersByUserIdAndCafeId(Long userId, Long cafeId) {
+        return ordersRepository.findByUserIdAndCafeId(userId, cafeId);
+    }
+
+    public Orders findByReceiptId(String receiptId) {
+        return ordersRepository.findByReceiptId(receiptId).orElseThrow(
                 () -> new OrdersException(OrderErrorData.ORDER_NOT_FOUND)
         );
     }

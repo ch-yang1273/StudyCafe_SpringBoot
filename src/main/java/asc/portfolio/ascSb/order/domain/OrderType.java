@@ -1,6 +1,6 @@
-package asc.portfolio.ascSb.product.domain;
+package asc.portfolio.ascSb.order.domain;
 
-public enum ProductType {
+public enum OrderType {
     FIXED_TERM_ONE_DAY("당일권", 10000, "FIXED-TERM", 1, 0),
     FIXED_TERM_ONE_WEEK("7일권", 15000, "FIXED-TERM", 7, 0),
     FIXED_TERM_TWO_WEEK("14일권", 30000, "FIXED-TERM", 14,0),
@@ -19,7 +19,7 @@ public enum ProductType {
     private final int days;
     private final Long minute;
 
-    ProductType(String value, int price, String label, int days , int hour) {
+    OrderType(String value, int price, String label, int days , int hour) {
         this.value = value;
         this.price = price;
         this.label = label;

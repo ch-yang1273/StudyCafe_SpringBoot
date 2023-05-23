@@ -4,9 +4,7 @@ import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeFinder;
 import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
 import asc.portfolio.ascSb.order.domain.Orders;
-import asc.portfolio.ascSb.product.domain.Product;
-import asc.portfolio.ascSb.product.domain.ProductFinder;
-import asc.portfolio.ascSb.product.domain.ProductType;
+import asc.portfolio.ascSb.order.domain.OrderType;
 import asc.portfolio.ascSb.ticket.domain.Ticket;
 import asc.portfolio.ascSb.ticket.domain.TicketFinder;
 import asc.portfolio.ascSb.ticket.domain.TicketRepository;
@@ -38,9 +36,6 @@ public class TicketService {
 
     private final CurrentTimeProvider currentTimeProvider;
 
-    // todo 삭제
-    private final ProductFinder productFinder;
-
     @Transactional(readOnly = true)
     public List<TicketStatusResponse> getAllUserTickets(Long userId) {
         List<Ticket> tickets = ticketFinder.findAllByUserId(userId);
@@ -61,7 +56,7 @@ public class TicketService {
     @Transactional
     public void saveProductToTicket(Long userId, Orders orders) {
         User user = userFinder.findById(userId);
-        ProductType productType = orders.getProductType();
+        OrderType orderType = orders.getOrderType();
 
         Optional<Ticket> findTicketOpt = ticketRepository.findTicketByUserIdAndCafeIdAndTicketStatus(userId, orders.getCafeId(), TicketStatus.IN_USE);
 
@@ -70,22 +65,22 @@ public class TicketService {
             // 사용중인 티켓에 시간(기간)추가
             Ticket ticket = findTicketOpt.get();
 
-            if (productType.isPartTime()) { // 시간제 티켓
+            if (orderType.isPartTime()) { // 시간제 티켓
                 if (ticket.isNotOfType(TicketType.PART_TERM)) {
                     throw new TicketException(TicketErrorData.CANNOT_EXTEND_DIFFERENT_TYPE);
                 }
-                ticket.extendRemainingMinute(orders.getProductType().getMinute()); // todo : 캡슐화 ex) orders.getMinute
-            } else if (productType.isFixedTerm()) {
+                ticket.extendRemainingMinute(orders.getOrderType().getMinute()); // todo : 캡슐화 ex) orders.getMinute
+            } else if (orderType.isFixedTerm()) {
                 if (ticket.isNotOfType(TicketType.FIXED_TERM)) {
                     throw new TicketException(TicketErrorData.CANNOT_EXTEND_DIFFERENT_TYPE);
                 }
-                ticket.extendExpiryDate(orders.getProductType().getDays()); // todo : 이것도 지저분합니다.
+                ticket.extendExpiryDate(orders.getOrderType().getDays()); // todo : 이것도 지저분합니다.
             }
         }
 
         // todo : TickeType에 따라 생성 코드 분리. FixedTypeof, PartTypeOf
-        int days = orders.getProductType().getDays();
-        if (productType.isPartTime()) {
+        int days = orders.getOrderType().getDays();
+        if (orderType.isPartTime()) {
             Ticket ticket = Ticket.builder()
                     .userId(user.getId())
                     .cafeId(orders.getCafeId())
@@ -93,13 +88,13 @@ public class TicketService {
                     .price(orders.getPrice())
                     .ticketType(TicketType.PART_TERM)
                     .expiryDate(null)
-                    .totalDuration(orders.getProductType().getMinute())
-                    .remainMinute(orders.getProductType().getMinute())
+                    .totalDuration(orders.getOrderType().getMinute())
+                    .remainMinute(orders.getOrderType().getMinute())
                     .productLabel(orders.getProductLabel())
                     .build();
 
             ticketRepository.save(ticket);
-        } else if (productType.isFixedTerm()) {
+        } else if (orderType.isFixedTerm()) {
             Ticket ticket = Ticket.builder()
                     .userId(user.getId())
                     .cafeId(orders.getCafeId())
@@ -128,10 +123,8 @@ public class TicketService {
     }
 
     @Transactional
-    public void setInvalidTicket(Long productId) {
-        Product product = productFinder.findById(productId);
-        Ticket deleteTicket = ticketRepository.findByProductLabelContains(product.getLabel());
-        deleteTicket.changeTicketStateToInvalid();
-        ticketRepository.save(deleteTicket);
+    public void setInvalidTicket(Long orderId) {
+        Ticket ticket = ticketFinder.findByOrderId(orderId);
+        ticket.changeTicketStateToInvalid();
     }
 }
