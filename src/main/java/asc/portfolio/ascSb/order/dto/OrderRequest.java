@@ -13,7 +13,7 @@ public class OrderRequest {
     private OrderStatus orderStatus;
     private String userId;
     private ProductType productType; //todo 이거 줘야하는 값이 너무 복잡함
-    private Long orderPrice;
+    private int price;
     private String receiptId;
     private String productLabel;
 }

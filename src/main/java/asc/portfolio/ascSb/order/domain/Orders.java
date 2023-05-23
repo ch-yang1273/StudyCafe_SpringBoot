@@ -32,7 +32,7 @@ public class Orders extends BaseTimeEntity {
     private ProductType productType;
 
     @Column(name = "ORDER_PRICE")
-    private Long orderPrice;
+    private int price;
 
     @Column(name = "RECEIPT_ID", unique = true)
     private String receiptId; // PG사의 검증을 위한 영수증 id (휘발성)
@@ -42,11 +42,11 @@ public class Orders extends BaseTimeEntity {
 
     @Builder
     private Orders(OrderStatus status, Long userId, ProductType
-            productType, Long orderPrice, String receiptId, String productLabel) {
+            productType, int price, String receiptId, String productLabel) {
         this.status = status;
         this.userId = userId;
         this.productType = productType;
-        this.orderPrice = orderPrice;
+        this.price = price;
         this.receiptId = receiptId;
         this.productLabel = productLabel;
     }

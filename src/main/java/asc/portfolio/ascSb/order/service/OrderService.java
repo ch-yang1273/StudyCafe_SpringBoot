@@ -5,6 +5,8 @@ import asc.portfolio.ascSb.order.domain.OrderStatus;
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.order.domain.OrdersRepository;
 import asc.portfolio.ascSb.order.dto.OrderRequest;
+import asc.portfolio.ascSb.product.domain.Product;
+import asc.portfolio.ascSb.product.domain.ProductFinder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,9 @@ public class OrderService {
     private final OrdersRepository ordersRepository;
     private final OrderFinder orderFinder;
 
+    // todo 삭제
+    private final ProductFinder productFinder;
+
     @Transactional
     public void saveOrder(Long userId, OrderRequest dto) {
 
@@ -26,7 +31,7 @@ public class OrderService {
                 .userId(userId)
                 .productLabel(dto.getProductLabel())
                 .productType(dto.getProductType())
-                .orderPrice(dto.getOrderPrice())
+                .price(dto.getPrice())
                 .receiptId(dto.getReceiptId())
                 .build();
 
@@ -42,7 +47,8 @@ public class OrderService {
 
     // todo 왜 엔티티 넘기고 있지...
     @Transactional(readOnly = true)
-    public Orders findReceiptIdToProductLabel(String productLabel) {
-        return orderFinder.findByProductLabel(productLabel);
+    public Orders findReceiptIdToProductLabel(Long productId) {
+        Product product = productFinder.findById(productId);
+        return orderFinder.findByProductLabel(product.getLabel());
     }
 }

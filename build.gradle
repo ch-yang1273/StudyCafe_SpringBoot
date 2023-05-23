@@ -22,7 +22,6 @@ configurations {
 }
 
 repositories {
-    maven { url 'https://jitpack.io' } // for BootPay
     mavenCentral()
 }
 
@@ -52,10 +51,7 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
     // BootPay 사용을 위한 gradle
-    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
-    implementation group: 'commons-io', name: 'commons-io', version: '2.7'
-    implementation 'com.github.bootpay:backend-java:+'
-
+    implementation 'io.github.bootpay:backend:+'
 
     // swagger 의 스프링 라이브러리 springdoc 적용.
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.13'

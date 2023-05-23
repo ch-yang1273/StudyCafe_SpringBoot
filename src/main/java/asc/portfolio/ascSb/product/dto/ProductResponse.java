@@ -7,25 +7,26 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-
 @Getter
 public class ProductResponse {
 
-    private ProductStatus productState;
-    private ProductType productType;
-    private String productTypeString;
-    private String description;
-    private Integer productPrice;
-    private String productLabel;
-    private LocalDateTime createDate;
+    private final Long id;
+    private final ProductStatus status;
+    private final ProductType type;
+    private final String productTypeString;
+    private final String description;
+    private final Integer productPrice;
+    private final String productLabel;
+    private final LocalDateTime createDate;
 
     public ProductResponse(Product product) {
-        this.productState = product.getStatus();
-        this.productType = product.getType();
+        this.id = product.getId();
+        this.status = product.getStatus();
+        this.type = product.getType();
+        this.productTypeString = product.getType().getValue();
         this.description = product.getDescription();
         this.productPrice = product.getPrice();
         this.productLabel = product.getLabel();
-        this.productTypeString = product.getType().getValue();
         this.createDate = product.getCreateDate();
     }
 }

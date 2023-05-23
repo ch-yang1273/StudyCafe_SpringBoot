@@ -27,6 +27,14 @@ public enum ProductType {
         this.minute = hour * 60L;
     }
 
+    public boolean isFixedTerm() {
+        return label.equals("FIXED-TERM");
+    }
+
+    public boolean isPartTime() {
+        return label.equals("PART-TIME");
+    }
+
     public String getValue() {
         return value;
     }
