@@ -3,8 +3,6 @@ package asc.portfolio.ascSb.ticket.service;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeFinder;
 import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
-import asc.portfolio.ascSb.follow.domain.Follow;
-import asc.portfolio.ascSb.follow.domain.FollowingRepository;
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.product.domain.Product;
 import asc.portfolio.ascSb.product.domain.ProductFinder;
@@ -42,7 +40,6 @@ public class TicketService {
 
     // todo 삭제
     private final ProductFinder productFinder;
-    private final FollowingRepository followingRepository;
 
     @Transactional(readOnly = true)
     public List<TicketStatusResponse> getAllUserTickets(Long userId) {
@@ -66,11 +63,7 @@ public class TicketService {
         User user = userFinder.findById(userId);
         ProductType productType = orders.getProductType();
 
-        // todo 수정 필요. 카페는 Product나 orders가 갖고 있어야 했고, 그 엔티티에서 가져와야 했다.
-        Follow follow = followingRepository.findById(userId).orElseThrow();
-        Cafe cafe = cafeFinder.findById(follow.getCafeId());
-
-        Optional<Ticket> findTicketOpt = ticketRepository.findTicketByUserIdAndCafeIdAndTicketStatus(userId, cafe.getId(), TicketStatus.IN_USE);
+        Optional<Ticket> findTicketOpt = ticketRepository.findTicketByUserIdAndCafeIdAndTicketStatus(userId, orders.getCafeId(), TicketStatus.IN_USE);
 
         // todo : ticket 연장과 새로 생성하는 코드가 분리. Ticket 연장 기능은 제공해야겠다.
         if (findTicketOpt.isPresent()) {
@@ -95,7 +88,7 @@ public class TicketService {
         if (productType.isPartTime()) {
             Ticket ticket = Ticket.builder()
                     .userId(user.getId())
-                    .cafeId(cafe.getId())
+                    .cafeId(orders.getCafeId())
                     .status(TicketStatus.IN_USE)
                     .price(orders.getPrice())
                     .ticketType(TicketType.PART_TERM)
@@ -109,7 +102,7 @@ public class TicketService {
         } else if (productType.isFixedTerm()) {
             Ticket ticket = Ticket.builder()
                     .userId(user.getId())
-                    .cafeId(cafe.getId())
+                    .cafeId(orders.getCafeId())
                     .status(TicketStatus.IN_USE)
                     .price(orders.getPrice())
                     .ticketType(TicketType.FIXED_TERM)

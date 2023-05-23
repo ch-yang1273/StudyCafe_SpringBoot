@@ -27,6 +27,9 @@ public class Orders extends BaseTimeEntity {
     @Column(name = "USER_ID")
     private Long userId;
 
+    @Column(name = "CAFE_ID")
+    private Long cafeId;
+
     @Enumerated(value = EnumType.STRING)
     @Column(name = "PRODUCT_TYPE")
     private ProductType productType;
@@ -41,10 +44,11 @@ public class Orders extends BaseTimeEntity {
     private String productLabel; // 상품 고유번호
 
     @Builder
-    private Orders(OrderStatus status, Long userId, ProductType
-            productType, int price, String receiptId, String productLabel) {
+    public Orders(Long id, OrderStatus status, Long userId, Long cafeId, ProductType productType, int price, String receiptId, String productLabel) {
+        this.id = id;
         this.status = status;
         this.userId = userId;
+        this.cafeId = cafeId;
         this.productType = productType;
         this.price = price;
         this.receiptId = receiptId;

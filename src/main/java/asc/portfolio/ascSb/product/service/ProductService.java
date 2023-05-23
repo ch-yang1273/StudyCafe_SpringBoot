@@ -1,7 +1,5 @@
 package asc.portfolio.ascSb.product.service;
 
-import asc.portfolio.ascSb.cafe.domain.Cafe;
-import asc.portfolio.ascSb.follow.domain.FollowFinder;
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.product.domain.Product;
 import asc.portfolio.ascSb.product.domain.ProductFinder;
@@ -24,7 +22,6 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductFinder productFinder;
-    private final FollowFinder followFinder; //todo : 삭제
 
     @Transactional(readOnly = true)
     public List<ProductResponse> getProducts(Long adminId, Long customerId) {
@@ -37,15 +34,13 @@ public class ProductService {
     // todo : BootPay의 PaymentService에서 호출하고 있다. 정리해야 함
     @Transactional(propagation = Propagation.REQUIRED)
     public void saveProduct(Long userId, Orders orders) {
-        // todo : 여기 cafe도 user로부터 나올 것이 아니라 주문에서 나와야한다. 수정 필요!
-        Cafe cafe = followFinder.findFollowedCafe(userId);
 
         Product product = Product.builder()
-                .cafeId(cafe.getId())
                 .userId(userId)
+                .cafeId(orders.getId())
                 .status(ProductStatus.SALE)
                 .type(orders.getProductType())
-                .price(Math.toIntExact(orders.getPrice()))
+                .price(orders.getPrice())
                 .label(orders.getProductLabel())
                 .build();
 
