@@ -1,18 +1,21 @@
 package asc.portfolio.ascSb.bootpay.controller;
 
-import asc.portfolio.ascSb.order.domain.Orders;
-import asc.portfolio.ascSb.common.auth.LoginUser;
-import asc.portfolio.ascSb.bootpay.service.payment.PaymentService;
-import asc.portfolio.ascSb.order.service.OrderService;
-import asc.portfolio.ascSb.bootpay.domain.Bootpay;
 import asc.portfolio.ascSb.bootpay.dto.BootPayOrderDto;
+import asc.portfolio.ascSb.bootpay.service.payment.PaymentService;
+import asc.portfolio.ascSb.common.auth.LoginUser;
+import asc.portfolio.ascSb.order.domain.Orders;
+import asc.portfolio.ascSb.order.service.OrderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.co.bootpay.Bootpay;
 import kr.co.bootpay.model.request.Cancel;
 import kr.co.bootpay.model.response.ResDefault;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 
@@ -33,7 +36,6 @@ public class BootPayController {
         BootPayOrderDto dto = null;
         String rest_application_id = "";
         String private_key = "";
-
         Bootpay api = new Bootpay(
                 rest_application_id,
                 private_key
