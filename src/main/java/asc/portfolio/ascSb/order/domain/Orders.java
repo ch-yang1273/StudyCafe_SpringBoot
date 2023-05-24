@@ -1,7 +1,6 @@
 package asc.portfolio.ascSb.order.domain;
 
 import asc.portfolio.ascSb.common.domain.BaseTimeEntity;
-import asc.portfolio.ascSb.product.domain.ProductType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,54 +11,57 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "ORDER_TABLE")
 public class Orders extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "O_ID", nullable = false)
+    @Column(name = "ORDER_ID", nullable = false)
     private Long id;
 
     @Enumerated(value = EnumType.STRING)
-    private OrderStateType orderStateType;
+    @Column(name = "STATUS")
+    private OrderStatus status;
 
-    @Column(name = "U_I")
-    private String userId;
+    @Column(name = "USER_ID")
+    private Long userId;
+
+    @Column(name = "CAFE_ID")
+    private Long cafeId;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "O_PN")
-    private ProductType productType;
+    @Column(name = "PRODUCT_TYPE")
+    private OrderType orderType;
 
-    @Column(name = "O_P")
-    private Long orderPrice;
+    @Column(name = "ORDER_PRICE")
+    private int price;
 
-    @Column(unique = true)
-    private String receiptOrderId; // PG사의 검증을 위한 영수증 id (휘발성)
+    @Column(name = "RECEIPT_ID", unique = true)
+    private String receiptId; // PG사의 검증을 위한 영수증 id (휘발성)
 
-    @Column(name = "P_R", unique = true)
+    @Column(name = "PRODUCT_LABEL", unique = true)
     private String productLabel; // 상품 고유번호
 
     @Builder
-    private Orders(OrderStateType orderStateType, String userId, ProductType
-            productType, Long orderPrice, String receiptOrderId, String productLabel) {
-        this.orderStateType = orderStateType;
+    public Orders(Long id, OrderStatus status, Long userId, Long cafeId, OrderType orderType,
+                  int price, String receiptId, String productLabel) {
+        this.id = id;
+        this.status = status;
         this.userId = userId;
-        this.productType = productType;
-        this.orderPrice = orderPrice;
-        this.receiptOrderId = receiptOrderId;
+        this.cafeId = cafeId;
+        this.orderType = orderType;
+        this.price = price;
+        this.receiptId = receiptId;
         this.productLabel = productLabel;
     }
 
-    /**
-     * 주문 정상적으로 완료
-     */
+    // 주문 정상적으로 완료
     public void completeOrder() {
-        this.orderStateType = OrderStateType.DONE;
+        this.status = OrderStatus.PAYMENT_COMPLETED;
     }
 
-    /**
-     * 주문 실패
-     */
-    public void failOrder() {
-        this.orderStateType = OrderStateType.CANCEL;
+    // 주문 승인 오류
+    public void failedToConfirmOrder() {
+        this.status = OrderStatus.PAYMENT_ERROR;
     }
 }

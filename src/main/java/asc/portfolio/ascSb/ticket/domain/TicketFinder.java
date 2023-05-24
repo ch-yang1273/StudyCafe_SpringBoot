@@ -18,6 +18,12 @@ public class TicketFinder {
                 .orElseThrow(() -> new TicketException(TicketErrorData.TICKET_NOT_FOUND));
     }
 
+    public Ticket findByOrderId(Long orderId) {
+        return ticketRepository.findByOrderId(orderId).orElseThrow(
+                () -> new TicketException(TicketErrorData.TICKET_NOT_FOUND)
+        );
+    }
+
     public Ticket findTicketByUserIdAndCafeIdAndInUseStatus(Long userId, Long cafeId) {
         return ticketRepository.findTicketByUserIdAndCafeIdAndTicketStatus(userId, cafeId, TicketStatus.IN_USE)
                 .orElseThrow(() -> new TicketException(TicketErrorData.TICKET_NOT_FOUND));

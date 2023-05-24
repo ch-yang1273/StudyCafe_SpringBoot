@@ -36,6 +36,9 @@ public class Ticket extends BaseTimeEntity {
     @Column(name = "CAFE_ID")
     private Long cafeId;
 
+    @Column(name = "ORDER_ID", unique = true)
+    private Long orderId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "TYPE")
     private TicketType ticketType;
@@ -57,16 +60,16 @@ public class Ticket extends BaseTimeEntity {
     @Column(name = "REMAIN_MINUTE")
     private Long remainMinute;
 
-    //todo : ticket Id로 사용합시다.
     @Column(unique = true)
     private String productLabel;
 
     @Builder
-    public Ticket(Long id, Long userId, Long cafeId, TicketType ticketType, TicketStatus status, Integer price,
-                  LocalDate expiryDate, Long totalDuration, Long remainMinute, String productLabel) {
+    public Ticket(Long id, Long userId, Long cafeId, Long orderId, TicketType ticketType, TicketStatus status,
+                  Integer price, LocalDate expiryDate, Long totalDuration, Long remainMinute, String productLabel) {
         this.id = id;
         this.userId = userId;
         this.cafeId = cafeId;
+        this.orderId = orderId;
         this.ticketType = ticketType;
         this.status = status;
         this.price = price;
