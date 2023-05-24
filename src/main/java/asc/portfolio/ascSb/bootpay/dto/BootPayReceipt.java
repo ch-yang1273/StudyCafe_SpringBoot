@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Getter
-@JsonIgnoreProperties(ignoreUnknown = true) // 변환하지 못한 값은 무시
+@JsonIgnoreProperties(ignoreUnknown = true) // 변환하지 못하는 값은 무시
 public class BootPayReceipt {
     private String receipt_id;
     private String order_id;

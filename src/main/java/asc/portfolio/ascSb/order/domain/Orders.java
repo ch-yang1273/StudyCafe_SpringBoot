@@ -55,17 +55,13 @@ public class Orders extends BaseTimeEntity {
         this.productLabel = productLabel;
     }
 
-    /**
-     * 주문 정상적으로 완료
-     */
+    // 주문 정상적으로 완료
     public void completeOrder() {
         this.status = OrderStatus.PAYMENT_COMPLETED;
     }
 
-    /**
-     * 주문 실패
-     */
-    public void failOrder() {
-        this.status = OrderStatus.CANCELED;
+    // 주문 승인 오류
+    public void failedToConfirmOrder() {
+        this.status = OrderStatus.PAYMENT_ERROR;
     }
 }

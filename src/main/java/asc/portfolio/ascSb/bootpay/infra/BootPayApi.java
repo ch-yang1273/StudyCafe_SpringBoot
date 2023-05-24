@@ -13,11 +13,11 @@ import java.util.HashMap;
 
 @Slf4j
 @Service
-public class BootPayApiService {
+public class BootPayApi {
 
     private final Bootpay api;
 
-    public BootPayApiService(
+    public BootPayApi(
             @Value("bootpay.api-application-id") String rest_application_id,
             @Value("bootpay.private-key") String private_key) {
         api = new Bootpay(
@@ -67,7 +67,12 @@ public class BootPayApiService {
      * 실제 요청했던 결제금액과 결제 단건 조회를 통해 리턴된 price 값이 일치하는지 대조합니다.
      */
     public boolean crossValidation(BootPayReceipt dto, int status, int price) {
-        return (dto.getStatus() == status && dto.getPrice() == price);
+        if (dto.getStatus() != status || dto.getPrice() != price) {
+            log.error("Validation failed: expected(status={}, price={}), received(status={}, price={})",
+                    status, price, dto.getStatus(), dto.getPrice());
+            return false;
+        }
+        return true;
     }
 
     public BootPayReceipt confirm(String receiptId) {

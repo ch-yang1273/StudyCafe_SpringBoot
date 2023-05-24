@@ -1,5 +1,7 @@
 package asc.portfolio.ascSb.order.service;
 
+import asc.portfolio.ascSb.bootpay.dto.BootPayReceipt;
+import asc.portfolio.ascSb.bootpay.infra.BootPayApi;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeFinder;
 import asc.portfolio.ascSb.order.domain.OrderFinder;
@@ -8,6 +10,9 @@ import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.order.domain.OrdersRepository;
 import asc.portfolio.ascSb.order.dto.OrderRequest;
 import asc.portfolio.ascSb.order.dto.OrderResponse;
+import asc.portfolio.ascSb.order.exception.OrderErrorData;
+import asc.portfolio.ascSb.order.exception.OrdersException;
+import asc.portfolio.ascSb.ticket.service.TicketService;
 import asc.portfolio.ascSb.user.domain.User;
 import asc.portfolio.ascSb.user.domain.UserFinder;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +32,11 @@ public class OrderService {
     private final OrderFinder orderFinder;
     private final UserFinder userFinder;
     private final CafeFinder cafeFinder;
+
+    private final BootPayApi bootPayApi;
+
+    //todo 삭제
+    private final TicketService ticketService;
 
     @Transactional
     public void saveOrder(Long userId, OrderRequest dto) {
@@ -61,15 +71,45 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    // todo 삭제 예정
-    @Transactional(readOnly = true)
-    public Orders findOrderById(Long orderId) {
-        return orderFinder.findById(orderId);
+    @Transactional
+    public void confirmPayment(Long userId, String receiptId) {
+        Orders order = orderFinder.findByReceiptId(receiptId);
+
+        // Validation
+        int price = order.getPrice();
+        BootPayReceipt dto = bootPayApi.getReceipt(receiptId);
+        boolean isValid = bootPayApi.crossValidation(dto, 1, price);
+
+        // 결제 승인
+        if (isValid) {
+            BootPayReceipt confirm = bootPayApi.confirm(receiptId);
+            log.info("Confirm receiptId={}, at={}", receiptId, confirm.getPurchased_at());
+            order.completeOrder();
+
+            /* 검증 완료시 orders 상태 Done(완료)으로 변경 Ticket에 이용권추가 */
+            ticketService.saveProductToTicket(userId, order);
+            return;
+        }
+
+        // 결제 승인 실패
+        order.failedToConfirmOrder();
+        throw new OrdersException(OrderErrorData.ORDER_CONFIRM_FAILED);
     }
 
-    // todo 왜 엔티티 넘기고 있지...
-    @Transactional(readOnly = true)
-    public Orders findOrderByReceiptId(String receiptId) {
-        return orderFinder.findByReceiptId(receiptId);
+    public void cancelPayment(Long adminId, Long orderId) {
+        Cafe adminCafe = cafeFinder.findByAdminId(adminId);
+        Orders order = orderFinder.findById(orderId);
+
+        // 결제 취소 권한 확인 (관리자 취소)
+        if (!order.getCafeId().equals(adminCafe.getId())) {
+            throw new OrdersException(OrderErrorData.ORDER_CANCEL_NO_AUTH);
+        }
+
+        // 결제 취소
+        String receiptId = order.getReceiptId();
+        BootPayReceipt receipt = bootPayApi.getReceipt(receiptId);
+        BootPayReceipt cancelReceipt = bootPayApi.cancelReceipt(receiptId);
+
+        ticketService.setInvalidTicket(orderId);
     }
 }
