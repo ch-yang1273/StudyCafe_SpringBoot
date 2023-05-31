@@ -26,10 +26,6 @@ public class BootPayApi {
         );
     }
 
-    public Bootpay getBootPayApi() {
-        return api;
-    }
-
     private void refreshAccessToken() {
         HashMap<String, Object> res;
         try {
@@ -46,7 +42,7 @@ public class BootPayApi {
         }
     }
 
-    public BootPayReceipt getReceipt(String receiptId) {
+    private BootPayReceipt getReceipt(String receiptId) {
         // 매번 AccessToken을 갱신해야 한다.
         refreshAccessToken();
 
@@ -66,7 +62,7 @@ public class BootPayApi {
      * 결제 완료에 대한 교차검증을 하려면 결제 단건 조회를 통해 status 값이 1인지 대조합니다.
      * 실제 요청했던 결제금액과 결제 단건 조회를 통해 리턴된 price 값이 일치하는지 대조합니다.
      */
-    public boolean crossValidation(BootPayReceipt dto, int status, int price) {
+    private boolean crossValidation(BootPayReceipt dto, int status, int price) {
         if (dto.getStatus() != status || dto.getPrice() != price) {
             log.error("Validation failed: expected(status={}, price={}), received(status={}, price={})",
                     status, price, dto.getStatus(), dto.getPrice());
@@ -75,7 +71,7 @@ public class BootPayApi {
         return true;
     }
 
-    public BootPayReceipt confirm(String receiptId) {
+    private BootPayReceipt confirm(String receiptId) {
         try {
             HashMap<String, Object> resp = api.confirm(receiptId);
             return BootPayReceipt.of(resp);
@@ -84,7 +80,18 @@ public class BootPayApi {
         }
     }
 
-    public BootPayReceipt cancelReceipt(String receiptId) {
+    public boolean confirmPayment(String receiptId, int verificationPrice) {
+        BootPayReceipt dto = getReceipt(receiptId);
+        boolean isValid = crossValidation(dto, 1, verificationPrice);
+        if (isValid) {
+            BootPayReceipt confirm = confirm(receiptId);
+            log.info("Confirm receiptId={}, at={}", receiptId, confirm.getPurchased_at());
+            return true;
+        }
+        return false;
+    }
+
+    private BootPayReceipt cancelReceipt(String receiptId) {
         Cancel cancel = new Cancel();
         cancel.receiptId = receiptId;
         cancel.cancelUsername = "관리자";
@@ -95,5 +102,10 @@ public class BootPayApi {
         } catch (Exception e) {
             throw new BootPayException(BootPayErrorData.RECEIPT_CANCEL_ERROR);
         }
+    }
+
+    public void cancelPayment(String receiptId) {
+        BootPayReceipt receipt = getReceipt(receiptId);
+        cancelReceipt(receiptId);
     }
 }

@@ -29,7 +29,6 @@ public class TicketController {
 
     @GetMapping("/{cafeName}")
     public ResponseEntity<TicketStatusResponse> getMyTicket(@LoginUser Long userId, @PathVariable String cafeName) {
-        // todo : 소유한 모든 카페의 Ticket을 가져오도록 수정
         return ResponseEntity.ok().body(ticketService.userValidTicket(userId, cafeName));
     }
 
@@ -37,6 +36,6 @@ public class TicketController {
     public ResponseEntity<List<TicketStatusResponse>> lookupUserTickets(@LoginUser Long adminId,
                                                                         @RequestParam("user") String targetUserLoginId) {
         // todo : 조건 검색 추가
-        return ResponseEntity.ok().body(ticketService.lookupUserTickets(targetUserLoginId, adminId));
+        return ResponseEntity.ok().body(ticketService.lookupUserTickets(adminId, targetUserLoginId));
     }
 }
