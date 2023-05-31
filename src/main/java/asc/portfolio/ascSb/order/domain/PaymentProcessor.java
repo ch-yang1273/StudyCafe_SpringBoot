@@ -1,6 +1,10 @@
 package asc.portfolio.ascSb.order.domain;
 
 import asc.portfolio.ascSb.bootpay.infra.BootPayApi;
+import asc.portfolio.ascSb.cafe.domain.Cafe;
+import asc.portfolio.ascSb.cafe.domain.CafeFinder;
+import asc.portfolio.ascSb.order.exception.OrderErrorData;
+import asc.portfolio.ascSb.order.exception.OrdersException;
 import asc.portfolio.ascSb.ticket.dto.TicketCreationInfo;
 import asc.portfolio.ascSb.ticket.service.TicketService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Component;
 public class PaymentProcessor {
 
     private final OrderFinder orderFinder;
+    private final CafeFinder cafeFinder;
     private final BootPayApi bootPayApi;
 
     private final TicketService ticketService;
@@ -46,5 +51,21 @@ public class PaymentProcessor {
             // 여기서는 이벤트만 만들고 던지고
             // throw new OrdersException(OrderErrorData.ORDER_CONFIRM_FAILED);
         }
+    }
+
+    public void cancelPayment(Long adminId, Long orderId) {
+        Cafe adminCafe = cafeFinder.findByAdminId(adminId);
+        Orders order = orderFinder.findById(orderId);
+
+        // 결제 취소 권한 확인 (관리자 취소)
+        if (!order.getCafeId().equals(adminCafe.getId())) {
+            throw new OrdersException(OrderErrorData.ORDER_CANCEL_NO_AUTH);
+        }
+
+        // 결제 취소
+        String receiptId = order.getReceiptId();
+        bootPayApi.cancelPayment(receiptId);
+
+        ticketService.setInvalidTicket(orderId);
     }
 }
