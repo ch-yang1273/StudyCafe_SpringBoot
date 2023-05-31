@@ -1,6 +1,5 @@
 package asc.portfolio.ascSb.order.service;
 
-import asc.portfolio.ascSb.bootpay.dto.BootPayReceipt;
 import asc.portfolio.ascSb.bootpay.infra.BootPayApi;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeFinder;
@@ -90,8 +89,7 @@ public class OrderService {
 
         // 결제 취소
         String receiptId = order.getReceiptId();
-        BootPayReceipt receipt = bootPayApi.getReceipt(receiptId);
-        BootPayReceipt cancelReceipt = bootPayApi.cancelReceipt(receiptId);
+        bootPayApi.cancelPayment(receiptId);
 
         ticketService.setInvalidTicket(orderId);
     }

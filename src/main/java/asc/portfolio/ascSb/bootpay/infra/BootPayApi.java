@@ -42,7 +42,7 @@ public class BootPayApi {
         }
     }
 
-    public BootPayReceipt getReceipt(String receiptId) {
+    private BootPayReceipt getReceipt(String receiptId) {
         // 매번 AccessToken을 갱신해야 한다.
         refreshAccessToken();
 
@@ -91,7 +91,7 @@ public class BootPayApi {
         return false;
     }
 
-    public BootPayReceipt cancelReceipt(String receiptId) {
+    private BootPayReceipt cancelReceipt(String receiptId) {
         Cancel cancel = new Cancel();
         cancel.receiptId = receiptId;
         cancel.cancelUsername = "관리자";
@@ -102,5 +102,10 @@ public class BootPayApi {
         } catch (Exception e) {
             throw new BootPayException(BootPayErrorData.RECEIPT_CANCEL_ERROR);
         }
+    }
+
+    public void cancelPayment(String receiptId) {
+        BootPayReceipt receipt = getReceipt(receiptId);
+        cancelReceipt(receiptId);
     }
 }
