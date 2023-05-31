@@ -8,6 +8,7 @@ import asc.portfolio.ascSb.order.domain.OrderFinder;
 import asc.portfolio.ascSb.order.domain.OrderStatus;
 import asc.portfolio.ascSb.order.domain.Orders;
 import asc.portfolio.ascSb.order.domain.OrdersRepository;
+import asc.portfolio.ascSb.order.domain.PaymentProcessor;
 import asc.portfolio.ascSb.order.dto.OrderRequest;
 import asc.portfolio.ascSb.order.dto.OrderResponse;
 import asc.portfolio.ascSb.order.exception.OrderErrorData;
@@ -30,6 +31,8 @@ public class OrderService {
 
     private final OrdersRepository ordersRepository;
     private final OrderFinder orderFinder;
+    private final PaymentProcessor paymentProcessor;
+
     private final UserFinder userFinder;
     private final CafeFinder cafeFinder;
 
@@ -73,27 +76,7 @@ public class OrderService {
 
     @Transactional
     public void confirmPayment(Long userId, String receiptId) {
-        Orders order = orderFinder.findByReceiptId(receiptId);
-
-        // Validation
-        int price = order.getPrice();
-        BootPayReceipt dto = bootPayApi.getReceipt(receiptId);
-        boolean isValid = bootPayApi.crossValidation(dto, 1, price);
-
-        // 결제 승인
-        if (isValid) {
-            BootPayReceipt confirm = bootPayApi.confirm(receiptId);
-            log.info("Confirm receiptId={}, at={}", receiptId, confirm.getPurchased_at());
-            order.completeOrder();
-
-            /* 검증 완료시 orders 상태 Done(완료)으로 변경 Ticket에 이용권추가 */
-            ticketService.saveProductToTicket(userId, order);
-            return;
-        }
-
-        // 결제 승인 실패
-        order.failedToConfirmOrder();
-        throw new OrdersException(OrderErrorData.ORDER_CONFIRM_FAILED);
+        paymentProcessor.confirmPayment(userId, receiptId);
     }
 
     public void cancelPayment(Long adminId, Long orderId) {
