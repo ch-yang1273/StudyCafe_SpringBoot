@@ -1,6 +1,7 @@
 package asc.portfolio.ascSb.order.domain;
 
 import asc.portfolio.ascSb.bootpay.infra.BootPayApi;
+import asc.portfolio.ascSb.ticket.dto.TicketCreationInfo;
 import asc.portfolio.ascSb.ticket.service.TicketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,6 @@ public class PaymentProcessor {
     private final OrderFinder orderFinder;
     private final BootPayApi bootPayApi;
 
-    // todo 삭제
     private final TicketService ticketService;
 
     public void confirmPayment(Long userId, String receiptId) {
@@ -25,9 +25,17 @@ public class PaymentProcessor {
 
         if (isValid) {
             // 결제 승인
-            /* 검증 완료시 orders 상태 Done(완료)으로 변경 Ticket에 이용권추가 */
-            // todo : saveProductToTicket 정리, 도메인 서비스 호출로 변경
-            ticketService.saveProductToTicket(userId, order);
+            TicketCreationInfo info = TicketCreationInfo.builder()
+                    .userId(userId)
+                    .cafeId(order.getCafeId())
+                    .price(order.getPrice())
+                    .typeString(order.getOrderType().getLabel())
+                    .days(order.getOrderType().getDays())
+                    .totalDuration(order.getOrderType().getMinute())
+                    .productLabel(order.getProductLabel())
+                    .build();
+
+            ticketService.createTicket(info);
             order.completeOrder();
         } else {
             // 결제 승인 실패

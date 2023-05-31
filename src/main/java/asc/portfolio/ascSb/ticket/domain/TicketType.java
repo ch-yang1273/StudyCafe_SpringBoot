@@ -14,4 +14,8 @@ public enum TicketType {
     public String getName() {
         return name;
     }
+
+    public static TicketType of(String name) {
+        return TicketType.valueOf(name);
+    }
 }
