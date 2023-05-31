@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long>, TicketCustomRepository {
 
-    Optional<Ticket> findByOrderId(Long orderId);
+    Optional<Ticket> findByProductLabel(String productLabel);
 
     List<Ticket> findAllByUserIdAndCafeId(Long userId, Long cafeId);
 

@@ -79,8 +79,8 @@ public class Ticket extends BaseTimeEntity {
         this.productLabel = productLabel;
     }
 
-    public void changeTicketStateToInvalid() {
-        status = TicketStatus.END_OF_USE;
+    public void cancel() {
+        status = TicketStatus.CANCEL;
     }
 
     public boolean isTicketUsable() {

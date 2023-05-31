@@ -3,6 +3,9 @@ package asc.portfolio.ascSb.order.domain;
 import asc.portfolio.ascSb.bootpay.infra.BootPayApi;
 import asc.portfolio.ascSb.cafe.domain.Cafe;
 import asc.portfolio.ascSb.cafe.domain.CafeFinder;
+import asc.portfolio.ascSb.common.domain.CommonEventsPublisher;
+import asc.portfolio.ascSb.common.domain.CurrentTimeProvider;
+import asc.portfolio.ascSb.order.dto.ConfirmPaymentEvent;
 import asc.portfolio.ascSb.order.exception.OrderErrorData;
 import asc.portfolio.ascSb.order.exception.OrdersException;
 import asc.portfolio.ascSb.ticket.dto.TicketCreationInfo;
@@ -19,8 +22,10 @@ public class PaymentProcessor {
     private final OrderFinder orderFinder;
     private final CafeFinder cafeFinder;
     private final BootPayApi bootPayApi;
-
     private final TicketService ticketService;
+
+    private final CommonEventsPublisher eventsPublisher;
+    private final CurrentTimeProvider currentTimeProvider;
 
     public void confirmPayment(Long userId, String receiptId) {
         Orders order = orderFinder.findByReceiptId(receiptId);
@@ -28,28 +33,24 @@ public class PaymentProcessor {
         int verificationPrice = order.getPrice();
         boolean isValid = bootPayApi.confirmPayment(receiptId, verificationPrice);
 
-        if (isValid) {
-            // 결제 승인
-            TicketCreationInfo info = TicketCreationInfo.builder()
-                    .userId(userId)
-                    .cafeId(order.getCafeId())
-                    .price(order.getPrice())
-                    .typeString(order.getOrderType().getLabel())
-                    .days(order.getOrderType().getDays())
-                    .totalDuration(order.getOrderType().getMinute())
-                    .productLabel(order.getProductLabel())
-                    .build();
+        TicketCreationInfo info = TicketCreationInfo.builder()
+                .userId(userId)
+                .cafeId(order.getCafeId())
+                .price(order.getPrice())
+                .typeString(order.getOrderType().getLabel())
+                .days(order.getOrderType().getDays())
+                .totalDuration(order.getOrderType().getMinute())
+                .productLabel(order.getProductLabel())
+                .build();
 
-            ticketService.createTicket(info);
-            order.completeOrder();
-        } else {
-            // 결제 승인 실패
-            order.failedToConfirmOrder();
-            // todo : Exception 던지고 싶은데 그러면 order 변경 내용이 업데이트 되지 않는다.
-            //  -> 이벤트 방식으로 변경!
-            // 결과를 이벤트에 넣어서 Raise하고, Listener에서 Complete, Failed를 결정하도록
-            // 여기서는 이벤트만 만들고 던지고
-            // throw new OrdersException(OrderErrorData.ORDER_CONFIRM_FAILED);
+        // todo : Exception이 있어도 Event는 제대로 Publish 되는지 확인! 비동기면 된다.
+        // 이벤트 발행 : OrdersException이 있어도 order가 업데이트 되어야 함.
+        ConfirmPaymentEvent event = new ConfirmPaymentEvent(isValid, order.getId(), info,
+                currentTimeProvider.localDateTimeNow());
+        eventsPublisher.raise(event);
+
+        if (!isValid) {
+            throw new OrdersException(OrderErrorData.ORDER_CONFIRM_FAILED);
         }
     }
 
@@ -66,6 +67,7 @@ public class PaymentProcessor {
         String receiptId = order.getReceiptId();
         bootPayApi.cancelPayment(receiptId);
 
-        ticketService.setInvalidTicket(orderId);
+        ticketService.cancelTicket(order.getProductLabel());
+        order.cancel();
     }
 }

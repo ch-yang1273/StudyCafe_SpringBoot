@@ -46,16 +46,10 @@ public class TicketService {
         return TicketStatusResponse.of(ticket);
     }
 
-    @Transactional
-    public void createTicket(TicketCreationInfo creationInfo) {
-        Ticket ticket = creationInfo.toEntity(currentTimeProvider.localDateNow());
-        ticketRepository.save(ticket);
-    }
-
-    @Transactional
-    public List<TicketStatusResponse> lookupUserTickets(String userLoginId, Long adminId) {
-        User user = userFinder.findByLoginId(userLoginId);
+    @Transactional(readOnly = true)
+    public List<TicketStatusResponse> lookupUserTickets(Long adminId, String userLoginId) {
         Cafe cafe = cafeFinder.findByAdminId(adminId);
+        User user = userFinder.findByLoginId(userLoginId);
 
         return ticketFinder.findAllByUserIdAndCafeId(user.getId(), cafe.getId())
                 .stream()
@@ -64,8 +58,14 @@ public class TicketService {
     }
 
     @Transactional
-    public void setInvalidTicket(Long orderId) {
-        Ticket ticket = ticketFinder.findByOrderId(orderId);
-        ticket.changeTicketStateToInvalid();
+    public void createTicket(TicketCreationInfo creationInfo) {
+        Ticket ticket = creationInfo.toEntity(currentTimeProvider.localDateNow());
+        ticketRepository.save(ticket);
+    }
+
+    @Transactional
+    public void cancelTicket(String productLabel) {
+        Ticket ticket = ticketFinder.findByProductLabel(productLabel);
+        ticket.cancel();
     }
 }

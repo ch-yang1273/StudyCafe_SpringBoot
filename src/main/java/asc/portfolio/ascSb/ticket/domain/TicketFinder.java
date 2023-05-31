@@ -18,8 +18,8 @@ public class TicketFinder {
                 .orElseThrow(() -> new TicketException(TicketErrorData.TICKET_NOT_FOUND));
     }
 
-    public Ticket findByOrderId(Long orderId) {
-        return ticketRepository.findByOrderId(orderId).orElseThrow(
+    public Ticket findByProductLabel(String productLabel) {
+        return ticketRepository.findByProductLabel(productLabel).orElseThrow(
                 () -> new TicketException(TicketErrorData.TICKET_NOT_FOUND)
         );
     }

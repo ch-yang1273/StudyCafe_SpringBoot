@@ -64,4 +64,8 @@ public class Orders extends BaseTimeEntity {
     public void failedToConfirmOrder() {
         this.status = OrderStatus.PAYMENT_ERROR;
     }
+
+    public void cancel() {
+        this.status = OrderStatus.CANCELED;
+    }
 }
