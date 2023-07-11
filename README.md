@@ -17,7 +17,7 @@ https://github.com/ch-yang1273/StudyCafe_SpringBoot/tree/v1.0
 - GitHub Actions를 사용하여 CI/CD 적용
 
 ### 기간
-- 2023년 3월 11일 ~ 진행 중
+- 2023년 3월 11일 ~ 2023년 5월 31일
 
 ### 참고 자료
 - 도메인 주도 개발 시작하기 (최범균)
